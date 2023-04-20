@@ -1,4 +1,4 @@
-package ssafy.autonomous.passfind
+package ssafy.autonomous.passfinder
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

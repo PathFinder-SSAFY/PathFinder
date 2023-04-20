@@ -1,4 +1,4 @@
-package ssafy.autonomous.passfind
+package ssafy.autonomous.passfinder
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
