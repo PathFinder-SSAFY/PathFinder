@@ -13,6 +13,6 @@ class FacilityController(
 ) {
 
 
-    @GetMapping
-    fun getFacility
+//    @GetMapping
+//    fun getFacility
 }
