@@ -23,16 +23,14 @@ fun LoginScreen() {
         .fillMaxWidth()) {
         Column(
             modifier = Modifier,
-            verticalArrangement = Arrangement.SpaceAround   ,
+            verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(id = R.drawable.app_main_logo),
+                painter = painterResource(id = R.drawable.app_main_logo_big),
                 contentDescription = "App Main Logo",
-                contentScale = ContentScale.Fit,
-                modifier = Modifier
-                    .width(300.dp)
-                    .height(300.dp)
+                contentScale = ContentScale.FillWidth,
+                modifier = Modifier.fillMaxWidth()
             )
             Image(
                 painter = painterResource(id = R.drawable.naver_login_button),
