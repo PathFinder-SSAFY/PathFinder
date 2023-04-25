@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.dijkstra.pathfinder.screen.login.LoginScreen
+import com.dijkstra.pathfinder.screen.login.LoginViewModel
 import com.dijkstra.pathfinder.ui.theme.PathFinderTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -25,7 +26,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    LoginScreen()
+                    val loginViewModel = LoginViewModel()
+                    LoginScreen(loginViewModel)
                 }
             }
         }
