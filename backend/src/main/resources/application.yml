@@ -1,18 +1,24 @@
 spring:
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: true
     properties:
       hibernate:
         format_sql: true
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
+
   profiles:
     active: local # develop_be merge : aws 변경, feature/be/개인branch push : local
-
 server:
   port: 8080
   servlet:
     context-path: /api
+
+
 
 #  jpa:
 #    hibernate:

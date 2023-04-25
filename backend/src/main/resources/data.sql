@@ -1,5 +1,7 @@
+
+
 INSERT INTO facility
-(type, name, densityMax)
+(facility_type, facility_name, density_max)
 VALUES
     ("CLASSROOM", "강의실 401", 1),
     ("CLASSROOM", "강의실 402", 1),
@@ -9,4 +11,4 @@ VALUES
     ("RESTROOM", "4층 여자 화장실", 1),
     ("ELEAVTOR", "엘리베이터", 1),
     ("STAIRS", "4층 계단", 1),
-    ("BREAKROOM", "휴게실", 1)
+    ("BREAKROOM", "4층 휴게실", 1);
