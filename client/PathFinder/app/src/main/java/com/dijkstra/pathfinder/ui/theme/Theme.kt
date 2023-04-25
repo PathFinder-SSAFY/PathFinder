@@ -71,8 +71,6 @@ fun PathFinderTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Compos
         onDispose {}
     }
 
-
-
     MaterialTheme(
         colors = colors,
         typography = Typography,
