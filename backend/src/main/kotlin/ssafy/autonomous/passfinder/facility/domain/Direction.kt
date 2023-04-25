@@ -1,9 +1,6 @@
 package ssafy.autonomous.passfinder.facility.domain
 
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
+import javax.persistence.*
 
 @Entity
 class Direction(
@@ -15,5 +12,6 @@ class Direction(
 
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
+        @Column(name="direction_id")
         val id: Int
 )

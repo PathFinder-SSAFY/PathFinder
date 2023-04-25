@@ -1,5 +1,6 @@
 package ssafy.autonomous.passfinder.facility.domain
 
+import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
@@ -13,5 +14,6 @@ class Floors(
 
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
+        @Column(name = "floors_id")
         val id: Int
 )

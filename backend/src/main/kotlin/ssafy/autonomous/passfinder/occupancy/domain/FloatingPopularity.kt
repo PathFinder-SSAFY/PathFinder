@@ -1,10 +1,7 @@
 package ssafy.autonomous.passfinder.occupancy.domain
 
 import java.util.Date
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
+import javax.persistence.*
 
 
 @Entity
@@ -14,5 +11,8 @@ class FloatingPopularity(
 
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
+        @Column(name = "floating_id" )
         val id: Int
+
+
 )

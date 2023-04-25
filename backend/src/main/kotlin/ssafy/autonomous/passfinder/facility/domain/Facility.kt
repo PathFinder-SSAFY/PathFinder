@@ -14,6 +14,7 @@ class Facility(
 
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
+        @Column(name = "facility_id")
         val id: Long? = null,
 ) {
 
