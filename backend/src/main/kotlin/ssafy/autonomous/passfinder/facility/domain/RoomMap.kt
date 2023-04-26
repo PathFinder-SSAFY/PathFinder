@@ -4,7 +4,7 @@ import javax.persistence.*
 
 @Entity
 class RoomMap(
-        
+
         // 위도, 경도
         val longitude: Double,
         val latitude: Double,
@@ -14,17 +14,17 @@ class RoomMap(
         @Column(name = "room_map_id")
         val id: Int,
 
-        
+
         // 다대일 단방향
         @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "floors_id")
         var floors: Floors ?= null,
 
         // 일대일 상하좌우 방향
-//        @OneToOne(mappedBy="roomMap")
-//        var direction: Direction ?= null,
+        @OneToOne(fetch = FetchType.LAZY, mappedBy="roomMap", cascade = [CascadeType.ALL])
+        var direction: Direction ?= null,
 
         // 일대일 weight
-//        @OneToOne(mappedBy = "roomMap")
-//        var weight: Weight ?= null
+        @OneToOne(fetch = FetchType.LAZY, mappedBy="roomMap", cascade = [CascadeType.ALL])
+        var weight: Weight ?= null
 )

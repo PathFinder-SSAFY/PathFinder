@@ -1,4 +1,4 @@
-package ssafy.autonomous.passfinder.auth.baseEntities
+package ssafy.autonomous.passfinder.common.baseEntities
 
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedBy

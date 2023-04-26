@@ -12,9 +12,9 @@ class Weight(
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(name = "weight_id")
         val id: Int,
-        
+
         // 일대일
-        @OneToOne
+        @OneToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "room_map_id")
         val roomMap: RoomMap ?= null
 )

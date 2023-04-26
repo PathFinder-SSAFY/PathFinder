@@ -1,4 +1,4 @@
-package ssafy.autonomous.passfinder.auth.baseEntities
+package ssafy.autonomous.passfinder.common.baseEntities
 
 import java.time.Instant
 import javax.persistence.PrePersist
