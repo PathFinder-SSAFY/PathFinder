@@ -1,5 +1,6 @@
 package ssafy.autonomous.passfinder.facility.domain
 
+import ssafy.autonomous.passfinder.occupancy.domain.FloatingPopularity
 import javax.persistence.*
 
 // 시설 (층, 화장실, 방)
@@ -16,6 +17,15 @@ class Facility(
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(name = "facility_id")
         val id: Long? = null,
-) {
 
-}
+        // 층과 시설 1 : N
+        @ManyToOne(fetch = FetchType.LAZY)
+        @JoinColumn(name = "floors_id")
+        val floors: Floors? = null,
+
+
+        // 시설과 각 방의 기능 1 : N
+        @OneToMany(mappedBy = "facility")
+        var floatingPopularity: List<FloatingPopularity> = mutableListOf()
+
+)

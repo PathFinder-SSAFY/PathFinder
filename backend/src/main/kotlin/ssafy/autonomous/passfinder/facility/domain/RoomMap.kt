@@ -1,14 +1,9 @@
 package ssafy.autonomous.passfinder.facility.domain
 
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
+import javax.persistence.*
 
 @Entity
 class RoomMap(
-
         
         // 위도, 경도
         val longitude: Double,
@@ -17,6 +12,19 @@ class RoomMap(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(name = "room_map_id")
-        val id: Int
+        val id: Int,
 
+        
+        // 다대일 단방향
+        @ManyToOne(fetch = FetchType.LAZY)
+        @JoinColumn(name = "floors_id")
+        var floors: Floors ?= null,
+
+        // 일대일 상하좌우 방향
+//        @OneToOne(mappedBy="roomMap")
+//        var direction: Direction ?= null,
+
+        // 일대일 weight
+//        @OneToOne(mappedBy = "roomMap")
+//        var weight: Weight ?= null
 )

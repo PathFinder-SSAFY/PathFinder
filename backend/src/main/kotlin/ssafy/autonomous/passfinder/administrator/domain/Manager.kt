@@ -10,10 +10,9 @@ class Manager(
 
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        @Column(name = "manger_id")
-        val id: Long ?= null
+        @Column(name = "manager_id")
+        val id: Long ?= null,
 
-
-
-
+        @OneToOne(mappedBy = "manager")
+        var building: Building
 )

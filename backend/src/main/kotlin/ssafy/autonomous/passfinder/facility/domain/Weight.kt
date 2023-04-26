@@ -1,10 +1,6 @@
 package ssafy.autonomous.passfinder.facility.domain
 
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
+import javax.persistence.*
 
 @Entity
 class Weight(
@@ -15,5 +11,10 @@ class Weight(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(name = "weight_id")
-        val id: Int
+        val id: Int,
+        
+        // 일대일
+        @OneToOne
+        @JoinColumn(name = "room_map_id")
+        val roomMap: RoomMap ?= null
 )
