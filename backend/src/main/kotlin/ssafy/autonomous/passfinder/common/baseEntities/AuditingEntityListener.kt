@@ -4,6 +4,7 @@ import java.time.Instant
 import javax.persistence.PrePersist
 import javax.persistence.PreUpdate
 
+// 이거는 아직 사용되지 않음
 class AuditingEntityListener {
 
     // 새로 등록
