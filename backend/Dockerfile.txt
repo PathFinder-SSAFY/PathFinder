@@ -1,28 +1,7 @@
-# 기본 이미지로 OpenJDK 11을 사용합니다.
 FROM openjdk:11 as build
 
-# 작업 디렉토리를 설정합니다.
-WORKDIR /app
+ARG JAR_FILE=./build/libs/*.jar
 
-# 빌드에 필요한 파일들을 작업 디렉토리로 복사합니다.
-COPY ./gradlew /app
-COPY ./gradle /app/gradle
-COPY ./build.gradle /app
-COPY ./settings.gradle /app
-COPY ./src /app/src
+ADD ${JAR_FILE} app.jar
 
-# 권한을 설정하고 빌드를 수행합니다.
-RUN chmod +x ./gradlew
-RUN ./gradlew clean bootJar
-
-# 두 번째 단계를 위한 새로운 이미지를 사용합니다.
-FROM openjdk:11
-
-# 작업 디렉토리를 설정합니다.
-WORKDIR /app
-
-# 첫 번째 단계에서 빌드한 JAR 파일을 현재 작업 디렉토리로 복사합니다.
-COPY --from=build /app/build/libs/*.jar app.jar
-
-# 컨테이너 실행 시 자동으로 수행할 명령어를 설정합니다.
-ENTRYPOINT ["java", "-Duser.timezone=Asia/Seoul", "-jar", "/app/app.jar"]
+ENTRYPOINT ["java", "-Duser.timezone=Asia/Seoul", "-jar", "/app.jar"]
