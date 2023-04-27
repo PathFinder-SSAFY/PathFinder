@@ -12,7 +12,7 @@ spring:
       mode: always
 
   profiles:
-    active: local # develop_be merge : aws 변경, feature/be/개인branch push : local
+    active: aws # develop_be merge : aws 변경, feature/be/개인branch push : local
 server:
   port: 8080
   servlet:
