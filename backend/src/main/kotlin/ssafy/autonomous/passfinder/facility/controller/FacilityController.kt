@@ -22,7 +22,7 @@ class FacilityController(
     // - 첫 실행 시, 조회 횟수가 많은 순으로
     // - 사용자가 입력한 형식에 맞게 호출 (우선순위 : 조회 횟수가 많은 순으로)
     @GetMapping("/facility/search")
-    fun getFacilityTypes(@RequestBody facilityTypesRequest: FacilityTypesRequestDto ): ResponseEntity<PassFinderResponseDto<List<String>>> {
+    fun getFacilityTypes(@RequestBody facilityTypesRequest: FacilityTypesRequestDto ): ResponseEntity<PassFinderResponseDto<Unit>> {
         // service에서 Repository 호출
         val facilityTypeList = facilityService.getFacilityTypes(facilityTypesRequest)
         return ResponseEntity.ok(facilityTypeList)

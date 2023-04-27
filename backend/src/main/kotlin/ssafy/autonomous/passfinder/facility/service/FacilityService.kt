@@ -6,5 +6,5 @@ import ssafy.autonomous.passfinder.facility.dto.response.FacilityTypesResponseDt
 
 interface FacilityService {
     // service 메서드 선언
-    fun getFacilityTypes(facilityTypesRequest: FacilityTypesRequestDto): PassFinderResponseDto<List<String>>?
+    fun getFacilityTypes(facilityTypesRequest: FacilityTypesRequestDto): PassFinderResponseDto<Unit>?
 }

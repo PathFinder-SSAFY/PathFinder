@@ -12,7 +12,7 @@ data class PassFinderResponseDto<T>(
 
 
         // (1) 시설 타입이 어떤 것인지 반환해주는 Dto
-        fun of(passFinderResponseDto: PassFinderResponseDto<List<String>>): PassFinderResponseDto<List<String>> {
+        fun of(passFinderResponseDto: PassFinderResponseDto<Unit>): PassFinderResponseDto<Unit> {
             return PassFinderResponseDto(
                     status = passFinderResponseDto.status,
                     message = passFinderResponseDto.message,

@@ -10,5 +10,5 @@ interface FacilityRepository : JpaRepository<Facility, Int>{
     
     // 시설 Like를 통해 조회, 조회 순으로 내림차순
     // Optional<List<String>>
-    fun findAllByFacilityTypeContainingOrderByHitCountDesc(facilityType: String): List<String>?
+    fun findAllByFacilityTypeContainingOrderByHitCountDesc(facilityType: String)
 }

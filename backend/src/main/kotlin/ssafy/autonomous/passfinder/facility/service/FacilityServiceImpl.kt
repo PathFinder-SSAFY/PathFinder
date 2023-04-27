@@ -10,18 +10,16 @@ import ssafy.autonomous.passfinder.facility.repository.FacilityRepository
 class FacilityServiceImpl(
         private val facilityRepository: FacilityRepository
 ) : FacilityService {
-    //    override val test: String
-//        get() = TODO("Not yet implemented")
 
     // 필터링 검색
-    override fun getFacilityTypes(facilityTypesRequest: FacilityTypesRequestDto): PassFinderResponseDto<List<String>>?{
+    override fun getFacilityTypes(facilityTypesRequest: FacilityTypesRequestDto): PassFinderResponseDto<Unit>?{
         val inputFacilityType = facilityTypesRequest.filteringSearch
         
         // Repository -> Containing 사용
-        val resultFacilityTypes: List<String>? = facilityRepository.findAllByFacilityTypeContainingOrderByHitCountDesc(inputFacilityType)
+        val resultFacilityTypes: Unit = facilityRepository.findAllByFacilityTypeContainingOrderByHitCountDesc(inputFacilityType)
 
         // passFinder 응답 결과 (status, message, data)
-        val passFinderResponseDto = PassFinderResponseDto<List<String>>(HttpStatus.OK, "true", resultFacilityTypes)
+        val passFinderResponseDto = PassFinderResponseDto<Unit>(HttpStatus.OK, "true", resultFacilityTypes)
         return PassFinderResponseDto.of(passFinderResponseDto)
     }
 }
