@@ -12,11 +12,12 @@ class Facility(
         @Enumerated(EnumType.STRING)
         val facilityType: FacilityType, // 시설 타입
         val densityMax: Int, // 최대 밀집도
+        val hitCount: Int, // 시설 조회 횟수
 
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(name = "facility_id")
-        val id: Long? = null,
+        val id: Int,
 
         // 층과 시설 1 : N
         @ManyToOne(fetch = FetchType.LAZY)
