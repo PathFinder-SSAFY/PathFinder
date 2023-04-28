@@ -48,7 +48,7 @@ class FacilityServiceImpl(
         curFacility.plusHitCount()
 
         // (2) 검색 되었을 때 횟수 1증가
-//        facilityRepository.updateFacility(curFacility)
+        facilityRepository.updateFacility(curFacility)
 
 
 
