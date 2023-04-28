@@ -12,8 +12,8 @@ RUN apt-get update && \
       "deb [arch=amd64] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") \
       $(lsb_release -cs) \
       stable" && \
-   apt-get update && \
-   apt-get -y install docker-ce
+    apt-get update && \
+    apt-get -y install docker-ce
 
 RUN groupadd -f docker
 RUN usermod -aG docker jenkins
