@@ -7,7 +7,7 @@ plugins {
 	kotlin("jvm") version "1.6.21"
 	kotlin("plugin.spring") version "1.6.21"
 	kotlin("plugin.jpa") version "1.6.21"
-//	kotlin("kapt") version "1.6.21"
+	kotlin("kapt") version "1.6.21"
 }
 
 group = "ssafy.autonomous.passfind"
@@ -30,8 +30,9 @@ dependencies {
 	implementation("io.github.microutils:kotlin-logging:1.4.3")
 
 	// querydsl
-//	kapt("com.querydsl:querydsl-apt:5.0.0:jpa")
-//	kapt("org.springframework.boot:spring-boot-configuration-processor")
+	implementation("com.querydsl:querydsl-jpa:5.0.0")
+	kapt("com.querydsl:querydsl-apt:5.0.0:jpa")
+	kapt("org.springframework.boot:spring-boot-configuration-processor")
 
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	runtimeOnly("com.mysql:mysql-connector-j")
