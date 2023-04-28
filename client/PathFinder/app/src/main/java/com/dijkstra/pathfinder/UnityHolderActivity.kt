@@ -6,14 +6,15 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.unity3d.player.UnityPlayer
 import com.unity3d.player.UnityPlayerActivity
+import kotlin.math.absoluteValue
 
 private const val TAG = "_ssafy"
 
@@ -23,15 +24,9 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener {
 
 
     private val unityViewModel: UnityViewModel = UnityViewModel()
-
-    //todo delete
-//    private var userCameraInfoDto: UserCameraInfoDto = UserCameraInfoDto()
     private var cameraInitFlag: Boolean = true
-
-    // 0 ~ 360
-//    private var azimuth = 0.0f
-//    private var pitch = 0.0f
-//    private var roll = 0.0f
+    private var cameraRepositionFlag = false
+    private var cameraPositionValidateState = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,13 +43,18 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener {
         this.addContentView(ll, paramll)
         val bottomSheet: LinearLayout = findViewById(R.id.bottom_sheet)
 
-        val button: Button = findViewById(R.id.button)
-        button.setOnClickListener {
-            Log.d(TAG, "onCreate: ${unityViewModel.userCameraInfoDto}")
+        val cameraRepositionButton: Button = findViewById(R.id.camera_reposition_button)
+        val toggleMapButton: Button = findViewById(R.id.toggle_map_button)
+
+        cameraRepositionButton.setOnClickListener {
+            cameraRepositionFlag = true
+        }
+
+        toggleMapButton.setOnClickListener {
             UnityPlayer.UnitySendMessage(
                 "SystemController",
-                "InitializeARCameraAngle",
-                unityViewModel.userCameraInfoDto.toString()
+                "ToggleMapVisibility",
+                ""
             )
         }
 
@@ -78,11 +78,13 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener {
         SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values)
         val orientation = FloatArray(3)
         SensorManager.getOrientation(rotationMatrix, orientation)
-
         val orientationDeg = FloatArray(3)
 
+        //        Log.d(TAG, "onSensorChanged: ${event.values[1]}")
+        cameraPositionValidateState = event.values[1].absoluteValue in (0.0f .. 0.7f)
+        
         orientation.forEachIndexed { index, element ->
-            orientationDeg[index] = (Math.toDegrees(element.toDouble()).toFloat() + 360) % 360
+            orientationDeg[index] = (Math.toDegrees(element.toDouble()).toFloat() + 360 - 198) % 360
         }
 
         // todo delete
@@ -91,17 +93,34 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener {
         unityViewModel.userCameraInfoDto.roll = orientationDeg[2]
 
         if (cameraInitFlag) {
-            //카메라 방향 초기화
-            UnityPlayer.UnitySendMessage(
-                "SystemController",
-                "InitializeARCameraAngle",
-                unityViewModel.userCameraInfoDto.toString()
-            )
+            initCameraPosition()
             cameraInitFlag = false
         }
-
+        if (cameraRepositionFlag) {
+            repositionCamera()
+            cameraRepositionFlag = false
+        }
     } // End of onSensorChanged
 
-    override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
-    } // End of onAccuracyChanged
+    override fun onAccuracyChanged(p0: Sensor?, p1: Int) { } // End of onAccuracyChanged
+
+    private fun initCameraPosition() {
+        UnityPlayer.UnitySendMessage(
+            "SystemController",
+            "InitializeARCameraAngle",
+            unityViewModel.userCameraInfoDto.toString()
+        )
+    } // End of initCameraPosition
+
+    private fun repositionCamera() {
+        when (cameraPositionValidateState) {
+            true -> {
+                initCameraPosition()
+            }
+            false -> {
+                Toast.makeText(this, "화면을 앞으로 살짝 기울여주세요!", Toast.LENGTH_SHORT).show()
+            }
+        }
+    } // End of repositionCamera
+
 } // End of UnityHolderActivity
