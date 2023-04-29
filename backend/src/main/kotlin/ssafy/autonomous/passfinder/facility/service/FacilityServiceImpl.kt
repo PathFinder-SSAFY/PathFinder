@@ -7,12 +7,15 @@ import ssafy.autonomous.passfinder.common.exception.facility.FacilityNotFoundExc
 import ssafy.autonomous.passfinder.common.response.PassFinderResponseDto
 import ssafy.autonomous.passfinder.facility.domain.Facility
 import ssafy.autonomous.passfinder.facility.dto.request.FacilityTypesRequestDto
-import ssafy.autonomous.passfinder.facility.repository.FacilityRepository
+import ssafy.autonomous.passfinder.facility.repository.FacilityJpaRepository
+import ssafy.autonomous.passfinder.facility.repository.FacilityQuerydslRepository
+import ssafy.autonomous.passfinder.facility.repository.FacilityRepositoryV1
 import javax.transaction.Transactional
 
 @Service
 class FacilityServiceImpl(
-        private val facilityRepository: FacilityRepository
+        private val facilityJpaRepository: FacilityJpaRepository,
+        private val facilityQuerydslRepository: FacilityQuerydslRepository
 ) : FacilityService {
 
     private val logger = KotlinLogging.logger {}
@@ -33,7 +36,7 @@ class FacilityServiceImpl(
 
     // 입력한 문자열을 기반으로 방 이름 리스트를 가져온다.
     fun getFacilityTypes(inputFacilityType: String): List<Facility> {
-        return facilityRepository.findAllByFacilityNameContainingOrderByHitCountDesc(inputFacilityType)
+        return facilityJpaRepository.findAllByFacilityNameContainingOrderByHitCountDesc(inputFacilityType)
     }
 
 
@@ -41,18 +44,18 @@ class FacilityServiceImpl(
     @Transactional
     override fun getFacilityTypes(facilitySearchRequest: FacilityTypesRequestDto): PassFinderResponseDto<Facility>? {
         val inputFacilityType = facilitySearchRequest.filteringSearch
-        logger.info("msg : 시설 종류 :  $inputFacilityType")
-        val curFacility: Facility = facilityRepository.findByFacilityName(inputFacilityType).orElseThrow { FacilityNotFoundException() }
+//        logger.info("msg : 시설 종류 :  $inputFacilityType")
+        val curFacility: Facility = facilityJpaRepository.findByFacilityName(inputFacilityType).orElseThrow { FacilityNotFoundException() }
 
         // (1) 검색 되었을 때 횟수 1증가
         curFacility.plusHitCount()
 
-        // (2) 검색 되었을 때 횟수 1증가
-        facilityRepository.updateFacility(curFacility)
+        // (2) 검색 되었을 때 횟수 1증가 (EntityManager - merge)
+        facilityQuerydslRepository.updateFacility(curFacility)
 
 
 
-        logger.info("msg : 업데이트 결과 : ${curFacility.getHisCount()}")
+//        logger.info("msg : 업데이트 결과 : ${curFacility.getHisCount()}")
 
 
 //        logger.info("msg : 업데이트 후, 결과 : ${curFacility.getFacilityType()}, hitCount : ${curFacility.plusHitCount()}")

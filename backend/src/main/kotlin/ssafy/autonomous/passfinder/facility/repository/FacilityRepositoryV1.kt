@@ -9,13 +9,14 @@ import javax.persistence.EntityManager
 
 
 // 순수 JPA 리포지토리
-// EntityManager와 JpaRepository 통합해서 사용
+// EntityManager와 JpaRepository 통합해서 사용하려고 했지만, Querydsl에서 가능
+//
 
 // (1) Querydsl 참고해서 정리하기
 // - https://github.com/ToDoStudy/QueryDslStudy/blob/main/querydsl/src/main/java/QueryDSLStudy/user/repositoryuser/UserRepositoryInformationImpl.java
 // (2) 노션 확인 후 수정하기
 @Repository
-class FacilityRepository : FacilityJpaRepository{
+class FacilityRepositoryV1 /*: FacilityJpaRepository*/{
 
     private val em: EntityManager ?= null
 
@@ -28,7 +29,7 @@ class FacilityRepository : FacilityJpaRepository{
         return em!!.merge(facility)
     }
 
-    override fun findAllByFacilityNameContainingOrderByHitCountDesc(facilityName: String): List<Facility> {
+    /*override */fun findAllByFacilityNameContainingOrderByHitCountDesc(facilityName: String): List<Facility> {
         TODO("Not yet implemented")
     }
 
@@ -39,7 +40,7 @@ class FacilityRepository : FacilityJpaRepository{
 //        return facilityJpaRepository!!.findAllByFacilityNameContainingOrderByHitCountDesc(facilityName)
 //    }
 
-    override fun findByFacilityName(facilityName: String): Optional<Facility> {
+    /*override*/ fun findByFacilityName(facilityName: String): Optional<Facility> {
         return em?.createQuery(
             /* qlString = */
             "SELECT f" +
