@@ -6,8 +6,11 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
+import android.speech.tts.TextToSpeech
+import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -16,11 +19,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.unity3d.player.UnityPlayer
 import com.unity3d.player.UnityPlayerActivity
+import java.util.*
 import kotlin.math.absoluteValue
 
 private const val TAG = "_ssafy"
 
 class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener {
+    private lateinit var textToSpeech: TextToSpeech
+
     private lateinit var sensorManager: SensorManager
     private lateinit var roationVectorSensor: Sensor
 
@@ -42,9 +48,28 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener {
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         roationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
 
+        initTTS()
         initUiLayout()
 
     } // End of onCreate
+
+    private fun initTTS() {
+        textToSpeech = TextToSpeech(this) { status ->
+            when (status) {
+                TextToSpeech.SUCCESS -> {
+                    val result = textToSpeech.setLanguage(Locale.KOREA)
+                    if (result == TextToSpeech.LANG_NOT_SUPPORTED || result == TextToSpeech.LANG_MISSING_DATA) {
+                        Log.e(TAG, "onCreate: Language Not Supported")
+                    } else {
+                        Log.e(TAG, "onCreate: TTS Initialization successed!")
+                    }
+                }
+                else -> {
+                    Log.e(TAG, "onCreate: Initialization failed")
+                }
+            }
+        }
+    }
 
     private fun initUiLayout() {
         val inflater = this.getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -84,6 +109,9 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener {
         navigationPathRecyclerView.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
         navigationPathRecyclerView.adapter = navigationPathAdapter
 
+        findViewById<ImageView>(R.id.sound_toggle_button).setOnClickListener {
+            textToSpeech.speak("안녕하세요", TextToSpeech.QUEUE_FLUSH, null, null)
+        }
 
     }
 
@@ -97,6 +125,12 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener {
         super.onPause()
         sensorManager.unregisterListener(this)
     } // End of onPause
+
+    override fun onDestroy() {
+        super.onDestroy()
+        textToSpeech.stop()
+        textToSpeech.shutdown()
+    }
 
     override fun onSensorChanged(event: SensorEvent) {
         //지구좌표계로 변환
