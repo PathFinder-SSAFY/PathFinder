@@ -21,7 +21,7 @@ class SwaggerConfig {
     fun api(): Docket? {
         return Docket(DocumentationType.OAS_30)
             .select()
-            .apis(RequestHandlerSelectors.any())
+            .apis(RequestHandlerSelectors.basePackage("ssafy.autonomous.pathfinder"))
             .paths(PathSelectors.any())
             .build()
             .apiInfo(apiInfo())
@@ -33,7 +33,7 @@ class SwaggerConfig {
         return ApiInfoBuilder()
             .title("PathFinder")
             .description("PathFinder Swagger")
-            .version("1.0")
+            .version("3.0")
             .build()
     }
 }
