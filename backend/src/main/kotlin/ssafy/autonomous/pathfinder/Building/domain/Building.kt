@@ -1,5 +1,6 @@
-package ssafy.autonomous.pathfinder.administrator.domain
+package ssafy.autonomous.pathfinder.Building.domain
 
+import ssafy.autonomous.pathfinder.Building.domain.Properties
 import ssafy.autonomous.pathfinder.facility.domain.Floors
 import javax.persistence.*
 
@@ -23,9 +24,9 @@ class Building(
         @OneToMany(mappedBy = "building")
         var floors: List<Floors> = mutableListOf(),
 
-        // manager와 1:1 관계
+        // administrator와 1:1 관계
         @OneToOne
-        @JoinColumn(name = "manager_id")
-        var manager: Manager ?= null
+        @JoinColumn(name = "administrator_id")
+        var administratorOAuth2User: AdministratorOAuth2User ?= null
 
 )
