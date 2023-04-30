@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="kimjungchul_gothic_bold" parent="@android:style/Widget.DeviceDefault.TextView">
+        <item name="android:fontFamily">@font/kimjungchul_gothic_bold</item>
+    </style>
+    <style name="kimjungchul_gothic_regular" parent="@android:style/Widget.DeviceDefault.TextView">
+        <item name="android:fontFamily">@font/kimjungchul_gothic_regular</item>
+    </style>
+    <style name="kimjungchul_gothic_light" parent="@android:style/Widget.DeviceDefault.TextView">
+        <item name="android:fontFamily">@font/kimjungchul_gothic_light</item>
+    </style>
+
+</resources>

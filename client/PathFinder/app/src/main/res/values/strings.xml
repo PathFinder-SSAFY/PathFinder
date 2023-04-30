@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">PathFinder</string>
+
+    <!--  Unity String  -->
     <string name="game_view_content_description">Game view</string>
+
+
+
 </resources>

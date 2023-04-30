@@ -11,6 +11,8 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.unity3d.player.UnityPlayer
 import com.unity3d.player.UnityPlayerActivity
@@ -22,7 +24,13 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener {
     private lateinit var sensorManager: SensorManager
     private lateinit var roationVectorSensor: Sensor
 
+    private lateinit var bottomSheet: LinearLayout
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
 
+    private lateinit var navigationPathAdapter: NavigationPathAdapter
+    private lateinit var navigationPathRecyclerView: RecyclerView
+
+    private val pathList: MutableList<String> = mutableListOf<String>()
     private val unityViewModel: UnityViewModel = UnityViewModel()
     private var cameraInitFlag: Boolean = true
     private var cameraRepositionFlag = false
@@ -34,32 +42,50 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener {
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         roationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
 
-        val inflater = this.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        initUiLayout()
+
+    } // End of onCreate
+
+    private fun initUiLayout() {
+        val inflater = this.getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val ll = inflater.inflate(R.layout.activity_unity_holder, null) as CoordinatorLayout
         val paramll = CoordinatorLayout.LayoutParams(
             CoordinatorLayout.LayoutParams.MATCH_PARENT,
             CoordinatorLayout.LayoutParams.MATCH_PARENT
         )
         this.addContentView(ll, paramll)
-        val bottomSheet: LinearLayout = findViewById(R.id.bottom_sheet)
 
-        val cameraRepositionButton: Button = findViewById(R.id.camera_reposition_button)
-        val toggleMapButton: Button = findViewById(R.id.toggle_map_button)
-
-        cameraRepositionButton.setOnClickListener {
-            cameraRepositionFlag = true
+        val cameraRepositionButton: Button =
+            findViewById<Button?>(R.id.camera_reposition_button).apply {
+                setOnClickListener {
+                    cameraRepositionFlag = true
+                }
+            }
+        val toggleMapButton: Button = findViewById<Button?>(R.id.toggle_map_button).apply {
+            setOnClickListener {
+                UnityPlayer.UnitySendMessage(
+                    "SystemController",
+                    "ToggleMapVisibility",
+                    ""
+                )
+            }
         }
 
-        toggleMapButton.setOnClickListener {
-            UnityPlayer.UnitySendMessage(
-                "SystemController",
-                "ToggleMapVisibility",
-                ""
-            )
+        bottomSheet = findViewById(R.id.bottom_sheet)
+        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
+
+        //TODO DELETE
+        (0..10).forEach {
+            pathList.add("$it")
         }
 
-        val behavior = BottomSheetBehavior.from(bottomSheet)
-    } // End of onCreate
+        navigationPathAdapter = NavigationPathAdapter(pathList)
+        navigationPathRecyclerView = findViewById(R.id.navigation_path_recyclerview)
+        navigationPathRecyclerView.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+        navigationPathRecyclerView.adapter = navigationPathAdapter
+
+
+    }
 
     override fun onResume() {
         super.onResume()
@@ -81,8 +107,8 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener {
         val orientationDeg = FloatArray(3)
 
         //        Log.d(TAG, "onSensorChanged: ${event.values[1]}")
-        cameraPositionValidateState = event.values[1].absoluteValue in (0.0f .. 0.7f)
-        
+        cameraPositionValidateState = event.values[1].absoluteValue in (0.0f..0.7f)
+
         orientation.forEachIndexed { index, element ->
             orientationDeg[index] = (Math.toDegrees(element.toDouble()).toFloat() + 360 - 198) % 360
         }
@@ -102,7 +128,7 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener {
         }
     } // End of onSensorChanged
 
-    override fun onAccuracyChanged(p0: Sensor?, p1: Int) { } // End of onAccuracyChanged
+    override fun onAccuracyChanged(p0: Sensor?, p1: Int) {} // End of onAccuracyChanged
 
     private fun initCameraPosition() {
         UnityPlayer.UnitySendMessage(
