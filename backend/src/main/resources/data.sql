@@ -1,5 +1,4 @@
 
-
 INSERT INTO facility
 (facility_type, facility_name, density_max, hit_count)
 VALUES
