@@ -10,6 +10,9 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.dijkstra.pathfinder.screen.login.LoginScreen
+import com.dijkstra.pathfinder.screen.login.LoginViewModel
+import com.dijkstra.pathfinder.screen.splash.SplashScreen
 import com.dijkstra.pathfinder.ui.theme.PathFinderTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -24,7 +27,9 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Greeting("Android")
+//                    val loginViewModel = LoginViewModel()
+//                    LoginScreen(loginViewModel)
+                    SplashScreen()
                 }
             }
         }
@@ -33,7 +38,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Greeting(name: String) {
-    Text(text = "Hello $name!")
+    Text(text = "Hello ${BuildConfig.NAVER_CLIENT_ID}!")
 }
 
 @Preview(showBackground = true)
