@@ -12,6 +12,7 @@ dependencies {
 
 android {
     compileSdkVersion 33
+    buildToolsVersion '30.0.2'
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -24,10 +25,23 @@ android {
         ndk {
             abiFilters 'arm64-v8a'
         }
+        versionCode 1
+        versionName '1.0'
         consumerProguardFiles 'proguard-unity.txt'
     }
 
+    lintOptions {
+        abortOnError false
+    }
 
+    aaptOptions {
+        noCompress = ['.unity3d', '.ress', '.resource', '.obb', '.bundle', '.unityexp'] + unityStreamingAssets.tokenize(', ')
+        ignoreAssetsPattern = "!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~"
+    }
+
+    packagingOptions {
+        doNotStrip '*/arm64-v8a/*.so'
+    }
 }
 
 def getSdkDir() {
@@ -69,12 +83,6 @@ def BuildIl2Cpp(String workingDir, String configuration, String architecture, St
 }
 
 android {
-
-    packagingOptions {
-        jniLibs {
-            keepDebugSymbols += ['*/arm64-v8a/*.so']
-        }
-    }
     task BuildIl2CppTask {
         doLast {
               BuildIl2Cpp(projectDir.toString().replaceAll('\\\\', '/'), 'Release', 'arm64', 'arm64-v8a', [  ] as String[]);
@@ -86,12 +94,10 @@ android {
         if (project(':unityLibrary').tasks.findByName('mergeReleaseJniLibFolders'))
             project(':unityLibrary').mergeReleaseJniLibFolders.dependsOn BuildIl2CppTask
     }
-    androidResources {
-        ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
-        noCompress '[\'.unity3d\', \'.ress\', \'.resource\', \'.obb\', \'.bundle\', \'.unityexp\'] + unityStreamingAssets.tokenize(\', \')'
-    }
-    lint {
-        abortOnError false
+    sourceSets {
+        main {
+            jni.srcDirs = ["src/main/Il2CppOutputProject"]
+        }
     }
 }
 
