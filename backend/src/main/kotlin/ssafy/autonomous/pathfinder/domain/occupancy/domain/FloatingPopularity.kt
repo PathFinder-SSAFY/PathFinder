@@ -1,6 +1,6 @@
 package ssafy.autonomous.pathfinder.domain.occupancy.domain
 
-import ssafy.autonomous.pathfinder.facility.domain.Facility
+import ssafy.autonomous.pathfinder.domain.facility.domain.Facility
 import java.util.Date
 import javax.persistence.*
 
