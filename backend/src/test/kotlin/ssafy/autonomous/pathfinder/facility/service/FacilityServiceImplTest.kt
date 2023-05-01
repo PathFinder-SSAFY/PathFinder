@@ -7,8 +7,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
-import ssafy.autonomous.pathfinder.common.exception.facility.FacilityNotFoundException
-import ssafy.autonomous.pathfinder.common.response.PathFinderResponseDto
+import ssafy.autonomous.pathfinder.domain.facility.exception.FacilityNotFoundException
 import ssafy.autonomous.pathfinder.facility.domain.Facility
 import ssafy.autonomous.pathfinder.facility.dto.request.FacilityTypesRequestDto
 import ssafy.autonomous.pathfinder.facility.repository.FacilityJpaRepository
