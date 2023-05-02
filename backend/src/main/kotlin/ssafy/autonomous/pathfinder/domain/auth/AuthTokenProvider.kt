@@ -1,4 +1,4 @@
-package ssafy.autonomous.pathfinder.domain.oauth
+package ssafy.autonomous.pathfinder.domain.auth
 
 import io.jsonwebtoken.security.Keys
 import mu.KotlinLogging
@@ -7,7 +7,7 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User
-import ssafy.autonomous.pathfinder.domain.oauth.exception.TokenValidFailedException
+import ssafy.autonomous.pathfinder.domain.auth.exception.TokenValidFailedException
 import java.security.Key
 import java.util.*
 import java.util.stream.Collectors

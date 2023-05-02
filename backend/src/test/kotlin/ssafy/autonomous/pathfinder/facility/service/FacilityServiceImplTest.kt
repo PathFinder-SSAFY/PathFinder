@@ -7,17 +7,18 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
+import ssafy.autonomous.pathfinder.domain.facility.domain.Facility
+import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityTypesRequestDto
 import ssafy.autonomous.pathfinder.domain.facility.exception.FacilityNotFoundException
-import ssafy.autonomous.pathfinder.facility.domain.Facility
-import ssafy.autonomous.pathfinder.facility.dto.request.FacilityTypesRequestDto
-import ssafy.autonomous.pathfinder.facility.repository.FacilityJpaRepository
-import ssafy.autonomous.pathfinder.facility.repository.FacilityQuerydslRepository
+import ssafy.autonomous.pathfinder.domain.facility.repository.FacilityJpaRepository
+import ssafy.autonomous.pathfinder.domain.facility.repository.FacilityQuerydslRepository
+import ssafy.autonomous.pathfinder.domain.facility.service.FacilityService
 
 @SpringBootTest
 class FacilityServiceImplTest @Autowired constructor(
-        private val facilityService: FacilityService,
-        private val facilityJpaRepository: FacilityJpaRepository,
-        private val facilityQuerydslRepository: FacilityQuerydslRepository
+    private val facilityService: FacilityService,
+    private val facilityJpaRepository: FacilityJpaRepository,
+    private val facilityQuerydslRepository: FacilityQuerydslRepository
 ){
 
     // 테스트에서 repository 사용 후, 삭제

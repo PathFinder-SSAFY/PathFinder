@@ -1,4 +1,4 @@
-package ssafy.autonomous.pathfinder.domain.oauth.exception
+package ssafy.autonomous.pathfinder.domain.auth.exception
 
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.web.access.AccessDeniedHandler

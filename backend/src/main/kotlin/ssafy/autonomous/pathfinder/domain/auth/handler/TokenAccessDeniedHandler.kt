@@ -1,9 +1,8 @@
-package ssafy.autonomous.pathfinder.domain.oauth.handler
+package ssafy.autonomous.pathfinder.domain.auth.handler
 
 import org.springframework.security.web.access.AccessDeniedHandler
 import org.springframework.stereotype.Component
 import org.springframework.web.servlet.HandlerExceptionResolver
-import java.io.IOException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 

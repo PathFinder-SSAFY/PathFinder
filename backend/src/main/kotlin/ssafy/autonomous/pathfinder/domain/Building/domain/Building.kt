@@ -1,6 +1,6 @@
 package ssafy.autonomous.pathfinder.domain.Building.domain
 
-import ssafy.autonomous.pathfinder.Building.domain.AdministratorOAuth2User
+import ssafy.autonomous.pathfinder.domain.administrator.domain.AdministratorOAuth2User
 import ssafy.autonomous.pathfinder.domain.facility.domain.Floors
 import javax.persistence.*
 

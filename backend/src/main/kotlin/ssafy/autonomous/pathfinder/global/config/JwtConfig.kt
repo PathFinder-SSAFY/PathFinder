@@ -3,7 +3,7 @@ package ssafy.autonomous.pathfinder.global.config
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import ssafy.autonomous.pathfinder.domain.oauth.AuthTokenProvider
+import ssafy.autonomous.pathfinder.domain.auth.AuthTokenProvider
 
 
 @Configuration

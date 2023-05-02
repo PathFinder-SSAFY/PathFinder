@@ -5,7 +5,7 @@
 //import org.springframework.security.oauth2.core.user.OAuth2User
 //import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
 //import org.springframework.stereotype.Component
-//import ssafy.autonomous.pathfinder.Building.domain.AdministratorOAuth2User
+//import ssafy.autonomous.pathfinder.domain.administrator.domain.AdministratorOAuth2User
 //import ssafy.autonomous.pathfinder.domain.administrator.service.AdministratorOAuth2UserServiceImpl
 //import javax.servlet.http.HttpServletRequest
 //import javax.servlet.http.HttpServletResponse

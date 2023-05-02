@@ -1,18 +1,19 @@
-package ssafy.autonomous.pathfinder.domain.oauth.filter
+package ssafy.autonomous.pathfinder.domain.auth.filter
 
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
-import ssafy.autonomous.pathfinder.domain.oauth.AuthToken
-import ssafy.autonomous.pathfinder.domain.oauth.AuthTokenProvider
+import ssafy.autonomous.pathfinder.domain.auth.AuthToken
+import ssafy.autonomous.pathfinder.domain.auth.AuthTokenProvider
+import ssafy.autonomous.pathfinder.domain.auth.security.JwtTokenProvider
 import ssafy.autonomous.pathfinder.global.util.HeaderUtil
-import java.io.IOException
 import javax.servlet.FilterChain
-import javax.servlet.ServletException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 
-class TokenAuthenticationFilter : OncePerRequestFilter() {
+class TokenAuthenticationFilter(
+    private val jwtTokenProvider: JwtTokenProvider
+) : OncePerRequestFilter() {
     private val tokenProvider: AuthTokenProvider? = null
 
 

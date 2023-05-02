@@ -7,7 +7,7 @@
 //import org.springframework.security.oauth2.core.user.DefaultOAuth2User
 //
 //import org.springframework.stereotype.Service
-//import ssafy.autonomous.pathfinder.Building.domain.AdministratorOAuth2User
+//import ssafy.autonomous.pathfinder.domain.administrator.domain.AdministratorOAuth2User
 //import ssafy.autonomous.pathfinder.domain.administrator.repository.AdministratorOAuth2UserRepository
 //import javax.servlet.http.HttpSession
 //import org.springframework.security.oauth2.core.user.OAuth2User as OAuth2User1

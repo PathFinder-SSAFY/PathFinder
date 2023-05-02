@@ -1,7 +1,7 @@
 package ssafy.autonomous.pathfinder.domain.administrator.repository
 
 import org.springframework.data.jpa.repository.JpaRepository
-import ssafy.autonomous.pathfinder.Building.domain.AdministratorOAuth2User
+import ssafy.autonomous.pathfinder.domain.administrator.domain.AdministratorOAuth2User
 import java.util.*
 
 

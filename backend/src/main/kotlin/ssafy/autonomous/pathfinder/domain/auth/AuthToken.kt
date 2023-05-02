@@ -1,4 +1,4 @@
-package ssafy.autonomous.pathfinder.domain.oauth
+package ssafy.autonomous.pathfinder.domain.auth
 
 import io.jsonwebtoken.*
 import mu.KotlinLogging
