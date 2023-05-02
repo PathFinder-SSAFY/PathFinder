@@ -45,7 +45,7 @@ fun InputField(
 
     Card(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxWidth(0.9f)
             .height(64.dp)
             .focusRequester(focusRequester)
             .onFocusChanged {
@@ -74,7 +74,7 @@ fun InputField(
         ),
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxWidth().wrapContentHeight(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -85,8 +85,7 @@ fun InputField(
                 },
                 modifier = Modifier
                     .background(Color.Transparent)
-                    .fillMaxWidth()
-                    .padding(4.dp),
+                    .fillMaxWidth(),
                 singleLine = true,
                 textStyle = TextStyle(
                     color = Color.Black,

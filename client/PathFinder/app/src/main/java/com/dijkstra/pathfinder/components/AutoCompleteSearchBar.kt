@@ -7,10 +7,7 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.*
@@ -50,59 +47,60 @@ fun AutoCompleteSearchBar(
 ) {
     val focusManager = LocalFocusManager.current
 
-    Surface(
-        modifier = modifier.zIndex(1f)
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column {
-            InputField(
-                value = value,
-                placeholder = placeholder,
-                onValueChanged = onValueChange,
-                onActiveChange = onActiveChange,
-                leadingIcon = leadingIcon,
-                trailingIcon = trailingIcon,
-                interactionSource = interactionSource,
-                keyboardActions = keyboardActions
-            )
+        InputField(
+            value = value,
+            placeholder = placeholder,
+            onValueChanged = onValueChange,
+            onActiveChange = onActiveChange,
+            leadingIcon = leadingIcon,
+            trailingIcon = trailingIcon,
+            interactionSource = interactionSource,
+            keyboardActions = keyboardActions
+        )
 
-            AnimatedVisibility(
-                visible = active && value.isNotEmpty(),
-                modifier = Modifier.background(Color.Transparent),
-                enter = DockedEnterTransition,
-                exit = DockedExitTransition
+        AnimatedVisibility(
+            visible = active && value.isNotEmpty(),
+            modifier = Modifier.background(Color.Transparent),
+            enter = DockedEnterTransition,
+            exit = DockedExitTransition
+        ) {
+            val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+            val maxHeight = remember(screenHeight) {
+                screenHeight * DockedActiveTableMaxHeightScreenRatio
+            }
+
+            Card(
+                modifier = Modifier
+                    .background(Color.Transparent)
+                    .fillMaxWidth(0.9f)
+                    .heightIn(max = maxHeight)
+                    .shadow(
+                        elevation = 8.dp,
+                        shape = RoundedCornerShape(14.dp),
+                        clip = false,
+                        ambientColor = Color.LightGray,
+                        spotColor = Color.DarkGray
+                    ),
+                shape = RoundedCornerShape(14.dp),
             ) {
-                val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-                val maxHeight = remember(screenHeight) {
-                    screenHeight * DockedActiveTableMaxHeightScreenRatio
-                }
-
-                Card(
-                    modifier = Modifier
-                        .background(Color.Transparent)
-                        .heightIn(max = maxHeight)
-                        .shadow(
-                            elevation = 8.dp,
-                            shape = RoundedCornerShape(14.dp),
-                            clip = false,
-                            ambientColor = Color.LightGray,
-                            spotColor = Color.DarkGray
-                        ),
-                    shape = RoundedCornerShape(14.dp),
+                Column(
+                    modifier = Modifier.background(Color.Transparent),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Column(
-                        modifier = Modifier.background(Color.Transparent),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Divider(
-                            modifier = Modifier.fillMaxWidth(0.9f),
-                            color = Color.Transparent
-                        )
-                        content()
-                    }
+                    Divider(
+                        modifier = Modifier.fillMaxWidth(0.9f),
+                        color = Color.Transparent
+                    )
+                    content()
                 }
-            } // End of AnimatedVisibility
-        } // End of Column
-    } // End of Surface
+            }
+        } // End of AnimatedVisibility
+    } // End of Column
+
 
     LaunchedEffect(active) {
         if (!active) {
