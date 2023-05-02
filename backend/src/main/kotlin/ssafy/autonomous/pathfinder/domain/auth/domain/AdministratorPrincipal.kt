@@ -26,7 +26,7 @@ class AdministratorPrincipal(
                 id = administrator.id!!,
                 email = administrator.email,
                 password = administrator.password,
-                authorities = listOf(SimpleGrantedAuthority(administrator.role?.name))
+                authorities = listOf(SimpleGrantedAuthority(administrator.role.name))
             )
         }
 
@@ -36,7 +36,7 @@ class AdministratorPrincipal(
                 email = administrator.email,
                 password = administrator.password,
                 attributes = attributes,
-                authorities = listOf(SimpleGrantedAuthority(administrator.role?.name))
+                authorities = listOf(SimpleGrantedAuthority(administrator.role.name))
             )
         }
     }

@@ -1,4 +1,4 @@
-package ssafy.autonomous.pathfinder.domain.administrator.application.handler;
+package ssafy.autonomous.pathfinder.domain.auth.handler;
 
 import org.springframework.stereotype.Component;
 

@@ -7,12 +7,12 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 
-class TokenAccessDeniedHandler(
-        private val handlerExceptionResolver: HandlerExceptionResolver? = null
-) : AccessDeniedHandler {
-
-    override fun handle(request: HttpServletRequest?, response: HttpServletResponse?, accessDeniedException: AccessDeniedException?) {
-        handlerExceptionResolver?.resolveException(request!!, response!!, null, accessDeniedException!!);
-    }
-
-}
+//class TokenAccessDeniedHandler(
+//        private val handlerExceptionResolver: HandlerExceptionResolver? = null
+//) : AccessDeniedHandler {
+//
+//    override fun handle(request: HttpServletRequest?, response: HttpServletResponse?, accessDeniedException: AccessDeniedException?) {
+//        handlerExceptionResolver?.resolveException(request!!, response!!, null, accessDeniedException!!);
+//    }
+//
+//}

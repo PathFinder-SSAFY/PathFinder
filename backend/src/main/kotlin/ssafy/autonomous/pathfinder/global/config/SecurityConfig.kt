@@ -2,14 +2,21 @@ package ssafy.autonomous.pathfinder.global.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.authentication.event.AuthenticationSuccessEvent
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService
 import ssafy.autonomous.pathfinder.domain.auth.filter.TokenAuthenticationFilter
+import ssafy.autonomous.pathfinder.domain.auth.service.CustomOAuth2UserService
+import ssafy.autonomous.pathfinder.domain.auth.service.CustomUserDetailsService
 
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
-    private val tokenAuthenticationFilter: TokenAuthenticationFilter
+    private val tokenAuthenticationFilter: TokenAuthenticationFilter,
+    private val customUserDetailsService: CustomUserDetailsService,
+    private val customOAuth2UserService: CustomOAuth2UserService,
+    // 성공, 실패, Cookie 처리까지
 
 //        private val oAuth2UserService: AdministratorOAuth2UserServiceImpl,
 //        private val authenticationSuccessHandler: OAuth2AuthenticationSuccessHandler,

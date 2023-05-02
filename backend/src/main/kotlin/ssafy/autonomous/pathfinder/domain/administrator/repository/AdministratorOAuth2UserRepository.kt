@@ -6,6 +6,6 @@ import java.util.*
 
 
 interface AdministratorOAuth2UserRepository : JpaRepository<AdministratorOAuth2User, Long> {
-    fun findByEmail(email : String) : Optional<AdministratorOAuth2User>
+    fun findByEmail(email : String) : AdministratorOAuth2User
 
 }
