@@ -15,7 +15,7 @@ class JwtTokenProvider(
     @Value("\${security.jwt.secret}")
     val secretKey: String,
 
-    @Value("\${security.jwt.token.expire-length")
+    @Value("\${security.jwt.token.expire-length}")
     val validityInMilliseconds: Long,
 
 ) {

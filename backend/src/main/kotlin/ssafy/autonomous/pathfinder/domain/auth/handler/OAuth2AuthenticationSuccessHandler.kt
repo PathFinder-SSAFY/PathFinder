@@ -4,12 +4,14 @@ package ssafy.autonomous.pathfinder.domain.auth.handler
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.Authentication
-import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
 import org.springframework.stereotype.Component
-import ssafy.autonomous.pathfinder.domain.administrator.domain.AdministratorOAuth2User
+import org.springframework.web.util.UriComponentsBuilder
+import ssafy.autonomous.pathfinder.domain.auth.exception.AdministratorNotFoundException
 import ssafy.autonomous.pathfinder.domain.auth.repository.HttpCookieOAuth2AuthorizationRequestRepository
 import ssafy.autonomous.pathfinder.domain.auth.security.JwtTokenProvider
+import ssafy.autonomous.pathfinder.global.util.CookieUtils
+import java.net.URI
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
@@ -34,6 +36,7 @@ class OAuth2AuthenticationSuccessHandler(
         }
 
         clearAuthenticationAttributes(request, response)
+        redirectStrategy.sendRedirect(request, response, targetUrl)
 
     }
 
@@ -42,9 +45,34 @@ class OAuth2AuthenticationSuccessHandler(
         cookieOAuth2AuthorizationRequestRepository.removeAuthorizationRequestCookies(request, response)
     }
 
-    override fun determineTargetUrl(request: HttpServletRequest?, response: HttpServletResponse?, authentication: Authentication?): String {
-        return super.determineTargetUrl(request, response, authentication)
+    override fun determineTargetUrl(request: HttpServletRequest, response: HttpServletResponse, authentication: Authentication): String {
+        val redirectUri = CookieUtils.getCookie(
+            request = request,
+            name = cookieOAuth2AuthorizationRequestRepository.redirectUriParamCookieName
+        )?.value
+
+        if(redirectUri != null && !isAuthorizedRedirectUri(redirectUri)){
+            throw AdministratorNotFoundException()
+        }
+
+        val targetUrl = redirectUri ?: defaultTargetUrl
+        val token = tokenProvider.createToken(authentication)
+
+        return UriComponentsBuilder.fromUriString(targetUrl)
+            .queryParam("token", token)
+            .build().toUriString()
     }
 
+
+    private fun isAuthorizedRedirectUri(uri: String): Boolean {
+        val clientRedirectUri = URI.create(uri)
+        val authorizedURI: URI = URI.create(authorizedRedirectUri)
+        if (authorizedURI.host.equals(clientRedirectUri.host, ignoreCase = true)
+            && authorizedURI.port == clientRedirectUri.port
+        ) {
+            return true
+        }
+        return false
+    }
 
 }

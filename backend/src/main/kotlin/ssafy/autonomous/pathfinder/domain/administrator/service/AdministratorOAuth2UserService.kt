@@ -4,5 +4,6 @@ import ssafy.autonomous.pathfinder.domain.administrator.domain.AdministratorOAut
 
 interface AdministratorOAuth2UserService {
 
+    fun createAdministrator()
     fun saveAdministrator( administratorOAuth2User: AdministratorOAuth2User)
 }

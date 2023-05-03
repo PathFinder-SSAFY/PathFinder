@@ -13,17 +13,17 @@ spring:
   profiles:
     active: local, swagger, oauth # develop_be merge : aws 변경, feature/be/개인branch push : local
 
-server:
-  port: 8000
-  servlet:
-    context-path: /api
+#server:
+#  port: 8000
+#  servlet:
+#    context-path: /api
 
 security:
   jwt:
     secret: cs31313dk3gkblcxo1oslaslzx421kddkcmvi3412wkkklfcxxiqwj131313dkdkskskvbi1zcHJpbmctYm9vdC1zZWN1cml0eS1qd3QtdHV0b3JpYWwK
     token:
       expire-length: 6000000
-  authorized-redirect-uri: "http://localhost:8000/api/oauth2/redirect"
+  authorized-redirect-uri: "http://localhost:8080/api/oauth2/redirect"
 
 
 #  jpa:
