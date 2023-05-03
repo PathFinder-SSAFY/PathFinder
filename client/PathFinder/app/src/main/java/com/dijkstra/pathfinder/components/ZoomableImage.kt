@@ -53,12 +53,12 @@ fun ZoomableImage(
                 indication = null,
                 onClick = {},
                 onDoubleClick = {
-                    if (zoom != 1f) {
+                    if ((zoom == 1f && (angle != 0f || offsetX != 0f || offsetY != 0f)) || (zoom != 1f)) {
                         zoom = 1f
                         angle = 0f
                         offsetX = 0f
                         offsetY = 0f
-                    } else if (angle == 0f && offsetX == 0f && offsetY == 0f) {
+                    } else {
                         zoom = 2f
                     }
                 }
