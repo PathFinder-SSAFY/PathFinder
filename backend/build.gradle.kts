@@ -43,7 +43,7 @@ dependencies {
 //	testImplementation("org.springframework.security:spring-security-test")
 
 	// S3
-	implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
+//	implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
 }
 
 tasks.withType<KotlinCompile> {
