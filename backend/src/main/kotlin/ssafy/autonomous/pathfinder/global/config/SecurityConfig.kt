@@ -13,10 +13,11 @@ import ssafy.autonomous.pathfinder.domain.auth.service.CustomUserDetailsService
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
-    private val tokenAuthenticationFilter: TokenAuthenticationFilter,
-    private val customUserDetailsService: CustomUserDetailsService,
-    private val customOAuth2UserService: CustomOAuth2UserService,
-    // 성공, 실패, Cookie 처리까지
+        private val tokenAuthenticationFilter: TokenAuthenticationFilter,
+        private val customUserDetailsService: CustomUserDetailsService,
+        private val customOAuth2UserService: CustomOAuth2UserService, // 성공, 실패, Cookie 처리까지
+        private val
+
 
 //        private val oAuth2UserService: AdministratorOAuth2UserServiceImpl,
 //        private val authenticationSuccessHandler: OAuth2AuthenticationSuccessHandler,
@@ -37,7 +38,6 @@ class SecurityConfig(
 //                .failureHandler(authenticationoAuth2FailureHandler)
 //        http.addFilterBefore(token)
     }
-
 
 
 }
