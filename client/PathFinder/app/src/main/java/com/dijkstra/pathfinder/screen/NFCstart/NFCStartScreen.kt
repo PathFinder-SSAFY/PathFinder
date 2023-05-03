@@ -18,7 +18,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.dijkstra.pathfinder.navigation.Screen
 
 private const val TAG = "NFCStartScreen_싸피"
@@ -29,13 +28,28 @@ fun NFCStartScreen(
     nfcViewModel: NFCViewModel = viewModel(LocalContext.current as ComponentActivity)
 ) {
     val nfcState by nfcViewModel.nfcState.collectAsState()
+    val nfcSharedState by nfcViewModel.sharedNFCStateFlow.collectAsState("")
+
+//    nfcSharedState.let {
+//        NFCStartContent()
+//
+//        LaunchedEffect(key1 = nfcSharedState) {
+//            if (nfcSharedState == "NEW NFC DATA") {
+//                navController.navigate(route = Screen.Test.route)
+//            } else if (nfcSharedState == "SECOND") {
+//                navController.navigate(route = Screen.Test2.route)
+//            }
+//        }
+//    }
 
     nfcState.let {
-        NFCStartContent()
+        NFCStartContent(nfcData = nfcState)
 
         LaunchedEffect(key1 = nfcState) {
             if (nfcState == "NEW NFC DATA") {
                 navController.navigate(route = Screen.Test.route)
+            } else if (nfcState == "SECOND") {
+                navController.navigate(route = Screen.Test2.route)
             }
         }
     }
@@ -44,7 +58,7 @@ fun NFCStartScreen(
 
 // StateHoisting
 @Composable
-fun NFCStartContent() {
+fun NFCStartContent(nfcData: String = "") {
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             verticalArrangement = Arrangement.Center,

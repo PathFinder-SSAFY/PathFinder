@@ -91,8 +91,11 @@ class MainActivity : ComponentActivity() {
                     val strPload = String(rec.payload)
                     Log.d(TAG, "processNFC: ${strPload.substring(3)}")
 
-                    // nfcViewModel setNfcData
+                    // nfcViewModel setNFCState
                     nfcViewModel.setNFCState(newNFCState = strPload.substring(3))
+
+                    // nfcViewModel setNFCSharedFlow
+                    nfcViewModel.setNFCSharedFlow(newSharedNFCState = strPload.substring(3))
 
                     val type = String(rec.type)
                     when (type) {

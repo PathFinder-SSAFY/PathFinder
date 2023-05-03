@@ -25,6 +25,6 @@ fun TestScreen(navController: NavController) {
 } // End of TestScreen
 
 @Composable
-fun TestContent() {
+fun TestScreenContent() {
 
 } // End of TestContent
