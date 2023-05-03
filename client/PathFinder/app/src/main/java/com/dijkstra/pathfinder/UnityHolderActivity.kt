@@ -1,6 +1,7 @@
 package com.dijkstra.pathfinder
 
 import android.content.Context
+import android.content.ContextParams
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -13,18 +14,23 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.unity3d.player.UnityPlayer
 import com.unity3d.player.UnityPlayerActivity
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 import kotlin.math.absoluteValue
 
 private const val TAG = "_ssafy"
 
-class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener {
+class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener, LifecycleOwner {
     private lateinit var textToSpeech: TextToSpeech
 
     private lateinit var sensorManager: SensorManager
@@ -37,7 +43,9 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener {
     private lateinit var navigationPathRecyclerView: RecyclerView
 
     private val pathList: MutableList<String> = mutableListOf<String>()
-    private val unityViewModel: UnityViewModel = UnityViewModel()
+    private val unityViewModel: UnityViewModel by lazy {
+        UnityViewModel(application)
+    }
     private var cameraInitFlag: Boolean = true
     private var cameraRepositionFlag = false
     private var cameraPositionValidateState = false
@@ -50,6 +58,17 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener {
 
         initTTS()
         initUiLayout()
+
+        
+        Log.d(TAG, "onCreate: ${this.packageName}")
+        
+        unityViewModel.beaconList.observe(this) {
+            pathList.clear()
+            pathList.addAll(it.map { beacon ->
+                beacon.id3.toString()
+            })
+            Log.d(TAG, "onCreate: ${pathList}")
+        }
 
     } // End of onCreate
 
@@ -117,13 +136,16 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener {
 
     override fun onResume() {
         super.onResume()
+        Log.d(TAG, "onResume: ")
         sensorManager.registerListener(this, roationVectorSensor, SensorManager.SENSOR_DELAY_UI)
         cameraInitFlag = true
+        unityViewModel.startBeaconScanning()
     } // End of onResume
 
     override fun onPause() {
         super.onPause()
         sensorManager.unregisterListener(this)
+        unityViewModel.stopBeaconScanning()
     } // End of onPause
 
     override fun onDestroy() {
@@ -182,5 +204,8 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener {
             }
         }
     } // End of repositionCamera
+
+    override val lifecycle: Lifecycle
+        get() = LifecycleRegistry(this)
 
 } // End of UnityHolderActivity
