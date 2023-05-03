@@ -3,14 +3,18 @@ package com.dijkstra.pathfinder.screen.NFCstart
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 private const val TAG = "NFCViewModel_싸피"
-class NFCViewModel : ViewModel() {
+
+@HiltViewModel
+class NFCViewModel @Inject constructor() : ViewModel() {
     private val _nfcState = MutableStateFlow<String>("")
     val nfcState = _nfcState.asStateFlow()
 

@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.dijkstra.pathfinder.navigation.Screen
 
@@ -25,7 +25,7 @@ private const val TAG = "NFCStartScreen_싸피"
 @Composable
 fun NFCStartScreen(
     navController: NavController,
-    nfcViewModel: NFCViewModel = viewModel(LocalContext.current as ComponentActivity)
+    nfcViewModel: NFCViewModel = hiltViewModel<NFCViewModel>(LocalContext.current as ComponentActivity)
 ) {
     val nfcState by nfcViewModel.nfcState.collectAsState()
     val nfcSharedState by nfcViewModel.sharedNFCStateFlow.collectAsState("")
