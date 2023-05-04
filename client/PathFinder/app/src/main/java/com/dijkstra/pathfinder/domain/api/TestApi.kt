@@ -5,6 +5,6 @@ import retrofit2.http.GET
 
 
 interface TestApi {
-    @GET("/hello")
+    @GET("hello")
     suspend fun testCall(): Response<Void>
 } // End of TestApi Interface

@@ -30,7 +30,7 @@ fun NFCStartScreen(
 ) {
     val nfcState by nfcViewModel.nfcState.collectAsState()
     val nfcSharedState by nfcViewModel.sharedNFCStateFlow.collectAsState("")
-    
+
 //    nfcSharedState.let {
 //        NFCStartContent()
 //

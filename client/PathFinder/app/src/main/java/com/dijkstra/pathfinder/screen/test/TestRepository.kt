@@ -1,6 +1,7 @@
 package com.dijkstra.pathfinder.screen.test
 
 import android.util.Log
+import com.dijkstra.pathfinder.di.AppModule
 import com.dijkstra.pathfinder.domain.api.TestApi
 import com.dijkstra.pathfinder.util.NetworkResult
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,7 +12,7 @@ import javax.inject.Inject
 private const val TAG = "testRepository_싸피"
 
 class TestRepository @Inject constructor(
-    private val testApi: TestApi
+    @AppModule.OkHttpInterceptorApi private val testApi: TestApi
 ) {
     private val _testCallStateFlow = MutableStateFlow<NetworkResult<Int>>(NetworkResult.Loading())
     val testCallStateFlow: StateFlow<NetworkResult<Int>> = _testCallStateFlow.asStateFlow()

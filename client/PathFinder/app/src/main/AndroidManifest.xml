@@ -13,6 +13,7 @@
             android:required="true" />
 
     <application
+            android:usesCleartextTraffic="true"
             android:hardwareAccelerated="true"
             android:name=".Application"
             android:allowBackup="true"

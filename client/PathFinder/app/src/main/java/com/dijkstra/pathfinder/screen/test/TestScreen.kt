@@ -37,11 +37,11 @@ fun TestScreen(
                     testViewModel.testCall()
                 }
             }) {
-                Text(text = "Test Call")
+                Text(text = "Test Call Button")
             }
 
             testCallState.value.let {
-                // LaunchedEffect 써야되나??
+                // LaunchedEffect 써야되나?? -> 안써도 되는듯
                 when (it) {
                     is NetworkResult.Success -> {
                         if (it.data == 200) {

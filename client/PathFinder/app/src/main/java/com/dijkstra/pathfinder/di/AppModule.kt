@@ -1,45 +1,78 @@
 package com.dijkstra.pathfinder.di
 
+import androidx.core.view.DragAndDropPermissionsCompat.*
+import com.dijkstra.pathfinder.BuildConfig
 import com.dijkstra.pathfinder.domain.api.TestApi
 import com.dijkstra.pathfinder.util.Constant
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.Interceptor
+import okhttp3.OkHttpClient
+import okhttp3.Response
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
+import java.io.IOException
+import java.util.concurrent.TimeUnit
+import javax.inject.Inject
+import javax.inject.Qualifier
 import javax.inject.Singleton
+
 
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
-    /* Dagger-Hilt Example Code
-    @Provides
-    fun provideBaseUrl() = BASE_URL
 
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class OkHttpInterceptorClient
 
-    @Singleton
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class OkHttpInterceptorApi
+
+    class OkHttpInterceptor @Inject constructor() : Interceptor {
+        @Throws(IOException::class)
+        override fun intercept(chain: Interceptor.Chain): Response = with(chain) {
+            val newRequest = request().newBuilder()
+                .addHeader("Content-Type", "application/json")
+                .build()
+            proceed(newRequest)
+        }
+    } // End of okHttpInterceptor class
+
     @Provides
-    fun provideExampleApi() : ExampleApi {
-        return Retrofit.Builder()
-            .baseUrl(provideBaseUrl())
-            .addConverterFactory(GsonConverterFactory.create())
+    @OkHttpInterceptorClient
+    fun provideInterceptorOkHttpClient(okHttpInterceptor: OkHttpInterceptor): OkHttpClient {
+        val logging = HttpLoggingInterceptor()
+        if (BuildConfig.DEBUG) {
+            logging.level = HttpLoggingInterceptor.Level.BODY
+        } else {
+            logging.level = HttpLoggingInterceptor.Level.NONE
+        }
+
+        return OkHttpClient.Builder()
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(15, TimeUnit.SECONDS)
+            .addNetworkInterceptor(HttpLoggingInterceptor())
+            .addInterceptor(okHttpInterceptor)
+            .connectTimeout(1, TimeUnit.MINUTES)
             .build()
-            .create(ExampleApi::class.java)
-    }
-    */
+    } // End of provideInterceptorOkHttpClient
 
     @Provides
+    @OkHttpInterceptorApi
     @Singleton
-    fun testCallApi(): TestApi {
+    fun testCallApi(@OkHttpInterceptorClient interceptor: OkHttpClient): TestApi {
         return Retrofit.Builder()
+            .client(interceptor)
             .baseUrl(Constant.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create()
     } // End of testCallApi
-
-
 } // End of AppModule
