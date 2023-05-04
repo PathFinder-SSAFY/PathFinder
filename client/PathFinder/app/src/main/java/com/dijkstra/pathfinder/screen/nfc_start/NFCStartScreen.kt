@@ -1,22 +1,22 @@
-package com.dijkstra.pathfinder.screen.NFCstart
+package com.dijkstra.pathfinder.screen.nfc_start
 
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import com.dijkstra.pathfinder.navigation.Screen
 
@@ -24,12 +24,13 @@ private const val TAG = "NFCStartScreen_싸피"
 
 @Composable
 fun NFCStartScreen(
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     navController: NavController,
     nfcViewModel: NFCViewModel = hiltViewModel<NFCViewModel>(LocalContext.current as ComponentActivity)
 ) {
     val nfcState by nfcViewModel.nfcState.collectAsState()
     val nfcSharedState by nfcViewModel.sharedNFCStateFlow.collectAsState("")
-
+    
 //    nfcSharedState.let {
 //        NFCStartContent()
 //
@@ -54,7 +55,6 @@ fun NFCStartScreen(
         }
     }
 } // End of NFCStartScreen
-
 
 // StateHoisting
 @Composable

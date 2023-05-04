@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.dijkstra.pathfinder.screen.NFCstart.NFCStartScreen
+import com.dijkstra.pathfinder.screen.nfc_start.NFCStartScreen
 import com.dijkstra.pathfinder.screen.TestScreen
 import com.dijkstra.pathfinder.screen.test.TestScreen2
 

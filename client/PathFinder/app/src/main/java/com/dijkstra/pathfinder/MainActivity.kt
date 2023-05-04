@@ -14,7 +14,7 @@ import androidx.activity.viewModels
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.dijkstra.pathfinder.navigation.SetUpNavGraph
-import com.dijkstra.pathfinder.screen.NFCstart.NFCViewModel
+import com.dijkstra.pathfinder.screen.nfc_start.NFCViewModel
 import com.dijkstra.pathfinder.ui.theme.PathFinderTheme
 import dagger.hilt.android.AndroidEntryPoint
 

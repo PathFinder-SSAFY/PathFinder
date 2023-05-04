@@ -1,11 +1,14 @@
 package com.dijkstra.pathfinder.di
 
+import com.dijkstra.pathfinder.domain.api.TestApi
+import com.dijkstra.pathfinder.util.Constant
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.create
 import javax.inject.Singleton
 
 @Module
@@ -28,4 +31,15 @@ object AppModule {
     }
     */
 
-}
+    @Provides
+    @Singleton
+    fun testCallApi(): TestApi {
+        return Retrofit.Builder()
+            .baseUrl(Constant.BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create()
+    } // End of testCallApi
+
+
+} // End of AppModule

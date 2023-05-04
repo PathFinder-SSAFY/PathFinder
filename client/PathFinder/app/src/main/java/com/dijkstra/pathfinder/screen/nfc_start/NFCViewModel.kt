@@ -1,4 +1,4 @@
-package com.dijkstra.pathfinder.screen.NFCstart
+package com.dijkstra.pathfinder.screen.nfc_start
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
