@@ -11,7 +11,7 @@ spring:
     init:
       mode: always
   profiles:
-    active: aws, swagger, server # develop_be merge : aws 변경, feature/be/개인branch push : local
+    active: aws, swagger, server, s3 # develop_be merge : aws 변경, feature/be/개인branch push : local
 
 #  jpa:
 #    hibernate:
