@@ -45,7 +45,6 @@ fun NFCStartScreen(
 
     nfcState.let {
         NFCStartContent(nfcData = nfcState)
-
         LaunchedEffect(key1 = nfcState) {
             if (nfcState == "NEW NFC DATA") {
                 navController.navigate(route = Screen.Test.route)

@@ -26,7 +26,6 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
-
     @Qualifier
     @Retention(AnnotationRetention.BINARY)
     annotation class OkHttpInterceptorClient
