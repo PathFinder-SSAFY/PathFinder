@@ -3,6 +3,7 @@ package ssafy.autonomous.pathfinder.domain.auth.filter
 import mu.KotlinLogging
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 import ssafy.autonomous.pathfinder.domain.auth.security.JwtTokenProvider

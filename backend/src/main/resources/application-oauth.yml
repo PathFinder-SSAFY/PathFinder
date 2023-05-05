@@ -6,7 +6,7 @@ spring:
           naver:
             clientId: es4u8dtxm8g9EwY71G8B
             clientSecret: Oe1T9Eyqec
-            redirectUri: http://localhost:8080/login/naver
+            redirectUri: http://localhost:3000/callback # 수정 해야함
             authorization-grant-type: authorization_code
             scope: email
             client-name: Naver
