@@ -21,9 +21,6 @@ spring:
 security:
   jwt:
     secret: cs31313dk3gkblcxo1oslaslzx421kddkcmvi3412wkkklfcxxiqwj131313dkdkskskvbi1zcHJpbmctYm9vdC1zZWN1cml0eS1qd3QtdHV0b3JpYWwK
-    token:
-      expire-length: 6000000
-  authorized-redirect-uri: "http://localhost:8080/api/oauth2/redirect"
 
 
 #  jpa:

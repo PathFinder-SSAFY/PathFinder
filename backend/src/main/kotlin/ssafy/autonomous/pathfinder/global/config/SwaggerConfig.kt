@@ -29,6 +29,9 @@ class SwaggerConfig {
 
     }
 
+    /*
+    * Swagger 설정
+    * */
     private fun apiInfo(): ApiInfo? {
         return ApiInfoBuilder()
             .title("PathFinder")

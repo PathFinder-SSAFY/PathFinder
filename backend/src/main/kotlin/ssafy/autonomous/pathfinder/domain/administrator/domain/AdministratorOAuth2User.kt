@@ -12,12 +12,7 @@ class AdministratorOAuth2User(
 
         @Email
         var email:String,
-        var password: String,
 
-
-        @Enumerated(EnumType.STRING)
-        @Column(name = "role")
-        var role: Role = Role.ROLE_USER, // default 관리자
 
         @Enumerated(EnumType.STRING)
         @Column(name = "auth_provider")
