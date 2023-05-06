@@ -24,34 +24,34 @@ class NaverOAuthImpl(
     @Value("\${spring.security.oauth2.client.registration.naver.scope}")
     private val NAVER_SCOPE: String,
     private val NAVER_REQUEST : String = "https://openapi.naver.com/v1/nid/me"
-) : NaverOAuth {
+) {
 
 
-    override fun requestAccessToken(tokenRequestDto: TokenRequestDto): TokenResponseDto {
-
-        val response: ResponseEntity<JSONObject> = getHttpNaverRequest(tokenRequestDto)
-        val naverId: Long = response.getJSONObject("response").getString("id").toLong()
-
-        if(response.statusCode == HttpStatus.OK){
-            val body: JSONObject? = response.body
-            body?.get("id")
-            val naver: Any? = body?.get("response")
-            val naverId: String = body?.get("id").toString()
-            val email = (naver as LinkedHashMap<*, *>)["email"].toString()
-        }
-//        response.stat
-//        val jsonParser = JSONParser()
-//        var jsonObject = jsonParser.parse(result)
-//        val response = jsonObject["response"].toString()
+//    override fun requestAccessToken(tokenRequestDto: TokenRequestDto): TokenResponseDto {
 //
-//        jsonObject = jsonParser.parse(response)
-//        email = jsonObject["email"] as String?
+//        val response: ResponseEntity<String> = getHttpNaverRequest(tokenRequestDto)
+//        val naverId: Long = response.getJSONObject("response").getString("id").toLong()
+//
+//        if(response.statusCode == HttpStatus.OK){
+//            val body: JSONObject? = response.body
+//            body?.get("id")
+//            val naver: Any? = body?.get("response")
+//            val naverId: String = body?.get("id").toString()
+//            val email = (naver as LinkedHashMap<*, *>)["email"].toString()
+//        }
+////        response.stat
+////        val jsonParser = JSONParser()
+////        var jsonObject = jsonParser.parse(result)
+////        val response = jsonObject["response"].toString()
+////
+////        jsonObject = jsonParser.parse(response)
+////        email = jsonObject["email"] as String?
+//
+//
+//
+//    }
 
-
-
-    }
-
-    fun getHttpNaverRequest(tokenRequestDto: TokenRequestDto): ResponseEntity<JSONObject> {
+    fun getHttpNaverRequest(tokenRequestDto: TokenRequestDto): ResponseEntity<String> {
         val accessToken = tokenRequestDto.getAccessToken()
 
         val restTemplate = RestTemplate()
@@ -67,7 +67,7 @@ class NaverOAuthImpl(
             NAVER_REQUEST,
             HttpMethod.POST,
             HttpEntity<Any>(httpHeaders),
-            JSONObject::class.java
+            String::class.java
         )
     }
 }

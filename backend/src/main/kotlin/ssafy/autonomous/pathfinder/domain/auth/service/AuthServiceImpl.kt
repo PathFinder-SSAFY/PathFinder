@@ -10,10 +10,10 @@ import ssafy.autonomous.pathfinder.domain.auth.security.JwtTokenProvider
 class AuthServiceImpl(
     private val jwtTokenProvider: JwtTokenProvider,
     private val naverOAuth: NaverOAuth
-) : AuthService {
-    override fun oAuthLogin(tokenRequestDto: TokenRequestDto): TokenRequestDto {
-        naverOAuth.requestAccessToken(tokenRequestDto)
-    }
+) {
+//    override fun oAuthLogin(tokenRequestDto: TokenRequestDto): TokenRequestDto {
+//        naverOAuth.requestAccessToken(tokenRequestDto)
+//    }
 
 
 }

@@ -1,6 +1,6 @@
 package ssafy.autonomous.pathfinder.domain.facility.domain
 
-import ssafy.autonomous.pathfinder.domain.Building.domain.Building
+import ssafy.autonomous.pathfinder.domain.building.Building
 import javax.persistence.*
 
 @Entity

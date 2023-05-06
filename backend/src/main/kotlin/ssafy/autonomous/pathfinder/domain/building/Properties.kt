@@ -1,4 +1,4 @@
-package ssafy.autonomous.pathfinder.domain.Building.domain
+package ssafy.autonomous.pathfinder.domain.building
 
 import javax.persistence.*
 

@@ -12,13 +12,13 @@ import ssafy.autonomous.pathfinder.global.common.ApiResponse
 @RestController
 @RequestMapping("/admin")
 class AuthController(
-    private val authService : AuthService
+//    private val authService : AuthService
 ) {
 
     // (1) naverLogin
-    @GetMapping("/naver/callback")
-    fun naverLogin(@RequestParam("token") tokenRequestDto : TokenRequestDto ) : ResponseEntity<ApiResponse>{
-        val jwt : JwtToken = authService.oAuthLogin(tokenRequestDto)
-
-    }
+//    @GetMapping("/naver/callback")
+//    fun naverLogin(@RequestParam("token") tokenRequestDto : TokenRequestDto ) : ResponseEntity<ApiResponse>{
+//        val jwt : JwtToken = authService.oAuthLogin(tokenRequestDto)
+//
+//    }
 }

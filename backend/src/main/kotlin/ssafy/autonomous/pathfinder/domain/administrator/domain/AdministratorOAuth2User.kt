@@ -1,6 +1,6 @@
 package ssafy.autonomous.pathfinder.domain.administrator.domain
 
-import ssafy.autonomous.pathfinder.domain.Building.domain.Building
+import ssafy.autonomous.pathfinder.domain.building.Building
 import ssafy.autonomous.pathfinder.domain.auth.domain.AuthProvider
 import javax.persistence.*
 import javax.validation.constraints.Email
