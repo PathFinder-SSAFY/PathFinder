@@ -18,7 +18,7 @@ class AuthController(
     // (1) naverLogin
     @GetMapping("/naver/callback")
     fun naverLogin(@RequestParam("token") tokenRequestDto : TokenRequestDto ) : ResponseEntity<ApiResponse>{
-        val tokenResposneDto = authService
+        val jwt : JwtToken = authService.oAuthLogin(tokenRequestDto)
 
     }
 }

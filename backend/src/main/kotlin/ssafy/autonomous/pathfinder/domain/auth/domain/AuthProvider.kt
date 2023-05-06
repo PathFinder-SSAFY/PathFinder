@@ -1,4 +1,4 @@
-package ssafy.autonomous.pathfinder.domain.auth.domain.oauth
+package ssafy.autonomous.pathfinder.domain.auth.domain
 
 enum class AuthProvider {
     NAVER;

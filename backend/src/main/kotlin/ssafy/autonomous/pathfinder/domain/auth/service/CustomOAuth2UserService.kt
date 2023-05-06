@@ -10,7 +10,7 @@
 //import ssafy.autonomous.pathfinder.domain.administrator.domain.Role
 //import ssafy.autonomous.pathfinder.domain.administrator.repository.AdministratorOAuth2UserRepository
 //import ssafy.autonomous.pathfinder.domain.auth.domain.AdministratorPrincipal
-//import ssafy.autonomous.pathfinder.domain.auth.domain.oauth.AuthProvider
+//import ssafy.autonomous.pathfinder.domain.auth.domain.AuthProvider
 //import ssafy.autonomous.pathfinder.domain.auth.domain.oauth.OAuth2UserInfo
 //import ssafy.autonomous.pathfinder.domain.auth.domain.oauth.OAuth2UserInfoFactory
 //import javax.security.sasl.AuthenticationException

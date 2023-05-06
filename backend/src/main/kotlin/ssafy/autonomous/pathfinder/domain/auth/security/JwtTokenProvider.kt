@@ -30,61 +30,111 @@ class JwtTokenProvider(
         key = Keys.hmacShaKeyFor(keyBytes)
     }
 
-    private val logger = KotlinLogging.logger{}
+    private val logger = KotlinLogging.logger {}
+
     companion object {
         private const val AUTHORITIES_KEY = "auth"
-        private const val BEARER_TYPE = "Bearer"
+        private const val BEARER_TYPE = "Bearer "
         private const val ACCESS_TOKEN_EXPIRE_TIME: Long = 1000L * 60 * 30 // 30분
-        private const val REFRESH_TOKEN_EXPIRE_TIME : Long = 1000L * 60 * 60 * 24 * 7 // 7일
+        private const val REFRESH_TOKEN_EXPIRE_TIME: Long = 1000L * 60 * 60 * 24 * 7 // 7일
     }
 
-    // 유저 정보를 넘겨받아서 Access Token 과 Refresh Token을 생성
-    fun generateTokenDto(authentication: Authentication): TokenResponseDto {
+    // 이메일을 넘겨받아서 Access Token 과 Refresh Token을 생성
+    fun createToken(email: String, authentication: Authentication): TokenResponseDto {
+
         // 권한들을 가져오기
         val authorities: String = authentication.authorities.stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","))
+            .map(GrantedAuthority::getAuthority)
+            .collect(Collectors.joining(","))
 
         val now: Long = Date().time // 현재 시간
         val accessTokenExpiresIn = Date(now + ACCESS_TOKEN_EXPIRE_TIME)
 
-        val accessToken: String = createAccessToken(authentication.name, now, authorities, accessTokenExpiresIn)
-        val refreshToken: String = createRefreshToken(authentication.name, now)
+
+        /*
+        * accessToken
+        * @param userObjectId : 회원 ObjectId
+        * @param now : 현재 시간
+        * @return : accessToken
+        * */
+
+
+        val accessToken: String = Jwts.builder()
+            .setSubject(email)
+            .claim(AUTHORITIES_KEY, authorities)
+            .setIssuedAt(Date(now))
+            .setExpiration(accessTokenExpiresIn)
+            .signWith(key, SignatureAlgorithm.HS512)
+            .compact()
+
+        /*
+        * refreshToken
+        * @return 리프래쉬 토큰
+        * */
+        val refreshToken: String = Jwts.builder()
+            .setSubject(email)
+            .setExpiration(Date(now + REFRESH_TOKEN_EXPIRE_TIME))
+            .signWith(key, SignatureAlgorithm.HS512)
+            .compact()
+
 
         return TokenResponseDto(
-            grantType = BEARER_TYPE,
             accessToken = accessToken,
             refreshToken = refreshToken,
             accessTokenExpiresIn = accessTokenExpiresIn.time
         )
     }
 
-    /*
-    * accessToken
-    * @param userObjectId : 회원 ObjectId
-    * @param now : 현재 시간
-    * @return : accessToken
-    * */
-    fun createAccessToken(userObjectId: String, now: Long, authorities: String, accessTokenExpiresIn: Date): String {
-        return Jwts.builder()
-                .setSubject(userObjectId)
-                .claim(AUTHORITIES_KEY, authorities)
-                .setIssuedAt(Date(now))
-                .setExpiration(accessTokenExpiresIn)
-                .signWith(key, SignatureAlgorithm.HS512)
-                .compact()
+
+    fun reissueAccessToken(email: String?, authentication: Authentication): TokenResponseDto {
+        val date = Date()
+        val accessExpires = 30 * 60 * 1000L // 30minutes
+        val now: Long = Date().time // 현재 시간
+
+        val authorities: String = authentication.authorities.stream()
+            .map(GrantedAuthority::getAuthority)
+            .collect(Collectors.joining(","))
+
+
+
+        val accessToken: String = Jwts.builder()
+            .setSubject(email)
+            .claim(AUTHORITIES_KEY, authorities)
+            .setIssuedAt(Date(now))
+            .setExpiration(Date(date.time + ACCESS_TOKEN_EXPIRE_TIME))
+            .signWith(key, SignatureAlgorithm.HS512)
+            .compact()
+
+
+        return TokenResponseDto.Builder().accessToken(accessToken).build()
     }
 
-    /*
-    * refreshToken
-    * @return 리프래쉬 토큰
-    * */
-    fun createRefreshToken(userObjectId: String, now: Long): String {
-        return Jwts.builder()
-                .setExpiration(Date(now + REFRESH_TOKEN_EXPIRE_TIME))
-                .signWith(key, SignatureAlgorithm.HS512)
-                .compact()
+
+    // 토큰으로부터 email을 추출한다.
+    fun getEmailFromToken(accessToken: String) : String{
+        return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(accessToken).body.subject
     }
+
+    // token을 통해 이메일을 얻는다.
+//    fun getEmailFromBearerToken(bearerToken: String): String? {
+//        if (bearerToken.startsWith(BEARER_TYPE)) {
+//            val token: String = bearerToken.substring(BEARER_TYPE.length)
+//            return decodeToken(token).getSubject()
+//        }
+//        throw RuntimeException()
+//    }
+//
+//
+//    fun decodeToken(token: String?): DecodedJWT? {
+//        return try {
+//
+//
+//            // 토큰 검증
+//            jwtVerifier.verify(token)
+//        } catch (e: JWTVerificationException) {
+//            throw e
+//        }
+//    }
 
 
     // JWT 토큰을 복호화하여 토큰에 들어 있는 정보를 꺼낸다.
@@ -104,7 +154,7 @@ class JwtTokenProvider(
 
         // UserDetails 객체를 만들어서 Authentication 리턴 (권한 인증 리턴)
         val principal = User(claims.subject, "", authorities)
-        return UsernamePasswordAuthenticationToken(principal, accessToken, authorities)
+        return UsernamePasswordAuthenticationToken(principal, "", authorities)
     }
 
 
@@ -115,9 +165,9 @@ class JwtTokenProvider(
     // parseClaims 메소드는 만료된 토큰이어도 정보를 꺼내기 위해서 따로 분리
     private fun parseClaims(accessToken: String): Claims {
         return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(accessToken).body
+            .setSigningKey(key)
+            .build()
+            .parseClaimsJws(accessToken).body
     }
 
     /*

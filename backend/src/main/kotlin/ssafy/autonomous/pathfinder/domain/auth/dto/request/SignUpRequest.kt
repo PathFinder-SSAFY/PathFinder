@@ -3,7 +3,7 @@
 //import ssafy.autonomous.pathfinder.domain.Building.domain.Building
 //import ssafy.autonomous.pathfinder.domain.administrator.domain.AdministratorOAuth2User
 //import ssafy.autonomous.pathfinder.domain.administrator.domain.Role
-//import ssafy.autonomous.pathfinder.domain.auth.domain.oauth.AuthProvider
+//import ssafy.autonomous.pathfinder.domain.auth.domain.AuthProvider
 //import javax.persistence.*
 //import javax.validation.constraints.Email
 //import javax.validation.constraints.NotBlank
