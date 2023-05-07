@@ -23,6 +23,9 @@ fun TestScreen(
 ) {
     val testCallState = testViewModel.testCallStateFlow.collectAsState()
 
+    val testCall2State =
+        testViewModel.testCall2SharedFlow.collectAsState(NetworkResult.Loading())
+
     Surface(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -34,10 +37,27 @@ fun TestScreen(
             Spacer(modifier = Modifier.padding(30.dp))
             androidx.compose.material3.Button(onClick = {
                 CoroutineScope(Dispatchers.IO).launch {
-                    testViewModel.testCall()
+                    //testViewModel.testCall()
+                    testViewModel.testCall2()
                 }
             }) {
                 Text(text = "Test Call Button")
+            }
+
+            testCall2State.value.let {
+                when (it) {
+                    is NetworkResult.Success -> {
+                        if (it.data == 200) {
+                            Text(text = "Test Call Success")
+                        }
+                    }
+                    is NetworkResult.Error -> {
+                        Text(text = "Test Call Error")
+                    }
+                    is NetworkResult.Loading -> {
+                        Text(text = "Test Call Loading..")
+                    }
+                }
             }
 
             testCallState.value.let {

@@ -1,12 +1,11 @@
 package com.dijkstra.pathfinder.screen.test
 
-import android.util.Log
 import com.dijkstra.pathfinder.di.AppModule
 import com.dijkstra.pathfinder.domain.api.TestApi
 import com.dijkstra.pathfinder.util.NetworkResult
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
+import retrofit2.Response
 import javax.inject.Inject
 
 private const val TAG = "testRepository_싸피"
@@ -19,11 +18,8 @@ class TestRepository @Inject constructor(
 
     suspend fun testCall() {
         val response = testApi.testCall()
-        Log.d(TAG, "testCall response.message(): ${response.message()}")
-        Log.d(TAG, "testCall response.body(): ${response.body()}")
 
         _testCallStateFlow.value = NetworkResult.Loading()
-
         when {
             response.isSuccessful -> {
                 _testCallStateFlow.value = NetworkResult.Success(
@@ -37,4 +33,8 @@ class TestRepository @Inject constructor(
             }
         }
     } // End of testCall
+
+    suspend fun testCall2(): Flow<Response<Void>> = flow {
+        emit(testApi.testCall2())
+    }.flowOn(Dispatchers.IO)  // End of testCall2
 } // End of testRepository class
