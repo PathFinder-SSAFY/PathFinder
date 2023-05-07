@@ -1,12 +1,14 @@
 package com.dijkstra.pathfinder
 
 import android.content.Context
-import android.content.ContextParams
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.view.LayoutInflater
@@ -14,23 +16,22 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
-import androidx.activity.viewModels
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.unity3d.player.UnityPlayer
 import com.unity3d.player.UnityPlayerActivity
-import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 import kotlin.math.absoluteValue
 
 private const val TAG = "_ssafy"
 
-class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener, LifecycleOwner {
+class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener, LifecycleOwner { // End of UnityHolderActivity
     private lateinit var textToSpeech: TextToSpeech
 
     private lateinit var sensorManager: SensorManager
@@ -50,8 +51,18 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener, Lifecycl
     private var cameraRepositionFlag = false
     private var cameraPositionValidateState = false
 
+//    private lateinit var myHandler: BluetoothHandler
+//    inner class BluetoothHandler(): Handler(Looper.getMainLooper())  {
+//        override fun handleMessage(msg: Message) {
+//            super.handleMessage(msg)
+//            Toast.makeText(this@UnityHolderActivity, "메시지 수신!", Toast.LENGTH_SHORT).show()
+//        }
+//    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        Log.d(TAG, "onCreate: ${this.applicationContext}")
 
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         roationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
@@ -59,17 +70,22 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener, Lifecycl
         initTTS()
         initUiLayout()
 
-        
-        Log.d(TAG, "onCreate: ${this.packageName}")
-        
-        unityViewModel.beaconList.observe(this) {
+        unityViewModel.beaconList.observe(ProcessLifecycleOwner.get()) {
+            Log.d(TAG, "observe: ${it}")
             pathList.clear()
             pathList.addAll(it.map { beacon ->
                 beacon.id3.toString()
             })
             Log.d(TAG, "onCreate: ${pathList}")
         }
-
+        unityViewModel.beaconList.observe(ProcessLifecycleOwner.get()) {
+            Log.d(TAG, "observe: ${it}")
+            pathList.clear()
+            pathList.addAll(it.map { beacon ->
+                beacon.id3.toString()
+            })
+            Log.d(TAG, "onCreate: ${pathList}")
+        }
     } // End of onCreate
 
     private fun initTTS() {
@@ -125,7 +141,8 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener, Lifecycl
 
         navigationPathAdapter = NavigationPathAdapter(pathList)
         navigationPathRecyclerView = findViewById(R.id.navigation_path_recyclerview)
-        navigationPathRecyclerView.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+        navigationPathRecyclerView.layoutManager =
+            LinearLayoutManager(this, RecyclerView.VERTICAL, false)
         navigationPathRecyclerView.adapter = navigationPathAdapter
 
         findViewById<ImageView>(R.id.sound_toggle_button).setOnClickListener {
@@ -207,5 +224,4 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener, Lifecycl
 
     override val lifecycle: Lifecycle
         get() = LifecycleRegistry(this)
-
-} // End of UnityHolderActivity
+}
