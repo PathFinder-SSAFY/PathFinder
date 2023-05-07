@@ -7,6 +7,7 @@ import java.util.*
 import javax.persistence.EntityManager
 
 
+// 사용하지 않는 클래스
 
 // 순수 JPA 리포지토리
 // EntityManager와 JpaRepository 통합해서 사용하려고 했지만, Querydsl에서 가능

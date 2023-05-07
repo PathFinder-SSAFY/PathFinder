@@ -5,11 +5,11 @@ import net.minidev.json.JSONObject
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.*
 import org.springframework.stereotype.Component
+import org.springframework.util.LinkedMultiValueMap
+import org.springframework.util.MultiValueMap
 import org.springframework.web.client.RestTemplate
-import ssafy.autonomous.pathfinder.domain.administrator.domain.Administrator
 import ssafy.autonomous.pathfinder.domain.administrator.dto.AdministratorInfoDto
 import ssafy.autonomous.pathfinder.domain.auth.dto.request.TokenRequestDto
-import ssafy.autonomous.pathfinder.domain.auth.dto.response.TokenResponseDto
 
 
 @Component
@@ -35,6 +35,29 @@ class NaverOAuthImpl(
     private val logger = KotlinLogging.logger{}
 
     override fun requestAccessToken(tokenRequestDto: TokenRequestDto): AdministratorInfoDto {
+        // 네이버 소셜 로그인 회원 검증
+//        val accessToken = tokenRequestDto.getAccessToken()
+//        val restTemplate: RestTemplate = RestTemplate()
+//        val params: MultiValueMap<String, String> = LinkedMultiValueMap()
+//        params.add("client_id", NAVER_CLIENT_ID)
+//        params.add("client_secret", NAVER_CLIENT_SECRET)
+//        params.add("grant_type", NAVER_GRANT_TYPE)
+//        params.add("code", accessToken)
+//        params.add("state", "c2238709-bee1-4c08-8c44-381ee9c5fe67")
+//        val headers = HttpHeaders()
+//        val request: HttpEntity<MultiValueMap<String, String>> = HttpEntity(params, headers)
+//        logger.info("client id : $NAVER_CLIENT_ID  +   client_secret : $NAVER_CLIENT_SECRET + grant_type : $NAVER_GRANT_TYPE")
+//
+//        val response: ResponseEntity<JSONObject> = restTemplate.postForEntity<JSONObject>(
+//            NAVER_TOKEN_URI, request,
+//            JSONObject::class.java
+//        )
+//
+//        if(response.statusCode == HttpStatus.OK){
+//            logger.info("body : $response.body" )
+//            logger.info("성공하였습니다.")
+//        }
+
 
         val response: ResponseEntity<JSONObject> = getHttpNaverRequest(tokenRequestDto)
         if(response.statusCode == HttpStatus.OK){
