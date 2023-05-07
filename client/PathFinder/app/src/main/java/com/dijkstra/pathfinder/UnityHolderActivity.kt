@@ -6,9 +6,6 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.Message
 import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.view.LayoutInflater
@@ -17,12 +14,10 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleRegistry
-import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.lifecycle.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.dijkstra.pathfinder.util.MyBluetoothHandler
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.unity3d.player.UnityPlayer
 import com.unity3d.player.UnityPlayerActivity
@@ -31,7 +26,7 @@ import kotlin.math.absoluteValue
 
 private const val TAG = "_ssafy"
 
-class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener, LifecycleOwner { // End of UnityHolderActivity
+class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener { // End of UnityHolderActivity
     private lateinit var textToSpeech: TextToSpeech
 
     private lateinit var sensorManager: SensorManager
@@ -44,20 +39,14 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener, Lifecycl
     private lateinit var navigationPathRecyclerView: RecyclerView
 
     private val pathList: MutableList<String> = mutableListOf<String>()
-    private val unityViewModel: UnityViewModel by lazy {
-        UnityViewModel(application)
-    }
+    private lateinit var unityViewModel: UnityViewModel
+
     private var cameraInitFlag: Boolean = true
     private var cameraRepositionFlag = false
     private var cameraPositionValidateState = false
 
-//    private lateinit var myHandler: BluetoothHandler
-//    inner class BluetoothHandler(): Handler(Looper.getMainLooper())  {
-//        override fun handleMessage(msg: Message) {
-//            super.handleMessage(msg)
-//            Toast.makeText(this@UnityHolderActivity, "메시지 수신!", Toast.LENGTH_SHORT).show()
-//        }
-//    }
+    private lateinit var myBluetoothHandler: MyBluetoothHandler
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,6 +58,13 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener, Lifecycl
 
         initTTS()
         initUiLayout()
+        myBluetoothHandler = MyBluetoothHandler {
+            Log.d(TAG, "onCreate: $it")
+            pathList.clear()
+            pathList.add(it)
+            navigationPathAdapter.notifyDataSetChanged()
+        }
+        unityViewModel = UnityViewModel(application, myBluetoothHandler)
 
         unityViewModel.beaconList.observe(ProcessLifecycleOwner.get()) {
             Log.d(TAG, "observe: ${it}")
@@ -76,7 +72,6 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener, Lifecycl
             pathList.addAll(it.map { beacon ->
                 beacon.id3.toString()
             })
-            Log.d(TAG, "onCreate: ${pathList}")
         }
         unityViewModel.beaconList.observe(ProcessLifecycleOwner.get()) {
             Log.d(TAG, "observe: ${it}")
@@ -84,8 +79,8 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener, Lifecycl
             pathList.addAll(it.map { beacon ->
                 beacon.id3.toString()
             })
-            Log.d(TAG, "onCreate: ${pathList}")
-        }
+         }
+
     } // End of onCreate
 
     private fun initTTS() {
@@ -222,6 +217,4 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener, Lifecycl
         }
     } // End of repositionCamera
 
-    override val lifecycle: Lifecycle
-        get() = LifecycleRegistry(this)
 }

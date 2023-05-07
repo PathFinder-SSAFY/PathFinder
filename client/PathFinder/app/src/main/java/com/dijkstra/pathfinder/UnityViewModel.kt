@@ -4,14 +4,18 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.dijkstra.pathfinder.data.dto.UserCameraInfoDto
+import com.dijkstra.pathfinder.util.MyBluetoothHandler
 import com.dijkstra.pathfinder.util.trilateration
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import org.altbeacon.beacon.*
 
 private const val TAG = "UnityViewModel_ssafy"
-class UnityViewModel(application: android.app.Application) : AndroidViewModel(application) {
+class UnityViewModel(application: android.app.Application, private val myBluetoothHandler: MyBluetoothHandler) : AndroidViewModel(application) {
     var isVolumeMuted = false
     var userCameraInfoDto: UserCameraInfoDto = UserCameraInfoDto()
 
@@ -22,6 +26,18 @@ class UnityViewModel(application: android.app.Application) : AndroidViewModel(ap
     val beaconList: LiveData<MutableList<Beacon>> get() = _beaconList
     private val _nowLocation: MutableLiveData<DoubleArray> = MutableLiveData(doubleArrayOf(0.0, 0.0, 0.0))
     val nowLocation: LiveData<DoubleArray> get() = _nowLocation
+
+    private val _temp: MutableStateFlow<Int> = MutableStateFlow<Int>(0)
+    val temp:StateFlow<Int> get() = _temp
+
+    init {
+        viewModelScope.launch {
+            repeat(10){
+                _temp.value = _temp.value.plus(1)
+                delay(1000L)
+            }
+        }
+    }
 
     private val beaconManager = BeaconManager.getInstanceForApplication(application)
     private val region = Region(
@@ -84,6 +100,10 @@ class UnityViewModel(application: android.app.Application) : AndroidViewModel(ap
     //매초마다 해당 리전의 beacon 정보들을 collection으로 제공받아 처리한다.
     private var rangeNotifier: RangeNotifier = object : RangeNotifier {
         override fun didRangeBeaconsInRegion(beacons: MutableCollection<Beacon>?, region: Region?) {
+            val msg = myBluetoothHandler.obtainMessage()
+            val bundle = msg.data
+            bundle.putString("beaconList", beacons.toString())
+            myBluetoothHandler.sendMessage(msg)
             beacons?.run {
                 val temp = mutableListOf<Beacon>()
                 temp.addAll(beacons)
