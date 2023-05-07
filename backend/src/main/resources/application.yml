@@ -11,7 +11,8 @@ spring:
     init:
       mode: always
   profiles:
-    active: local, swagger, oauth # develop_be merge : aws 변경, feature/be/개인branch push : local
+
+    active: aws, swagger, oauth, s3 # develop_be merge : aws 변경, feature/be/개인branch push : local
 
 #server:
 #  port: 8000
