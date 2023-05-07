@@ -11,7 +11,18 @@ spring:
     init:
       mode: always
   profiles:
-    active: aws, swagger, server, s3 # develop_be merge : aws 변경, feature/be/개인branch push : local
+
+    active: aws, swagger, oauth, s3 # develop_be merge : aws 변경, feature/be/개인branch push : local
+
+#server:
+#  port: 8000
+#  servlet:
+#    context-path: /api
+
+security:
+  jwt:
+    secret: cs31313dk3gkblcxo1oslaslzx421kddkcmvi3412wkkklfcxxiqwj131313dkdkskskvbi1zcHJpbmctYm9vdC1zZWN1cml0eS1qd3QtdHV0b3JpYWwK
+
 
 #  jpa:
 #    hibernate:
