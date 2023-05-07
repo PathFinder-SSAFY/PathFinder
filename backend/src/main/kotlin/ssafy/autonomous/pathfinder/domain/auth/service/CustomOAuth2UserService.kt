@@ -6,9 +6,9 @@
 //import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest
 //import org.springframework.security.oauth2.core.user.OAuth2User
 //import org.springframework.stereotype.Service
-//import ssafy.autonomous.pathfinder.domain.administrator.domain.AdministratorOAuth2User
+//import ssafy.autonomous.pathfinder.domain.administrator.domain.Administrator
 //import ssafy.autonomous.pathfinder.domain.administrator.domain.Role
-//import ssafy.autonomous.pathfinder.domain.administrator.repository.AdministratorOAuth2UserRepository
+//import ssafy.autonomous.pathfinder.domain.administrator.repository.AdministratorRepository
 //import ssafy.autonomous.pathfinder.domain.auth.domain.AdministratorPrincipal
 //import ssafy.autonomous.pathfinder.domain.auth.domain.AuthProvider
 //import ssafy.autonomous.pathfinder.domain.auth.domain.oauth.OAuth2UserInfo
@@ -17,7 +17,7 @@
 //
 //@Service
 //class CustomOAuth2UserService(
-//    private val administratorOAuth2UserRepository: AdministratorOAuth2UserRepository
+//    private val AdministratorRepository: AdministratorRepository
 //) : DefaultOAuth2UserService() {
 //
 //    private val logger = KotlinLogging.logger {}
@@ -44,7 +44,7 @@
 //            throw OAuth2AuthenticationProcessingException("OAuath2로부터 Email을 받아오지 못했습니다.")
 //        }
 //
-//        var administrator = administratorOAuth2UserRepository.findByEmail(oAuth2UserInfo.getEmail())
+//        var administrator = AdministratorRepository.findByEmail(oAuth2UserInfo.getEmail())
 //        if (administrator != null) {
 //            if (administrator.authProvider != AuthProvider.of(oAuth2UserRequest.clientRegistration.registrationId)) {
 //                throw OAuth2AuthenticationProcessingException("${administrator.authProvider} 계정이 존재합니다.")
@@ -58,9 +58,9 @@
 //    }
 //
 //    private fun updateExistingAdministrator(
-//        existingAdministrator: AdministratorOAuth2User,
+//        existingAdministrator: Administrator,
 //        oAuth2UserInfo: OAuth2UserInfo
-//    ): AdministratorOAuth2User {
+//    ): Administrator {
 //        existingAdministrator.email = oAuth2UserInfo.getEmail()
 //        return existingAdministrator
 //    }
@@ -68,13 +68,13 @@
 //    private fun registerNewAdministrator(
 //        oAuth2UserRequest: OAuth2UserRequest,
 //        oAuth2UserInfo: OAuth2UserInfo
-//    ): AdministratorOAuth2User {
-//        val administrator = AdministratorOAuth2User(
+//    ): Administrator {
+//        val administrator = Administrator(
 //            email = oAuth2UserInfo.getEmail(),
 //            password = oAuth2UserInfo.getOAuthId(),
 //            role = Role.ROLE_USER,
 //            authProvider = AuthProvider.of(oAuth2UserRequest.clientRegistration.registrationId)
 //        )
-//        return administratorOAuth2UserRepository.save(administrator)
+//        return AdministratorRepository.save(administrator)
 //    }
 //}

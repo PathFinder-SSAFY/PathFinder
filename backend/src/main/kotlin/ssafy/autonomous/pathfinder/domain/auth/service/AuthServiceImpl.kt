@@ -1,19 +1,21 @@
 package ssafy.autonomous.pathfinder.domain.auth.service
 
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.util.LinkedMultiValueMap
-import org.springframework.util.MultiValueMap
+import org.springframework.stereotype.Service
 import ssafy.autonomous.pathfinder.domain.auth.dto.request.TokenRequestDto
+import ssafy.autonomous.pathfinder.domain.auth.dto.response.TokenResponseDto
 import ssafy.autonomous.pathfinder.domain.auth.oauth.NaverOAuth
 import ssafy.autonomous.pathfinder.domain.auth.security.JwtTokenProvider
 
+@Service
 class AuthServiceImpl(
     private val jwtTokenProvider: JwtTokenProvider,
     private val naverOAuth: NaverOAuth
-) {
-//    override fun oAuthLogin(tokenRequestDto: TokenRequestDto): TokenRequestDto {
-//        naverOAuth.requestAccessToken(tokenRequestDto)
-//    }
+) : AuthService{
+    override fun oAuthLogin(tokenRequestDto: TokenRequestDto): TokenResponseDto {
+        naverOAuth.requestAccessToken(tokenRequestDto)
+
+        return TokenResponseDto.Builder().build()
+    }
 
 
 }

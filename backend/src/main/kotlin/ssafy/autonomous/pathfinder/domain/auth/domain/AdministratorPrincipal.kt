@@ -4,7 +4,7 @@
 //import org.springframework.security.core.authority.SimpleGrantedAuthority
 //import org.springframework.security.core.userdetails.UserDetails
 //import org.springframework.security.oauth2.core.user.OAuth2User
-//import ssafy.autonomous.pathfinder.domain.administrator.domain.AdministratorOAuth2User
+//import ssafy.autonomous.pathfinder.domain.administrator.domain.Administrator
 //
 ///*
 //    ✔️ UserPrincipal
@@ -21,7 +21,7 @@
 //) : UserDetails, OAuth2User {
 //
 //    companion object {
-//        fun of(administrator: AdministratorOAuth2User): AdministratorPrincipal {
+//        fun of(administrator: Administrator): AdministratorPrincipal {
 //            return AdministratorPrincipal(
 //                id = administrator.id!!,
 //                email = administrator.email,
@@ -30,7 +30,7 @@
 //            )
 //        }
 //
-//        fun of(administrator: AdministratorOAuth2User, attributes: Map<String, Any>): AdministratorPrincipal {
+//        fun of(administrator: Administrator, attributes: Map<String, Any>): AdministratorPrincipal {
 //            return AdministratorPrincipal(
 //                id = administrator.id!!,
 //                email = administrator.email,

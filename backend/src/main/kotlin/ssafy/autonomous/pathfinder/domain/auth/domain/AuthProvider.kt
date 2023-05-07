@@ -3,9 +3,9 @@ package ssafy.autonomous.pathfinder.domain.auth.domain
 enum class AuthProvider {
     NAVER;
 
-    companion object {
-        fun of(provider: String): AuthProvider = values().filter { it.name.equals(provider, ignoreCase = true) }.first()
-    }
-
-    fun equalWith(provider: String) = provider.equals(this.name, ignoreCase = true)
+//    companion object {
+//        fun of(provider: String): AuthProvider = values().filter { it.name.equals(provider, ignoreCase = true) }.first()
+//    }
+//
+//    fun equalWith(provider: String) = provider.equals(this.name, ignoreCase = true)
 }

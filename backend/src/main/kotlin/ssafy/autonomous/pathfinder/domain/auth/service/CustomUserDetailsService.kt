@@ -4,18 +4,18 @@
 //import org.springframework.security.core.userdetails.UserDetailsService
 //import org.springframework.stereotype.Service
 //import org.springframework.transaction.annotation.Transactional
-//import ssafy.autonomous.pathfinder.domain.administrator.repository.AdministratorOAuth2UserRepository
+//import ssafy.autonomous.pathfinder.domain.administrator.repository.AdministratorRepository
 //import ssafy.autonomous.pathfinder.domain.auth.domain.AdministratorPrincipal
 //import ssafy.autonomous.pathfinder.domain.auth.exception.AdministratorNotFoundException
 //
 //@Service
 //@Transactional(readOnly = true)
 //class CustomUserDetailsService(
-//    private val administratorOAuth2UserRepository: AdministratorOAuth2UserRepository
+//    private val AdministratorRepository: AdministratorRepository
 //): UserDetailsService {
 //
 //    override fun loadUserByUsername(email: String): UserDetails {
-//        val administrator = administratorOAuth2UserRepository.findByEmail(email)
+//        val administrator = AdministratorRepository.findByEmail(email)
 //        if(administrator != null){
 //            return AdministratorPrincipal.of(administrator)
 //        }
@@ -29,7 +29,7 @@
 //       - Principal : UserDetails, OAuth2User
 //    */
 //    fun loadAdministratorById(id : Long): UserDetails{
-//        val administrator = administratorOAuth2UserRepository.findById(id).orElseThrow{AdministratorNotFoundException()}
+//        val administrator = AdministratorRepository.findById(id).orElseThrow{AdministratorNotFoundException()}
 //
 //        return AdministratorPrincipal.of(administrator)
 //    }

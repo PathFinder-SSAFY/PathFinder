@@ -1,6 +1,6 @@
 package ssafy.autonomous.pathfinder.domain.building
 
-import ssafy.autonomous.pathfinder.domain.administrator.domain.AdministratorOAuth2User
+import ssafy.autonomous.pathfinder.domain.administrator.domain.Administrator
 import ssafy.autonomous.pathfinder.domain.facility.domain.Floors
 import javax.persistence.*
 
@@ -27,6 +27,6 @@ class Building(
         // administrator와 1:1 관계
         @OneToOne
         @JoinColumn(name = "administrator_id")
-        var administratorOAuth2User: AdministratorOAuth2User?= null
+        var Administrator: Administrator?= null
 
 )

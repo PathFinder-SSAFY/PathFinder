@@ -1,7 +1,7 @@
 //package ssafy.autonomous.pathfinder.domain.auth.dto.request
 //
 //import ssafy.autonomous.pathfinder.domain.Building.domain.Building
-//import ssafy.autonomous.pathfinder.domain.administrator.domain.AdministratorOAuth2User
+//import ssafy.autonomous.pathfinder.domain.administrator.domain.Administrator
 //import ssafy.autonomous.pathfinder.domain.administrator.domain.Role
 //import ssafy.autonomous.pathfinder.domain.auth.domain.AuthProvider
 //import javax.persistence.*
@@ -22,8 +22,8 @@
 //    var authProvider: String = AuthProvider.NAVER.name
 //) {
 //
-//    fun toEntity(encodePw: String): AdministratorOAuth2User{
-//        return AdministratorOAuth2User(
+//    fun toEntity(encodePw: String): Administrator{
+//        return Administrator(
 //            email = email,
 //            password = encodePw,
 //            role = Role.valueOf(role),

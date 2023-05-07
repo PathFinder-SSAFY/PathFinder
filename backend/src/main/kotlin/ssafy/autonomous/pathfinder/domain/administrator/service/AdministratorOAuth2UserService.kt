@@ -1,9 +1,9 @@
 package ssafy.autonomous.pathfinder.domain.administrator.service
 
-import ssafy.autonomous.pathfinder.domain.administrator.domain.AdministratorOAuth2User
+import ssafy.autonomous.pathfinder.domain.administrator.domain.Administrator
 
-interface AdministratorOAuth2UserService {
+interface AdministratorService {
 
     fun createAdministrator()
-    fun saveAdministrator( administratorOAuth2User: AdministratorOAuth2User)
+    fun saveAdministrator( Administrator: Administrator)
 }

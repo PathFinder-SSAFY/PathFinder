@@ -138,9 +138,9 @@ class JwtTokenProvider(
 
 
     // JWT 토큰을 복호화하여 토큰에 들어 있는 정보를 꺼낸다.
-    fun getAuthentication(accessToken: String): Authentication {
+    fun getAuthentication(token: String?): Authentication {
         // 토큰 복호화
-        val claims: Claims = parseClaims(accessToken)
+        val claims: Claims = parseClaims(token)
 
         if (claims[AUTHORITIES_KEY] == null) {
             throw RuntimeException("권한 정보가 없는 토큰입니다.")
@@ -163,25 +163,32 @@ class JwtTokenProvider(
     * return : 파싱한 토큰
     * */
     // parseClaims 메소드는 만료된 토큰이어도 정보를 꺼내기 위해서 따로 분리
-    private fun parseClaims(accessToken: String): Claims {
+    private fun parseClaims(token: String?): Claims {
         return Jwts.parserBuilder()
             .setSigningKey(key)
             .build()
-            .parseClaimsJws(accessToken).body
+            .parseClaimsJws(token).body
+    }
+
+
+    fun validateToken(token: String?): Boolean{
+        return this.getTokenClaims(token) != null
     }
 
     /*
-    * 토큰 유효성 검사
+    * 주어진 JWT 토큰의 클레임(Claims) 정보를 파싱하여 반환하는 함수
+    * - 클레임은 JWT 페이로드에 포함된 정보를 나타낸다.
+    * - 예를 들어 토큰의 발급자, 만료 시간, 사용자 식별 정보 등이 클레임으로 포함될 수 있다.
+    * @Param : token
     *
     * */
-    fun validateToken(token: String?): Boolean {
+    fun getTokenClaims(token: String?): Claims? {
         try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token)
-            return true
+            return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).body
         } catch (e: io.jsonwebtoken.security.SecurityException) {
-            logger.info("잘못된 JWT 서명입니다.")
+            logger.info("잘못된 JWT 서명입니다..")
         } catch (e: MalformedJwtException) {
-            logger.info("잘못된 JWT 서명입니다.")
+            logger.info("잘못된 JWT 토큰입니다.")
         } catch (e: ExpiredJwtException) {
             logger.info("만료된 JWT 토큰입니다.")
         } catch (e: UnsupportedJwtException) {
@@ -189,7 +196,7 @@ class JwtTokenProvider(
         } catch (e: IllegalArgumentException) {
             logger.info("JWT 토큰이 잘못되었습니다.")
         }
-        return false
+        return null
     }
 
     // accessToken 남은 유효시간

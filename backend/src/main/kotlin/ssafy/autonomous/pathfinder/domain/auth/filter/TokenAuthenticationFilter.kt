@@ -26,22 +26,38 @@ class TokenAuthenticationFilter(
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        try {
-            val jwt: String? = HeaderUtil().getAccessToken(request)
-            if (!jwt.isNullOrBlank() && jwtTokenProvider.validateToken(jwt)) {
-                val authentication: Authentication = jwtTokenProvider.getAuthentication(jwt)
-                SecurityContextHolder.getContext().authentication = authentication
+        logger.info("Filter 실행합니다.")
 
-                /*
-                  SecurityContextHolder.getContext().authentication
-                  - 현재 인증된 사용자의 인증 정보(Authentication 객체)를 SecurityContextHolder 객체에 저장하는 코드
-                  - 이렇게 저장된 인증 정보는 다른 곳에서 필요할 때 언제든지 사용할 수 있다.
-                */
-            }
-        } catch (e: Exception) {
-            logger.error("security에 사용자 인증 정보를 넣을 수 없습니다. " + e.message)
+
+        val jwtToken: String? = HeaderUtil().getAccessToken(request)
+
+        /*
+            SecurityContextHolder.getContext().authentication
+            - 현재 인증된 사용자의 인증 정보(Authentication 객체)를 SecurityContextHolder 객체에 저장하는 코드
+            - 이렇게 저장된 인증 정보는 다른 곳에서 필요할 때 언제든지 사용할 수 있다.
+        */
+        if(jwtTokenProvider.validateToken(jwtToken)){
+            logger.info("token을 삽입합니다.")
+            val authentication: Authentication = jwtTokenProvider.getAuthentication(jwtToken)
+            SecurityContextHolder.getContext().authentication = authentication
         }
+
         filterChain.doFilter(request, response)
+
+//
+//        try {
+//            val jwt: String? = HeaderUtil().getAccessToken(request)
+//            logger.info("jwt : $jwt")
+//            if (!jwt.isNullOrBlank() && jwtTokenProvider.validateToken(jwt)) {
+//                val authentication: Authentication = jwtTokenProvider.getAuthentication(jwt)
+//                SecurityContextHolder.getContext().authentication = authentication
+//                logger.info("authentication : $authentication")
+
+//            }
+//        } catch (e: Exception) {
+//            logger.error("security에 사용자 인증 정보를 넣을 수 없습니다. " + e.message)
+//        }
+//        filterChain.doFilter(request, response)
 
     }
 
