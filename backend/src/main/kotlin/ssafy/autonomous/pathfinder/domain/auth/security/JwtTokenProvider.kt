@@ -58,6 +58,9 @@ class JwtTokenProvider(
         * @return : accessToken
         * */
 
+        /*
+        * setSubject : JWT 토큰의 주제(Subject)를 나타내는 값
+        * */
 
         val accessToken: String = Jwts.builder()
             .setSubject(email)

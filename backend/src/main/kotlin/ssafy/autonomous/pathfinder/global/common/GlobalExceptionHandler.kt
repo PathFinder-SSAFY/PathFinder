@@ -1,4 +1,4 @@
-package ssafy.autonomous.pathfinder.global.common.error
+package ssafy.autonomous.pathfinder.global.common
 
 import mu.KotlinLogging
 import org.springframework.http.ResponseEntity
@@ -6,7 +6,7 @@ import org.springframework.validation.BindException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import ssafy.autonomous.pathfinder.global.common.CustomException
-import ssafy.autonomous.pathfinder.global.common.error.dto.ErrorResponse
+import ssafy.autonomous.pathfinder.global.common.response.ErrorResponse
 
 @RestControllerAdvice
 class GlobalExceptionHandler {

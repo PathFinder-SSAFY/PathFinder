@@ -1,4 +1,4 @@
-package ssafy.autonomous.pathfinder.global.common.error.dto
+package ssafy.autonomous.pathfinder.global.common.response
 
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

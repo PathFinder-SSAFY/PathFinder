@@ -40,6 +40,7 @@ class AdministratorPrincipal(
     }
 
     fun getEmail() = this.email
+
     override fun getAuthorities(): Collection<GrantedAuthority> {
         val authorityList: MutableList<GrantedAuthority> = ArrayList()
         when (authority){

@@ -5,8 +5,6 @@ import net.minidev.json.JSONObject
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.*
 import org.springframework.stereotype.Component
-import org.springframework.util.LinkedMultiValueMap
-import org.springframework.util.MultiValueMap
 import org.springframework.web.client.RestTemplate
 import ssafy.autonomous.pathfinder.domain.administrator.dto.AdministratorInfoDto
 import ssafy.autonomous.pathfinder.domain.auth.dto.request.TokenRequestDto
@@ -70,7 +68,6 @@ class NaverOAuthImpl(
             val naverId = (naver as LinkedHashMap<*, *>)["id"].toString()
             val email = (naver as LinkedHashMap<*, *>)["email"].toString()
 
-            logger.info("email : $email + id : $naverId")
             return AdministratorInfoDto(
                 naverId = naverId,
                 email =  email

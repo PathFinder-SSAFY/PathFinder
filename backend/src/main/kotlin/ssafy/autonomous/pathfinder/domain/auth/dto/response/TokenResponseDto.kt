@@ -1,10 +1,10 @@
 package ssafy.autonomous.pathfinder.domain.auth.dto.response
 
 
-class TokenResponseDto(
-        private val accessToken: String,
-        private val refreshToken: String,
-        private val accessTokenExpiresIn: Long // 액세스 토큰 만료기간
+data class TokenResponseDto(
+        val accessToken: String,
+        val refreshToken: String,
+        val accessTokenExpiresIn: Long // 액세스 토큰 만료기간
 ) {
 
         data class Builder(

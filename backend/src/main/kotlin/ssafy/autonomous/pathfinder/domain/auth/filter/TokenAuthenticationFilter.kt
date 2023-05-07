@@ -26,8 +26,7 @@ class TokenAuthenticationFilter(
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        logger.info("Filter 실행합니다.")
-
+//        logger.info("Filter 실행합니다.")
 
         val jwtToken: String? = HeaderUtil().getAccessToken(request)
 
@@ -44,20 +43,6 @@ class TokenAuthenticationFilter(
 
         filterChain.doFilter(request, response)
 
-//
-//        try {
-//            val jwt: String? = HeaderUtil().getAccessToken(request)
-//            logger.info("jwt : $jwt")
-//            if (!jwt.isNullOrBlank() && jwtTokenProvider.validateToken(jwt)) {
-//                val authentication: Authentication = jwtTokenProvider.getAuthentication(jwt)
-//                SecurityContextHolder.getContext().authentication = authentication
-//                logger.info("authentication : $authentication")
-
-//            }
-//        } catch (e: Exception) {
-//            logger.error("security에 사용자 인증 정보를 넣을 수 없습니다. " + e.message)
-//        }
-//        filterChain.doFilter(request, response)
 
     }
 

@@ -1,6 +1,5 @@
 package ssafy.autonomous.pathfinder.domain.auth.service
 
-import com.nimbusds.jose.proc.SecurityContext
 import mu.KotlinLogging
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
@@ -33,7 +32,7 @@ class AuthServiceImpl(
     * */
     override fun oAuthLogin(tokenRequestDto: TokenRequestDto): TokenResponseDto {
         // (1) naver code를 전달하여, 사용자 정보 email 발급
-        val administratorInfoDto : AdministratorInfoDto = naverOAuth.requestAccessToken(tokenRequestDto)
+        val administratorInfoDto: AdministratorInfoDto = naverOAuth.requestAccessToken(tokenRequestDto)
 
         // (2) db를 조회하여, 존재하지 않는다면 회원가입
         val administrator: Administrator = saveIfNotDuplicatedEmail(administratorInfoDto)
@@ -41,10 +40,8 @@ class AuthServiceImpl(
         // (3) login을 진행한다.
         val authentication: Authentication = setAuthenticationAfterLogin(administrator)
 
-        // (4)
-
-
-        return TokenResponseDto.Builder().build()
+        // (4) 인증 정보를 입력받아 토큰을 생성한다.
+        return generateTokenFromCredentials(authentication)
     }
 
     /*
@@ -61,8 +58,6 @@ class AuthServiceImpl(
                 authority = Authority.ROLE_ADMIN
             )
             administratorRepository.save(newAdministrator)
-
-            logger.info("회원가입이 완료됐습니다.")
         }
 
         // email 기준 관리자를 찾는다.
@@ -87,10 +82,14 @@ class AuthServiceImpl(
 
     /*
     * 메서드 설명 : 인증 정보를 입력받아 토큰을 생성하는 작업을 수행하는 함수
+    * @param : 인증 정보
     *
     * */
     fun generateTokenFromCredentials(authentication: Authentication) : TokenResponseDto {
-        val administratorPrincipal : AdministratorPrincipal
+
+        val administratorPrincipal : AdministratorPrincipal = authentication.principal as AdministratorPrincipal
+        val email: String = administratorPrincipal.getEmail()
+        return jwtTokenProvider.createToken(email, authentication)
     }
 
 }
