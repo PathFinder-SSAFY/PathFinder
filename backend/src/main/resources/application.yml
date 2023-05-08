@@ -14,10 +14,10 @@ spring:
 
     active: aws, swagger, oauth, s3 # develop_be merge : aws 변경, feature/be/개인branch push : local
 
-#server:
-#  port: 8000
-#  servlet:
-#    context-path: /api
+server:
+  port: 8000
+  servlet:
+    context-path: /api
 
 security:
   jwt:
