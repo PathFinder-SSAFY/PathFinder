@@ -1,4 +1,4 @@
-package ssafy.autonomous.pathfinder.config
+package ssafy.autonomous.pathfinder.global.config
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider
 import com.amazonaws.auth.BasicAWSCredentials
