@@ -25,7 +25,7 @@ class FacilityController(
     // - 첫 실행 시, 조회 횟수가 많은 순으로
     // - 사용자가 입력한 형식에 맞게 호출 (우선순위 : 조회 횟수가 많은 순으로)
     @ApiOperation(value = "필터링 검색 입력했을 때, 관련 시설 출력 (우선순위 : 조회 횟수)")
-    @ApiImplicitParam(name = "id", value = "유저 아이디(고유 식별 번호)", required = true, dataTypeClass = FacilityTypesRequestDto::class)
+    @ApiImplicitParam(name = "id", value = "유저 아이디(고유 식별 번호)", dataTypeClass = FacilityTypesRequestDto::class)
     @PostMapping("/facility/dynamic")
     fun facilityDynamic(@RequestBody facilityTypesRequest: FacilityTypesRequestDto ): ResponseEntity<ApiResponse> {
         // service에서 Repository 호출
@@ -41,7 +41,7 @@ class FacilityController(
     // - 필터링에 입력 후, 검색 버튼 클릭
     @ApiOperation(value = "게시글 조회 클릭 (조회 횟수 1씩 증가 시키기)")
     @ApiImplicitParam(name = "filteringSearch", value = "시설 이름 맞춰서 입력", dataTypeClass = FacilityTypesRequestDto::class)
-    @GetMapping("/facility/search")
+    @PostMapping("/facility/search")
     fun getFacilityTypes(@RequestBody facilitySearchRequest: FacilityTypesRequestDto):ResponseEntity<ApiResponse>{
 
         return ResponseEntity.ok(

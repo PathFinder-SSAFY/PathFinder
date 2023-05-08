@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiOperation
 import mu.KotlinLogging
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import ssafy.autonomous.pathfinder.domain.auth.dto.request.TokenRequestDto
@@ -26,8 +27,8 @@ class AuthController(
     // (1) naverLogin
 
     @ApiOperation(value = "네이버 소셜 로그인 후, 반환 받은 code를 넘겨주면 된다.")
-    @ApiImplicitParam(name = "code", value = "소셜 로그인 후 받은 code(고유 식별 번호)", required = true, dataTypeClass = TokenRequestDto::class)
-    @GetMapping("/naver/callback")
+    @ApiImplicitParam(name = "code", value = "소셜 로그인 후 받은 code(고유 식별 번호)", dataTypeClass = TokenRequestDto::class)
+    @PostMapping("/naver/callback")
     fun naverLogin(@RequestBody tokenRequestDto : TokenRequestDto ) : ResponseEntity<ApiResponse>{
         val t : TokenResponseDto =authService.oAuthLogin(tokenRequestDto)
 
