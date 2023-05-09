@@ -6,21 +6,34 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.dijkstra.pathfinder.data.dto.UserCameraInfoDto
+import com.dijkstra.pathfinder.domain.api.NavigationApi
+import com.dijkstra.pathfinder.domain.repository.NavigationRepository
 import com.dijkstra.pathfinder.util.KalmanFilter3D
 import com.dijkstra.pathfinder.util.MyBluetoothHandler
+import com.dijkstra.pathfinder.util.NetworkResult
 import com.dijkstra.pathfinder.util.trilateration
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.altbeacon.beacon.*
+import javax.inject.Inject
 
 private const val TAG = "UnityViewModel_ssafy"
-class UnityViewModel(application: android.app.Application, private val myBluetoothHandler: MyBluetoothHandler) : AndroidViewModel(application) {
+
+class UnityViewModel(
+    application: android.app.Application,
+    private val navigationRepository: NavigationRepository,
+    private val myBluetoothHandler: MyBluetoothHandler
+) : AndroidViewModel(application) {
+
     var isVolumeMuted = false
     var userCameraInfoDto: UserCameraInfoDto = UserCameraInfoDto()
 
-    private val _nowLocation: MutableLiveData<DoubleArray> = MutableLiveData(doubleArrayOf(0.0, 0.0, 0.0))
+    private val _nowLocation: MutableLiveData<DoubleArray> =
+        MutableLiveData(doubleArrayOf(0.0, 0.0, 0.0))
     val nowLocation: LiveData<DoubleArray> get() = _nowLocation
 
     private val beaconManager = BeaconManager.getInstanceForApplication(application)
@@ -39,6 +52,18 @@ class UnityViewModel(application: android.app.Application, private val myBluetoo
             listOf(0.0, 0.0, 1.0)
         )
     )
+
+    private val _navigationTestNetworkResultStateFlow: MutableStateFlow<NetworkResult<Unit>> =
+        MutableStateFlow(NetworkResult.Success(Unit))
+    val navigationTestNetworkResultStateFlow: StateFlow<NetworkResult<Unit>> get() = _navigationTestNetworkResultStateFlow
+
+    fun navigationTest() {
+        viewModelScope.launch {
+            navigationRepository.navigationTest().collect { testResult ->
+                _navigationTestNetworkResultStateFlow.value = testResult
+            }
+        }
+    }
 
     fun setNowLoacation(newLoacation: DoubleArray) {
         _nowLocation.value = newLoacation
@@ -92,7 +117,6 @@ class UnityViewModel(application: android.app.Application, private val myBluetoo
 
     fun getMyLocation(beacons: List<Beacon>) {
         if (beacons.size < 3) {
-            Log.d(TAG, "loc_0: $beacons")
             _nowLocation.value = doubleArrayOf(0.0, 0.3, 0.5)
             return
         } else {
@@ -107,9 +131,6 @@ class UnityViewModel(application: android.app.Application, private val myBluetoo
                 listOf(1.0, 1.0, 1.0) // Adjust this value based on your measurement noise
             val filteredCentroid = kalmanFilter.update(centroid, measurementNoise)
 
-            for (i in centroid.indices) {
-                Log.d(TAG, "loc_cen${i}: ${centroid[i]}")
-            }
             userCameraInfoDto.apply {
                 x = filteredCentroid[0].toFloat()
                 y = filteredCentroid[1].toFloat()

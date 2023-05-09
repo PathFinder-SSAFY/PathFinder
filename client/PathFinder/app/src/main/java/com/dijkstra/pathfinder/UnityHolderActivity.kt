@@ -14,13 +14,19 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.lifecycle.*
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.dijkstra.pathfinder.util.MyBluetoothHandler
+import com.dijkstra.pathfinder.util.NetworkResult
+import com.dijkstra.pathfinder.util.ViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.unity3d.player.UnityPlayer
 import com.unity3d.player.UnityPlayerActivity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.math.absoluteValue
 
@@ -39,14 +45,16 @@ class UnityHolderActivity : UnityPlayerActivity(),
     private lateinit var navigationPathAdapter: NavigationPathAdapter
     private lateinit var navigationPathRecyclerView: RecyclerView
 
-    private val pathList: MutableList<String> = mutableListOf<String>()
+    private lateinit var myBluetoothHandler: MyBluetoothHandler
+    private lateinit var viewModelProvider: ViewModelFactory
     private lateinit var unityViewModel: UnityViewModel
+
+    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
 
     private var cameraInitFlag: Boolean = true
     private var cameraRepositionFlag = false
     private var cameraPositionValidateState = false
-
-    private lateinit var myBluetoothHandler: MyBluetoothHandler
+    private val pathList: MutableList<String> = mutableListOf<String>()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,7 +80,8 @@ class UnityHolderActivity : UnityPlayerActivity(),
                 unityViewModel.userCameraInfoDto.toString()
             )
         }
-        unityViewModel = UnityViewModel(application, myBluetoothHandler)
+        viewModelProvider = ViewModelFactory(application, myBluetoothHandler)
+        unityViewModel = viewModelProvider.create(UnityViewModel::class.java)
 
         //todo delete
 //        unityViewModel.beaconList.observe(ProcessLifecycleOwner.get()) {
@@ -87,6 +96,30 @@ class UnityHolderActivity : UnityPlayerActivity(),
         }
 
     } // End of onCreate
+
+    override fun onStart() {
+        super.onStart()
+        coroutineScope.launch {
+            unityViewModel.navigationTestNetworkResultStateFlow.collect { testResult ->
+                when(testResult) {
+                    is NetworkResult.Success -> {
+                        Log.d(TAG, "onStart: Success, ${testResult.data}")
+                    }
+                    is NetworkResult.Error -> {
+                        Log.e(TAG, "onStart: Error, ${testResult.message}", )
+                    }
+                    is NetworkResult.Loading -> {
+                        Log.d(TAG, "onStart: Loading..")
+                    }
+                }
+            }
+        }
+    } // End of onStart
+
+    override fun onStop() {
+        super.onStop()
+        coroutineScope.cancel()
+    }
 
     private fun initTTS() {
         textToSpeech = TextToSpeech(this) { status ->
@@ -140,13 +173,34 @@ class UnityHolderActivity : UnityPlayerActivity(),
         }
 
         navigationPathAdapter = NavigationPathAdapter(pathList)
-        navigationPathRecyclerView = findViewById(R.id.navigation_path_recyclerview)
-        navigationPathRecyclerView.layoutManager =
-            LinearLayoutManager(this, RecyclerView.VERTICAL, false)
-        navigationPathRecyclerView.adapter = navigationPathAdapter
+        navigationPathRecyclerView = findViewById<RecyclerView>(R.id.navigation_path_recyclerview).apply {
+            layoutManager =
+                LinearLayoutManager(this@UnityHolderActivity, RecyclerView.VERTICAL, false)
+            adapter = navigationPathAdapter
+            addOnScrollListener(
+                object : RecyclerView.OnScrollListener() {
+                    override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                        when (newState) {
+                            RecyclerView.SCROLL_STATE_IDLE -> {
+                                bottomSheetBehavior.isDraggable = true
+                            }
+                            RecyclerView.SCROLL_STATE_DRAGGING -> {
+                                bottomSheetBehavior.isDraggable = false
+                            }
+                            RecyclerView.SCROLL_STATE_SETTLING -> {
+                                bottomSheetBehavior.isDraggable = false
+                            }
+                        }
+                        super.onScrollStateChanged(recyclerView, newState)
+                    } // End of onScrollStateChanged
+                })
+        }
 
         findViewById<ImageView>(R.id.sound_toggle_button).setOnClickListener {
             textToSpeech.speak("안녕하세요", TextToSpeech.QUEUE_FLUSH, null, null)
+        }
+        findViewById<Button>(R.id.unity_map_toggle_button).setOnClickListener {
+            unityViewModel.navigationTest()
         }
 
     }
