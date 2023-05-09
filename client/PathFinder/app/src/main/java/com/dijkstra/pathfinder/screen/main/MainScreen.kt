@@ -3,24 +3,29 @@ package com.dijkstra.pathfinder.screen.main
 import android.Manifest
 import android.speech.SpeechRecognizer
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.NotificationImportant
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -108,7 +113,6 @@ fun MainScreen(
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()
-            .background(Color.Blue)
     ) {
         AutoCompleteSearchBar(
             value = searchQueryState.value,
@@ -116,9 +120,8 @@ fun MainScreen(
             active = searchBarActiveState.value,
             onActiveChange = { searchBarActiveState.value = it },
             modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .padding(top = 10.dp)
-                .zIndex(2.0f),
+                .zIndex(3.0f)
+                .padding(top = 10.dp),
             placeholder = stringResource(id = R.string.input_destination),
             keyboardActions = KeyboardActions(
                 onSearch = {
@@ -209,7 +212,74 @@ fun MainScreen(
             contentAlignment = Alignment.Center
         ) {
             ZoomableImage(model = pictureUrl.value)
+        } // End of Picture Box
+
+        // Bottom Floating Button
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .zIndex(2.0f)
+                .padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Bottom
+        ) {
+            Box(
+                modifier = Modifier,
+                contentAlignment = Alignment.BottomStart
+            ) {
+//                FloatingActionButton(
+//                    onClick = {
+//                        Toast.makeText(context, "hi", Toast.LENGTH_SHORT).show()
+//                    },
+//                    shape = CircleShape,
+//                ) {
+//                    Icon(
+//                        imageVector = Icons.Default.Search,
+//                        contentDescription = "Emergency Button"
+//                    )
+//                }
+                IconButton(
+                    onClick = { Toast.makeText(context, "hi", Toast.LENGTH_SHORT).show() },
+                    modifier = Modifier.clip(CircleShape).background(IconColor)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Emergency Button",
+                        tint = Color.White
+                    )
+                }
+            } // End of Emergency Button
+
+            // Floating Action Buttons Box
+            Box(
+                modifier = Modifier,
+                contentAlignment = Alignment.BottomEnd
+            ) {
+                Column(modifier = Modifier) {
+                    FloatingActionButton(
+                        onClick = {
+                            Toast.makeText(context, "hi", Toast.LENGTH_SHORT).show()
+                        },
+                        shape = FloatingActionButtonDefaults.extendedFabShape,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Emergency Button"
+                        )
+                    }
+                    FloatingActionButton(onClick = {
+                        Toast.makeText(context, "hi", Toast.LENGTH_SHORT).show()
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.StarBorder,
+                            contentDescription = "Emergency Button"
+                        )
+                    }
+                }
+            } // End of Floating Action Buttons Box
         }
+
 
         // Speech Dialog
         if (isRecording.value) {

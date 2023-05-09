@@ -2,6 +2,7 @@ package com.dijkstra.pathfinder.di
 
 import androidx.core.view.DragAndDropPermissionsCompat.*
 import com.dijkstra.pathfinder.BuildConfig
+import com.dijkstra.pathfinder.domain.api.MainApi
 import com.dijkstra.pathfinder.domain.api.TestApi
 import com.dijkstra.pathfinder.util.Constant
 import dagger.Module
@@ -74,4 +75,17 @@ object AppModule {
             .build()
             .create()
     } // End of testCallApi
+
+    // ============================================ Main ============================================
+    @Provides
+    fun provideMainApi(@OkHttpInterceptorClient interceptor: OkHttpClient): MainApi {
+        return Retrofit.Builder()
+            .client(interceptor)
+            .baseUrl(Constant.BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(MainApi::class.java)
+    }
+
+
 } // End of AppModule

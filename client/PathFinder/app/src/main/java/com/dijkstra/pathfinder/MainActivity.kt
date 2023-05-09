@@ -10,6 +10,14 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.dijkstra.pathfinder.navigation.SetUpNavGraph
+import com.dijkstra.pathfinder.screen.login.LoginScreen
+import com.dijkstra.pathfinder.screen.login.LoginViewModel
+import com.dijkstra.pathfinder.screen.main.MainScreen
+import com.dijkstra.pathfinder.screen.nfc_start.NFCViewModel
 import com.dijkstra.pathfinder.ui.theme.PathFinderTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -29,6 +37,7 @@ class MainActivity : ComponentActivity() {
 
     // ViewModels
     private val nfcViewModel by viewModels<NFCViewModel>()
+    private val loginViewModel by viewModels<LoginViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,7 +45,9 @@ class MainActivity : ComponentActivity() {
             // val intent = Intent(this, UnityHolderActivity::class.java)
             PathFinderTheme {
                 navController = rememberNavController()
-                SetUpNavGraph(navController = navController)
+//                SetUpNavGraph(navController = navController)
+
+                MainScreen(navController = navController)
             }
         }
 
