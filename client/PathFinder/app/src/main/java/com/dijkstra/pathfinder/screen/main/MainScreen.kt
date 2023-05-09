@@ -26,14 +26,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.Lifecycle
@@ -43,6 +46,7 @@ import androidx.navigation.NavController
 import com.dijkstra.pathfinder.R
 import com.dijkstra.pathfinder.components.*
 import com.dijkstra.pathfinder.ui.theme.IconColor
+import com.dijkstra.pathfinder.ui.theme.nanumSquareNeo
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
@@ -83,6 +87,12 @@ fun MainScreen(
         skipPartiallyExpanded = true
     )
     val countdownText = remember { mutableStateOf("3") }
+
+    // Emergency State
+    val openEmergencyDialog = remember { mutableStateOf(false) }
+
+    // Floor State
+    val openFloorDialog = remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = openBottomSheet.value) {
         if (openBottomSheet.value) {
@@ -226,7 +236,7 @@ fun MainScreen(
                 modifier = Modifier,
                 contentAlignment = Alignment.BottomStart
             ) {
-                MainScreenBottomIconButton(onClick = { /*TODO*/ }) {
+                MainScreenBottomIconButton(onClick = { openEmergencyDialog.value = true }) {
                     Icon(
                         imageVector = Icons.Default.Warning,
                         contentDescription = "Emergency Button",
@@ -242,7 +252,7 @@ fun MainScreen(
             ) {
                 Column(modifier = Modifier) {
                     MainScreenBottomIconButton(
-                        onClick = { Toast.makeText(context, "hi", Toast.LENGTH_SHORT).show() }
+                        onClick = { openFloorDialog.value = true }
                     ) {
                         Icon(
                             imageVector = Icons.Default.Layers,
@@ -286,6 +296,120 @@ fun MainScreen(
                 }
             }
         } // Speech Dialog if-state
+
+        // Emergency Dialog
+        if (openEmergencyDialog.value) {
+            Dialog(
+                onDismissRequest = {
+                    openEmergencyDialog.value = false
+                }
+            ) {
+                Surface(
+                    modifier = Modifier,
+                    shape = RoundedCornerShape(24.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = "Emergency Button",
+                            modifier = Modifier
+                                .width(40.dp)
+                                .height(40.dp)
+                                .padding(bottom = 16.dp),
+                            tint = Color.Red
+                        )
+                        Text(
+                            text = "경고",
+                            modifier = Modifier.padding(bottom = 16.dp),
+                            fontFamily = nanumSquareNeo,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 24.sp,
+                        )
+                        Button(
+                            onClick = {
+                                destinationQueryState.value = "심장제세동기"
+                                openEmergencyDialog.value = false
+                                openBottomSheet.value = true
+                            },
+                            modifier = Modifier.fillMaxWidth(0.9f).padding(bottom = 8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Red
+                            )
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.start_nav_to_aed),
+                                fontFamily = nanumSquareNeo,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp,
+                                color = Color.White
+                            )
+                        } // End of AED Button
+                        Button(
+                            onClick = {
+                                destinationQueryState.value = "소화기"
+                                openEmergencyDialog.value = false
+                                openBottomSheet.value = true
+                            },
+                            modifier = Modifier.fillMaxWidth(0.9f).padding(bottom = 8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Red
+                            )
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.start_nav_to_fire_extinguisher),
+                                fontFamily = nanumSquareNeo,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp,
+                                color = Color.White
+                            )
+                        } // End of Fire Extinguisher Button
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.BottomEnd
+                        ) {
+                            TextButton(onClick = { openEmergencyDialog.value = false }) {
+                                Text(
+                                    text = stringResource(id = R.string.cancel),
+                                    fontFamily = nanumSquareNeo,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 18.sp,
+                                    color = IconColor
+                                )
+                            }
+                        } // End of Cancel Button Box
+                    } // End of Column
+                } // End of Surface
+            } // End of Dialog
+        }  // Emergency Dialog if-state
+
+        if (openFloorDialog.value) {
+            Dialog(
+                onDismissRequest = {
+                    openFloorDialog.value = false
+                }
+            ) {
+                Surface(
+                    modifier = Modifier,
+                    shape = RoundedCornerShape(24.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+
+                    }
+                }
+            }
+        }
 
         // ModalBottomSheet
         if (openBottomSheet.value) {
