@@ -1,5 +1,7 @@
 package com.dijkstra.pathfinder.screen.test
 
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dijkstra.pathfinder.util.NetworkResult
@@ -23,24 +25,25 @@ class TestViewModel @Inject constructor(
     // ================================ LiveData 코드 Flow코드로 수정
 
     private val _testCall2SharedFlow = MutableSharedFlow<NetworkResult<Int>>()
-    val testCall2SharedFlow = _testCall2SharedFlow.asSharedFlow()
+    var testCall2SharedFlow = _testCall2SharedFlow.asSharedFlow()
+        private set
 
-    suspend fun testCall2() {
+    // Default State = NetworkResult.Loading()
+    private val _testCall2ResponseFlow = mutableStateOf<NetworkResult<Int>>(NetworkResult.Loading())
+    var testCall2ResponseFlow: State<NetworkResult<Int>> = _testCall2ResponseFlow
+        private set
+
+    fun testCall2() {
         viewModelScope.launch {
             testRepository.testCall2().onStart {
                 _testCall2SharedFlow.emit(NetworkResult.Loading())
             }.catch {
-                _testCall2SharedFlow.emit(
-                    NetworkResult.Error(
-                        it.message ?: "Something went wrong!"
-                    )
+                it.printStackTrace()
+                _testCall2ResponseFlow.value = NetworkResult.Error(
+                    it.message ?: "Something went wrong!"
                 )
             }.collect {
-                _testCall2SharedFlow.emit(
-                    NetworkResult.Success(
-                        it.code()
-                    )
-                )
+                _testCall2ResponseFlow.value = NetworkResult.Success(it.code())
             }
         }
     } // End of testCall2
