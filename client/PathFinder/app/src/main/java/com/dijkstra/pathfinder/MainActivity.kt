@@ -1,26 +1,37 @@
 package com.dijkstra.pathfinder
 
+import android.Manifest
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.IntentFilter
 import android.nfc.NdefMessage
 import android.nfc.NfcAdapter
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.Button
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.dijkstra.pathfinder.navigation.SetUpNavGraph
-import com.dijkstra.pathfinder.screen.login.LoginScreen
 import com.dijkstra.pathfinder.screen.login.LoginViewModel
 import com.dijkstra.pathfinder.screen.main.MainScreen
 import com.dijkstra.pathfinder.screen.nfc_start.NFCViewModel
 import com.dijkstra.pathfinder.ui.theme.PathFinderTheme
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import dagger.hilt.android.AndroidEntryPoint
-
 
 private const val TAG = "MainActivity_싸피"
 
@@ -39,15 +50,19 @@ class MainActivity : ComponentActivity() {
     private val nfcViewModel by viewModels<NFCViewModel>()
     private val loginViewModel by viewModels<LoginViewModel>()
 
+    @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate: ${application}")
         setContent {
             // val intent = Intent(this, UnityHolderActivity::class.java)
             PathFinderTheme {
-                navController = rememberNavController()
+
+//                navController = rememberNavController()
 //                SetUpNavGraph(navController = navController)
 
                 MainScreen(navController = navController)
+//                startUnityLayout()
             }
         }
 
@@ -125,17 +140,62 @@ class MainActivity : ComponentActivity() {
             }
         }
     } // End of readNFCData
-} // End of MainActivity class
 
-//@Composable
-//fun Greeting(name: String) {
-//    Text(text = "Hello ${BuildConfig.NAVER_CLIENT_ID}!")
-//} // End of
-//
-//@Preview(showBackground = true)
-//@Composable
-//fun DefaultPreview() {
-//    PathFinderTheme {
-//        Greeting("Android")
-//    }
-//}
+    @OptIn(ExperimentalPermissionsApi::class)
+    @Composable
+    fun startUnityLayout() {
+
+        val btPermissionsState = rememberMultiplePermissionsState(
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                listOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.BLUETOOTH_SCAN,
+                    Manifest.permission.BLUETOOTH_ADVERTISE,
+                    Manifest.permission.CAMERA
+                )
+            } else {
+                listOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.BLUETOOTH,
+                    Manifest.permission.BLUETOOTH_ADMIN,
+                    Manifest.permission.CAMERA
+                )
+            }
+        ) // End of btPermissionsState
+
+        // A surface container using the 'background' color from the theme
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colors.background
+        ) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Button(
+                    modifier = Modifier
+                        .width(100.dp)
+                        .height(50.dp),
+                    onClick = {
+                        for (i in btPermissionsState.permissions.indices) {
+                            Log.d(
+                                "SSAFY_PERMISSION",
+                                "${btPermissionsState.permissions[i]}: ${btPermissionsState.permissions[i].status}"
+                            )
+                        }
+
+                        if (btPermissionsState.allPermissionsGranted) {
+                            startActivity(intent)
+                        } else {
+                            btPermissionsState.launchMultiplePermissionRequest()
+                        }
+                    }) {
+
+                }
+            }
+        }
+    }
+
+} // End of MainActivity class

@@ -14,8 +14,10 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.lifecycle.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.dijkstra.pathfinder.util.MyBluetoothHandler
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.unity3d.player.UnityPlayer
 import com.unity3d.player.UnityPlayerActivity
@@ -24,7 +26,8 @@ import kotlin.math.absoluteValue
 
 private const val TAG = "_ssafy"
 
-class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener {
+class UnityHolderActivity : UnityPlayerActivity(),
+    SensorEventListener { // End of UnityHolderActivity
     private lateinit var textToSpeech: TextToSpeech
 
     private lateinit var sensorManager: SensorManager
@@ -37,19 +40,51 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener {
     private lateinit var navigationPathRecyclerView: RecyclerView
 
     private val pathList: MutableList<String> = mutableListOf<String>()
-    private val unityViewModel: UnityViewModel = UnityViewModel()
+    private lateinit var unityViewModel: UnityViewModel
+
     private var cameraInitFlag: Boolean = true
     private var cameraRepositionFlag = false
     private var cameraPositionValidateState = false
 
+    private lateinit var myBluetoothHandler: MyBluetoothHandler
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        Log.d(TAG, "onCreate: ${this.applicationContext}")
 
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         roationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
 
         initTTS()
         initUiLayout()
+        myBluetoothHandler = MyBluetoothHandler {
+            Log.d(TAG, "onCreate: ${unityViewModel.userCameraInfoDto}")
+            pathList.clear()
+            pathList.add("x: ${unityViewModel.userCameraInfoDto.x}\n" +
+                    "y: ${unityViewModel.userCameraInfoDto.y}\n" +
+                    "z: ${unityViewModel.userCameraInfoDto.z}")
+            navigationPathAdapter.notifyDataSetChanged()
+            UnityPlayer.UnitySendMessage(
+                "SystemController",
+                "SetARCameraPosition",
+                unityViewModel.userCameraInfoDto.toString()
+            )
+        }
+        unityViewModel = UnityViewModel(application, myBluetoothHandler)
+
+        //todo delete
+//        unityViewModel.beaconList.observe(ProcessLifecycleOwner.get()) {
+//            Log.d(TAG, "observe: ${it}")
+//            pathList.clear()
+//            pathList.addAll(it.map { beacon ->
+//                beacon.id3.toString()
+//            })
+//        }
+        unityViewModel.nowLocation.observe(ProcessLifecycleOwner.get()) {
+            Log.d(TAG, "observe: ${it}")
+        }
 
     } // End of onCreate
 
@@ -106,7 +141,8 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener {
 
         navigationPathAdapter = NavigationPathAdapter(pathList)
         navigationPathRecyclerView = findViewById(R.id.navigation_path_recyclerview)
-        navigationPathRecyclerView.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+        navigationPathRecyclerView.layoutManager =
+            LinearLayoutManager(this, RecyclerView.VERTICAL, false)
         navigationPathRecyclerView.adapter = navigationPathAdapter
 
         findViewById<ImageView>(R.id.sound_toggle_button).setOnClickListener {
@@ -117,13 +153,16 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener {
 
     override fun onResume() {
         super.onResume()
+        Log.d(TAG, "onResume: ")
         sensorManager.registerListener(this, roationVectorSensor, SensorManager.SENSOR_DELAY_UI)
         cameraInitFlag = true
+        unityViewModel.startBeaconScanning()
     } // End of onResume
 
     override fun onPause() {
         super.onPause()
         sensorManager.unregisterListener(this)
+        unityViewModel.stopBeaconScanning()
     } // End of onPause
 
     override fun onDestroy() {
@@ -183,4 +222,4 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener {
         }
     } // End of repositionCamera
 
-} // End of UnityHolderActivity
+}
