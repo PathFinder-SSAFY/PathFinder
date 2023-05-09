@@ -4,6 +4,7 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiImplicitParam
 import io.swagger.annotations.ApiOperation
 import mu.KotlinLogging
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -32,7 +33,7 @@ class AuthController(
     fun naverLogin(@RequestBody tokenRequestDto : TokenRequestDto ) : ResponseEntity<ApiResponse>{
         val t : TokenResponseDto =authService.oAuthLogin(tokenRequestDto)
 
-        return ResponseEntity.ok(
+        return ResponseEntity.status(HttpStatus.OK).body(
             ApiResponse(
                 data = authService.oAuthLogin(tokenRequestDto)
             )

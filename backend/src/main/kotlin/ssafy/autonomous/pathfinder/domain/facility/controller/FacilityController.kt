@@ -3,6 +3,7 @@ package ssafy.autonomous.pathfinder.domain.facility.controller
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiImplicitParam
 import io.swagger.annotations.ApiOperation
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
@@ -17,7 +18,7 @@ import ssafy.autonomous.pathfinder.global.common.response.ApiResponse
 @Controller
 //@RequestMapping("/facility") : 조회할 때, RequestMapping으로 찾기는 어려움
 class FacilityController(
-        private val facilityService : FacilityService
+    private val facilityService: FacilityService
 ) {
 
     // 21.
@@ -27,9 +28,9 @@ class FacilityController(
     @ApiOperation(value = "필터링 검색 입력했을 때, 관련 시설 출력 (우선순위 : 조회 횟수)")
     @ApiImplicitParam(name = "id", value = "유저 아이디(고유 식별 번호)", dataTypeClass = FacilityTypesRequestDto::class)
     @PostMapping("/facility/dynamic")
-    fun facilityDynamic(@RequestBody facilityTypesRequest: FacilityTypesRequestDto ): ResponseEntity<ApiResponse> {
+    fun facilityDynamic(@RequestBody facilityTypesRequest: FacilityTypesRequestDto): ResponseEntity<ApiResponse> {
         // service에서 Repository 호출
-        return ResponseEntity.ok(
+        return ResponseEntity.status(HttpStatus.OK).body(
             ApiResponse(
                 data = facilityService.facilityDynamic(facilityTypesRequest)
             )
@@ -42,12 +43,11 @@ class FacilityController(
     @ApiOperation(value = "게시글 조회 클릭 (조회 횟수 1씩 증가 시키기)")
     @ApiImplicitParam(name = "filteringSearch", value = "시설 이름 맞춰서 입력", dataTypeClass = FacilityTypesRequestDto::class)
     @PostMapping("/facility/search")
-    fun getFacilityTypes(@RequestBody facilitySearchRequest: FacilityTypesRequestDto):ResponseEntity<ApiResponse>{
+    fun getFacilityTypes(@RequestBody facilitySearchRequest: FacilityTypesRequestDto): ResponseEntity<ApiResponse> {
 
-        return ResponseEntity.ok(
+        return ResponseEntity.status(HttpStatus.OK).body(
             ApiResponse(
-                data = facilityService.getFacilityTypes(facilitySearchRequest),
-                message = "검색 후, 시설 조회 횟수 + 1, 시설 Entity 전달"
+                data = facilityService.getFacilityTypes(facilitySearchRequest)
             )
         )
     }

@@ -1,7 +1,6 @@
-package ssafy.autonomous.pathfinder.domain.PathFinding.dto
+package ssafy.autonomous.pathfinder.domain.pathfinding.dto
 
 import kotlin.math.abs
-import kotlin.math.sqrt
 
 data class Node(val x: Double, val y: Double, val z: Double) {
     fun distance(other: Node): Double {

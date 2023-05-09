@@ -1,6 +1,6 @@
-package ssafy.autonomous.pathfinder.domain.PathFinding.service
+package ssafy.autonomous.pathfinder.domain.pathfinding.service
 
-import ssafy.autonomous.pathfinder.domain.PathFinding.dto.Node
+import ssafy.autonomous.pathfinder.domain.pathfinding.dto.Node
 
 interface PathFindingService {
     fun findPath(start: Node, goal: Node, obstacles: List<Node>): List<Node>?
