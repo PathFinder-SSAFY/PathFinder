@@ -16,10 +16,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material.icons.filled.NotificationImportant
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,10 +25,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -171,7 +170,7 @@ fun MainScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = "Search",
+                        contentDescription = stringResource(id = R.string.search),
                         tint = IconColor
                     )
                 } // Search Icon
@@ -219,7 +218,7 @@ fun MainScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .zIndex(2.0f)
-                .padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
+                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Bottom
         ) {
@@ -227,25 +226,11 @@ fun MainScreen(
                 modifier = Modifier,
                 contentAlignment = Alignment.BottomStart
             ) {
-//                FloatingActionButton(
-//                    onClick = {
-//                        Toast.makeText(context, "hi", Toast.LENGTH_SHORT).show()
-//                    },
-//                    shape = CircleShape,
-//                ) {
-//                    Icon(
-//                        imageVector = Icons.Default.Search,
-//                        contentDescription = "Emergency Button"
-//                    )
-//                }
-                IconButton(
-                    onClick = { Toast.makeText(context, "hi", Toast.LENGTH_SHORT).show() },
-                    modifier = Modifier.clip(CircleShape).background(IconColor)
-                ) {
+                MainScreenBottomIconButton(onClick = { /*TODO*/ }) {
                     Icon(
-                        imageVector = Icons.Default.Search,
+                        imageVector = Icons.Default.Warning,
                         contentDescription = "Emergency Button",
-                        tint = Color.White
+                        tint = Color.Red
                     )
                 }
             } // End of Emergency Button
@@ -256,29 +241,31 @@ fun MainScreen(
                 contentAlignment = Alignment.BottomEnd
             ) {
                 Column(modifier = Modifier) {
-                    FloatingActionButton(
-                        onClick = {
-                            Toast.makeText(context, "hi", Toast.LENGTH_SHORT).show()
-                        },
-                        shape = FloatingActionButtonDefaults.extendedFabShape,
-                        modifier = Modifier.padding(bottom = 4.dp)
+                    MainScreenBottomIconButton(
+                        onClick = { Toast.makeText(context, "hi", Toast.LENGTH_SHORT).show() }
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Emergency Button"
+                            imageVector = Icons.Default.Layers,
+                            contentDescription = "Floor Button",
+                            tint = IconColor
                         )
-                    }
-                    FloatingActionButton(onClick = {
-                        Toast.makeText(context, "hi", Toast.LENGTH_SHORT).show()
-                    }) {
+                    } // End of Stair Button
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    MainScreenBottomIconButton(
+                        onClick = { Toast.makeText(context, "hi", Toast.LENGTH_SHORT).show() }
+                    ) {
                         Icon(
-                            imageVector = Icons.Default.StarBorder,
-                            contentDescription = "Emergency Button"
+                            imageVector = Icons.Default.MyLocation,
+                            contentDescription = "My Location Button",
+                            tint = IconColor
                         )
-                    }
-                }
+                    } // End of My Location Button
+
+                } // End of Floating Action Buttons Column
             } // End of Floating Action Buttons Box
-        }
+        } // End of Bottom Floating Button Row
 
 
         // Speech Dialog
@@ -306,6 +293,7 @@ fun MainScreen(
                 onDismissRequest = { openBottomSheet.value = false },
                 sheetState = bottomSheetState,
                 openBottomSheet = openBottomSheet,
+                // TODO : 현재 위치 -> 진짜 위치
                 nowLocation = "현재 위치",
                 destination = destinationQueryState.value,
                 countdownText = countdownText.value,
@@ -314,6 +302,5 @@ fun MainScreen(
         } // End of Bottom Modal
 
     } // End of MainScreen
-
 
 } // End of MainScreen

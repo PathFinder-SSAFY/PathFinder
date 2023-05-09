@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.dijkstra.pathfinder.screen.login.LoginViewModel
 import com.dijkstra.pathfinder.screen.main.MainScreen
 import com.dijkstra.pathfinder.screen.nfc_start.NFCViewModel
@@ -58,7 +59,7 @@ class MainActivity : ComponentActivity() {
             // val intent = Intent(this, UnityHolderActivity::class.java)
             PathFinderTheme {
 
-//                navController = rememberNavController()
+                navController = rememberNavController()
 //                SetUpNavGraph(navController = navController)
 
                 MainScreen(navController = navController)
