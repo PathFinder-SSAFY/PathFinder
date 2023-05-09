@@ -122,6 +122,4 @@ fun startListening(
 
 fun stopListening(speechRecognizer: SpeechRecognizer) {
     speechRecognizer.stopListening()
-    // TODO: destroy with DisposableEffect
-    speechRecognizer.destroy()
 } // End of stopListening

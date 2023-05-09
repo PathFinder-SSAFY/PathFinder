@@ -4,6 +4,10 @@
     <!--  Unity String  -->
     <string name="game_view_content_description">Game view</string>
 
-
-
+    <!-- Main Screen -->
+    <string name="input_destination">목적지를 입력하세요</string>
+    <string name="now_location">현재 위치</string>
+    <string name="destination">목적지</string>
+    <string name="auto_close">초 뒤 자동으로 닫힘</string>
+    <string name="start_nav">안내 시작</string>
 </resources>

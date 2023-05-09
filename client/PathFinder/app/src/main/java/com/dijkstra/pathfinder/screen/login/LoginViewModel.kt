@@ -38,6 +38,7 @@ class LoginViewModel() : ViewModel() {
                 val userId = result.profile
                 Log.d(TAG, "onSuccess: ${userId?.id}")
                 Log.d(TAG, "onSuccess: ${userId?.email}")
+                Log.d(TAG, "onSuccess: ${userId}")
             }
 
             override fun onFailure(httpStatus: Int, message: String) {
