@@ -1,5 +1,6 @@
 package com.dijkstra.pathfinder.screen.test
 
+import android.util.Log
 import com.dijkstra.pathfinder.di.AppModule
 import com.dijkstra.pathfinder.domain.api.TestApi
 import com.dijkstra.pathfinder.util.NetworkResult
@@ -38,4 +39,12 @@ class TestRepository @Inject constructor(
     suspend fun testCall2(): Flow<Response<Void>> = flow {
         emit(testApi.testCall2())
     }.flowOn(Dispatchers.IO)  // End of testCall2
+
+    suspend fun failTest(): Flow<Response<Void>> = flow {
+        val response = testApi.failTest()
+        Log.d(TAG, "body: ${response.body()}")
+        Log.d(TAG, "code: ${response.code()}")
+        emit(testApi.failTest())
+    }.flowOn(Dispatchers.IO)
+
 } // End of testRepository class

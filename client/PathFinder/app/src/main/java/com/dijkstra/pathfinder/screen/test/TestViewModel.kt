@@ -1,5 +1,6 @@
 package com.dijkstra.pathfinder.screen.test
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -9,6 +10,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+private const val TAG = "TestViewModel_싸피"
 
 @HiltViewModel
 class TestViewModel @Inject constructor(
@@ -72,4 +75,41 @@ class TestViewModel @Inject constructor(
             }
         }
     } // End of testCall2
+
+
+    // ========================================= FailTest =========================================
+
+    private val _failTestResponseSharedFlow = MutableSharedFlow<NetworkResult<Int>>()
+    var failTestResponseSharedFlow = _failTestResponseSharedFlow.asSharedFlow()
+        private set
+
+    // mutableStateOf
+    private val _failTestResponseState = mutableStateOf<NetworkResult<Int>>(NetworkResult.Loading())
+    var failTestResponseState = _failTestResponseState
+        private set
+
+    // MutableStateFlow
+    private val _failTestResponseStateFlow =
+        MutableStateFlow<NetworkResult<Int>>(NetworkResult.Loading())
+    var failTestResponseStateFlow = _failTestResponseStateFlow
+        private set
+
+    suspend fun failTest() {
+        viewModelScope.launch {
+            testRepository.failTest().onStart {
+                _failTestResponseStateFlow.emit(NetworkResult.Loading())
+            }.catch {
+                it.printStackTrace()
+                Log.d(TAG, "failTest: ${it.printStackTrace()}")
+                _failTestResponseStateFlow.emit(
+                    NetworkResult.Error(
+                        it.message ?: "Something went wrong!"
+                    )
+                )
+            }.collect {
+                Log.d(TAG, "failTest: ${it.body()}")
+                _failTestResponseStateFlow.emit(NetworkResult.Success(it.code()))
+            }
+        }
+    } // End of failTest
 } // End of TestViewModel class

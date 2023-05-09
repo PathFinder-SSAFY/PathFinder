@@ -40,6 +40,9 @@ fun TestScreen(
         responseResultData = it
     }
 
+    val failTestResponseStateFlowCollect = testViewModel.failTestResponseStateFlow.collectAsState()
+
+
     Surface(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -53,6 +56,7 @@ fun TestScreen(
                 CoroutineScope(Dispatchers.IO).launch {
                     // testViewModel.testCall()
                     testViewModel.testCall2()
+                    testViewModel.failTest()
                 }
             }) {
                 Text(text = "Test Call Button")
@@ -111,6 +115,26 @@ fun TestScreen(
                     }
                 }
             }
+
+            // ================================ FailTest ================================
+            Spacer(Modifier.padding(40.dp))
+            Text(text = "아래는 실패 테스트 결과 값임")
+            failTestResponseStateFlowCollect.let {
+                when (it.value) {
+                    is NetworkResult.Success -> {
+                        if (it.value.data == 400) {
+                            Text(text = "collectAs : 400 Error")
+                        }
+                    }
+                    is NetworkResult.Error -> {
+                        Text(text = "Test Call Error")
+                    }
+                    is NetworkResult.Loading -> {
+                        Text(text = "Test Call Loading..")
+                    }
+                }
+            }
+
 
 //            response.let {
 //                when (it) {
