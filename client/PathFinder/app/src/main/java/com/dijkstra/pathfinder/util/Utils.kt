@@ -39,25 +39,19 @@ fun trilateration(beacons: List<Beacon>): DoubleArray {
     val positions = mutableListOf<DoubleArray>()
     val distances = mutableListOf<Double>()
     Log.d(TAG, "trilateration: $beacons")
-    for (i in beacons.indices) {
-        val tempCoord = beaconPositionList.asSequence()
-            .filter { coord ->
-                coord.id == beacons[i].id3.toInt()
-            }
-        if (tempCoord.toList().isNotEmpty()) {
-            positions.add(
-                doubleArrayOf(
-                    tempCoord.first().x,
-                    tempCoord.first().y,
-                    tempCoord.first().z
-                )
-            )
-            distances.add(beacons[i].distance)
-        } else {
-            return doubleArrayOf(0.0, 0.0, 0.0)
-        }
-    }
 
+    val beaconPositionMap = beaconPositionList.associateBy { it.id }
+
+    beacons.forEach { beacon ->
+        // Use the map to get the corresponding Coordinate for the beacon ID
+        val tempCoord = beaconPositionMap[beacon.id3.toInt()] ?: run {
+            Log.d(TAG, "No matching beacon position found for ID: ${beacon.id3.toInt()}")
+            return@forEach
+        }
+
+        positions.add(doubleArrayOf(tempCoord.x, tempCoord.y, tempCoord.z))
+        distances.add(beacon.distance)
+    }
     val solver = NonLinearLeastSquaresSolver(
         TrilaterationFunction(
             positions.toTypedArray(),
@@ -65,7 +59,11 @@ fun trilateration(beacons: List<Beacon>): DoubleArray {
         ), LevenbergMarquardtOptimizer()
     )
 
-    val optimum: LeastSquaresOptimizer.Optimum = solver.solve()
 
-    return optimum.point.toArray()
+    return try {
+        solver.solve().point.toArray()
+    } catch (e: Exception) {
+        Log.e(TAG, "trilateration: $e", e)
+        doubleArrayOf(-9999.9, -9999.9, -9999.9)
+    }
 }

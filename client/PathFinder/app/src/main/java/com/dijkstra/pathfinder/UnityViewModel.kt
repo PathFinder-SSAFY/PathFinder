@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.dijkstra.pathfinder.data.dto.UserCameraInfoDto
+import com.dijkstra.pathfinder.util.KalmanFilter3D
 import com.dijkstra.pathfinder.util.MyBluetoothHandler
 import com.dijkstra.pathfinder.util.trilateration
 import kotlinx.coroutines.delay
@@ -19,25 +20,8 @@ class UnityViewModel(application: android.app.Application, private val myBluetoo
     var isVolumeMuted = false
     var userCameraInfoDto: UserCameraInfoDto = UserCameraInfoDto()
 
-    private val _beaconListStateFlow: MutableStateFlow<List<Beacon>> = MutableStateFlow(emptyList())
-    val beaconListStateFlow: StateFlow<List<Beacon>> get() = _beaconListStateFlow
-
-    private val _beaconList: MutableLiveData<MutableList<Beacon>> = MutableLiveData<MutableList<Beacon>>()
-    val beaconList: LiveData<MutableList<Beacon>> get() = _beaconList
     private val _nowLocation: MutableLiveData<DoubleArray> = MutableLiveData(doubleArrayOf(0.0, 0.0, 0.0))
     val nowLocation: LiveData<DoubleArray> get() = _nowLocation
-
-    private val _temp: MutableStateFlow<Int> = MutableStateFlow<Int>(0)
-    val temp:StateFlow<Int> get() = _temp
-
-    init {
-        viewModelScope.launch {
-            repeat(10){
-                _temp.value = _temp.value.plus(1)
-                delay(1000L)
-            }
-        }
-    }
 
     private val beaconManager = BeaconManager.getInstanceForApplication(application)
     private val region = Region(
@@ -47,14 +31,14 @@ class UnityViewModel(application: android.app.Application, private val myBluetoo
         null
     )
 
-    fun setBeaconList(newBeaconList: List<Beacon>) {
-        Log.d(TAG, "setBeaconList: $newBeaconList")
-        val tempList = mutableListOf<Beacon>()
-        tempList.addAll(newBeaconList)
-        _beaconList.value?.clear()
-        _beaconList.value = tempList
-        Log.d(TAG, "setBeaconList2: ${_beaconList.value}")
-    }
+    private val kalmanFilter = KalmanFilter3D(
+        initialState = listOf(0.0, 0.0, 0.0),
+        initialCovariance = listOf(
+            listOf(1.0, 0.0, 0.0),
+            listOf(0.0, 1.0, 0.0),
+            listOf(0.0, 0.0, 1.0)
+        )
+    )
 
     fun setNowLoacation(newLoacation: DoubleArray) {
         _nowLocation.value = newLoacation
@@ -100,15 +84,7 @@ class UnityViewModel(application: android.app.Application, private val myBluetoo
     //매초마다 해당 리전의 beacon 정보들을 collection으로 제공받아 처리한다.
     private var rangeNotifier: RangeNotifier = object : RangeNotifier {
         override fun didRangeBeaconsInRegion(beacons: MutableCollection<Beacon>?, region: Region?) {
-            val msg = myBluetoothHandler.obtainMessage()
-            val bundle = msg.data
-            bundle.putString("beaconList", beacons.toString())
-            myBluetoothHandler.sendMessage(msg)
             beacons?.run {
-                val temp = mutableListOf<Beacon>()
-                temp.addAll(beacons)
-                _beaconList.value?.clear()
-                _beaconList.value = temp
                 getMyLocation(beacons.toList())
             }
         }
@@ -120,12 +96,29 @@ class UnityViewModel(application: android.app.Application, private val myBluetoo
             _nowLocation.value = doubleArrayOf(0.0, 0.3, 0.5)
             return
         } else {
-            var sortedList = beacons.sortedBy { it.distance }
-            var centroid = trilateration(sortedList)
+            val sortedList = beacons.sortedBy { it.distance }
+            var centroid = trilateration(sortedList).toList()
+
+            if (centroid == listOf(-9999.9, -9999.9, -9999.9)) {
+                return
+            }
+            // Apply the Kalman filter to the centroid
+            val measurementNoise =
+                listOf(1.0, 1.0, 1.0) // Adjust this value based on your measurement noise
+            val filteredCentroid = kalmanFilter.update(centroid, measurementNoise)
+
             for (i in centroid.indices) {
                 Log.d(TAG, "loc_cen${i}: ${centroid[i]}")
             }
-            _nowLocation.value = centroid
+            userCameraInfoDto.apply {
+                x = filteredCentroid[0].toFloat()
+                y = filteredCentroid[1].toFloat()
+                z = filteredCentroid[2].toFloat()
+            }
+            val msg = myBluetoothHandler.obtainMessage()
+            val bundle = msg.data
+            bundle.putParcelable("userCameraInfoDto", userCameraInfoDto)
+            myBluetoothHandler.sendMessage(msg)
             return
         }
     }

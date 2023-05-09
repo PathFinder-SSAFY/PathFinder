@@ -19,8 +19,7 @@ data class UserCameraInfoDto(
         parcel.readFloat(),
         parcel.readFloat(),
         parcel.readFloat()
-    ) {
-    }
+    )
 
     override fun describeContents(): Int = 0
 

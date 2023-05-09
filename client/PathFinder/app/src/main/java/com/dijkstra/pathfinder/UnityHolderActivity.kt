@@ -26,7 +26,8 @@ import kotlin.math.absoluteValue
 
 private const val TAG = "_ssafy"
 
-class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener { // End of UnityHolderActivity
+class UnityHolderActivity : UnityPlayerActivity(),
+    SensorEventListener { // End of UnityHolderActivity
     private lateinit var textToSpeech: TextToSpeech
 
     private lateinit var sensorManager: SensorManager
@@ -59,27 +60,31 @@ class UnityHolderActivity : UnityPlayerActivity(), SensorEventListener { // End 
         initTTS()
         initUiLayout()
         myBluetoothHandler = MyBluetoothHandler {
-            Log.d(TAG, "onCreate: $it")
+            Log.d(TAG, "onCreate: ${unityViewModel.userCameraInfoDto}")
             pathList.clear()
-            pathList.add(it)
+            pathList.add("x: ${unityViewModel.userCameraInfoDto.x}\n" +
+                    "y: ${unityViewModel.userCameraInfoDto.y}\n" +
+                    "z: ${unityViewModel.userCameraInfoDto.z}")
             navigationPathAdapter.notifyDataSetChanged()
+            UnityPlayer.UnitySendMessage(
+                "SystemController",
+                "SetARCameraPosition",
+                unityViewModel.userCameraInfoDto.toString()
+            )
         }
         unityViewModel = UnityViewModel(application, myBluetoothHandler)
 
-        unityViewModel.beaconList.observe(ProcessLifecycleOwner.get()) {
+        //todo delete
+//        unityViewModel.beaconList.observe(ProcessLifecycleOwner.get()) {
+//            Log.d(TAG, "observe: ${it}")
+//            pathList.clear()
+//            pathList.addAll(it.map { beacon ->
+//                beacon.id3.toString()
+//            })
+//        }
+        unityViewModel.nowLocation.observe(ProcessLifecycleOwner.get()) {
             Log.d(TAG, "observe: ${it}")
-            pathList.clear()
-            pathList.addAll(it.map { beacon ->
-                beacon.id3.toString()
-            })
         }
-        unityViewModel.beaconList.observe(ProcessLifecycleOwner.get()) {
-            Log.d(TAG, "observe: ${it}")
-            pathList.clear()
-            pathList.addAll(it.map { beacon ->
-                beacon.id3.toString()
-            })
-         }
 
     } // End of onCreate
 
