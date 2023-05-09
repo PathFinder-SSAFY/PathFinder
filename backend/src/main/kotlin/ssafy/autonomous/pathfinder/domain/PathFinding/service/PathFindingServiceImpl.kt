@@ -8,6 +8,11 @@ class PathFindingServiceImpl : PathFindingService {
     override fun findPath(start: Node, goal: Node, obstacles: List<Node>): List<Node>? {
         return aStarAlgorithm(start, goal, obstacles)
     }
+    override fun findHelp(start: Node, help: Int, obstacles: List<Node>): List<Node>? {
+        val goal: Node = Node(1.0, 0.0,1.0)
+        return aStarAlgorithm(start, goal, obstacles)
+    }
+
     // 층 id 주면(혹은 고유값) 장애물 위치 불러오는 코드도 넣어야 함.
 
     fun aStarAlgorithm(start: Node, goal: Node, obstacles: List<Node>): List<Node>? {
@@ -48,13 +53,13 @@ class PathFindingServiceImpl : PathFindingService {
 
     fun getNeighbors(node: Node, obstacles: List<Node>): List<Node> {
         return listOf(
-                Node(node.x + 1.0, node.y),
-                Node(node.x - 1.0, node.y),
-                Node(node.x, node.y + 1.0),
-                Node(node.x, node.y - 1.0),
+                Node(node.x + 1.0, node.y, node.z),
+                Node(node.x - 1.0, node.y, node.z),
+                Node(node.x, node.y, node.z + 1.0),
+                Node(node.x, node.y, node.z - 1.0),
 
         ).filter { neighbor ->
-            obstacles.none { it.x == neighbor.x && it.y == neighbor.y }
+            obstacles.none { it.x == neighbor.x && it.z == neighbor.z }
         }
     }
 
