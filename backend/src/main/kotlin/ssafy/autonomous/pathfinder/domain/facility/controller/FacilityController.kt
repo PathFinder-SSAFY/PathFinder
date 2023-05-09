@@ -47,7 +47,7 @@ class FacilityController(
         return ResponseEntity.ok(
             ApiResponse(
                 data = facilityService.getFacilityTypes(facilitySearchRequest),
-                message = "검색 후, 시설 조회 횟수 + 1, 시설 Entity 전달"
+//                message = "검색 후, 시설 조회 횟수 + 1, 시설 Entity 전달"
             )
         )
     }
