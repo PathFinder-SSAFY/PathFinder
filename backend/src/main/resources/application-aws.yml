@@ -3,4 +3,4 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://k8d206.p.ssafy.io:3306/pathfinder?serverTimezone=Asia/Seoul
     username: root
-    password: ssafy
+    password: ssafy0103!

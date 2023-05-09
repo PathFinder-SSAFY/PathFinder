@@ -8,6 +8,7 @@ class PathFindingServiceImpl : PathFindingService {
     override fun findPath(start: Node, goal: Node, obstacles: List<Node>): List<Node>? {
         return aStarAlgorithm(start, goal, obstacles)
     }
+    // 층 id 주면(혹은 고유값) 장애물 위치 불러오는 코드도 넣어야 함.
 
     fun aStarAlgorithm(start: Node, goal: Node, obstacles: List<Node>): List<Node>? {
         val openSet = mutableSetOf(start)
@@ -51,11 +52,6 @@ class PathFindingServiceImpl : PathFindingService {
                 Node(node.x - 1.0, node.y),
                 Node(node.x, node.y + 1.0),
                 Node(node.x, node.y - 1.0),
-
-                Node(node.x + 1.0, node.y + 1.0),
-                Node(node.x - 1.0, node.y - 1.0),
-                Node(node.x + 1.0, node.y - 1.0),
-                Node(node.x - 1.0, node.y + 1.0)
 
         ).filter { neighbor ->
             obstacles.none { it.x == neighbor.x && it.y == neighbor.y }
