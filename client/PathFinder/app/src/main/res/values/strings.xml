@@ -13,6 +13,7 @@
     <string name="search">Search</string>
     <string name="start_nav_to_aed">심장 제세동기로 안내</string>
     <string name="start_nav_to_fire_extinguisher">소화기로 안내</string>
+    <string name="ok">확인</string>
     <string name="cancel">취소</string>
     <string name="cal_now_location">현재 위치를 계산합니다</string>
     <string name="mic_permission_plz">음성 검색을 위해 권한을 허가해주세요</string>

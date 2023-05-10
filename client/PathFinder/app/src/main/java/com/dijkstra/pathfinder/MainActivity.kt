@@ -62,8 +62,8 @@ class MainActivity : ComponentActivity() {
                 navController = rememberNavController()
 //                SetUpNavGraph(navController = navController)
 
-//                MainScreen(navController = navController)
-                startUnityLayout()
+                MainScreen(navController = navController)
+//                startUnityLayout()
             }
         }
 

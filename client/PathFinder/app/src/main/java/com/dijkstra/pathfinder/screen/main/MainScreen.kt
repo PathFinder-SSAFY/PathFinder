@@ -1,7 +1,6 @@
 package com.dijkstra.pathfinder.screen.main
 
 import android.Manifest
-import android.content.Intent
 import android.os.Build
 import android.speech.SpeechRecognizer
 import android.util.Log
@@ -12,7 +11,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.Surface
@@ -25,28 +23,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
+import com.chargemap.compose.numberpicker.ListItemPicker
 import com.dijkstra.pathfinder.R
 import com.dijkstra.pathfinder.components.*
 import com.dijkstra.pathfinder.ui.theme.IconColor
@@ -55,12 +46,8 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.altbeacon.beacon.BeaconManager
-import org.altbeacon.beacon.service.BeaconService
-import org.altbeacon.beacon.service.ScanJob
 
 
 private const val TAG = "MainScreen_SDR"
@@ -119,6 +106,9 @@ fun MainScreen(
 
     // Floor State
     val openFloorDialog = remember { mutableStateOf(false) }
+    val floorValues = listOf("1F", "2F", "3F", "4F", "5F", "6F", "7F")
+    var tempFloorState by remember { mutableStateOf(floorValues[0]) }
+    var floorState by remember { mutableStateOf(floorValues[0]) }
 
     // Beacon State
     val btPermissionsState = rememberMultiplePermissionsState(
@@ -411,11 +401,12 @@ fun MainScreen(
                         )
                         Text(
                             text = "경고",
-                            modifier = Modifier.padding(bottom = 16.dp),
+                            modifier = Modifier.padding(),
                             fontFamily = nanumSquareNeo,
                             fontWeight = FontWeight.Bold,
                             fontSize = 24.sp,
                         )
+                        Spacer(modifier = Modifier.height(16.dp))
                         Button(
                             onClick = {
                                 // TODO : AED로 이동
@@ -460,6 +451,7 @@ fun MainScreen(
                                 color = Color.White
                             )
                         } // End of Fire Extinguisher Button
+                        Spacer(modifier = Modifier.height(24.dp))
                         Box(
                             modifier = Modifier.fillMaxWidth(),
                             contentAlignment = Alignment.BottomEnd
@@ -484,6 +476,7 @@ fun MainScreen(
             Dialog(
                 onDismissRequest = {
                     openFloorDialog.value = false
+                    tempFloorState = floorState
                 }
             ) {
                 Surface(
@@ -498,28 +491,52 @@ fun MainScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Warning,
-                            contentDescription = "Emergency Button",
+                            imageVector = Icons.Default.Layers,
+                            contentDescription = "Floor Button",
                             modifier = Modifier
                                 .width(40.dp)
                                 .height(40.dp)
                                 .padding(bottom = 16.dp),
-                            tint = Color.Red
+                            tint = IconColor
                         )
                         Text(
-                            text = "경고",
-                            modifier = Modifier.padding(bottom = 16.dp),
+                            text = "층 선택",
+                            modifier = Modifier.padding(),
                             fontFamily = nanumSquareNeo,
                             fontWeight = FontWeight.Bold,
                             fontSize = 24.sp,
                         )
-                        Box(
+                        Spacer(modifier = Modifier.height(16.dp))
+                        ListItemPicker(
+                            label = { it },
+                            value = tempFloorState,
+                            onValueChange = { tempFloorState = it },
+                            list = floorValues
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Row(
                             modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.BottomEnd
+                            horizontalArrangement = Arrangement.End
                         ) {
-                            TextButton(onClick = { openEmergencyDialog.value = false }) {
+                            TextButton(onClick = {
+                                openFloorDialog.value = false
+                                tempFloorState = floorState
+                            }) {
                                 Text(
                                     text = stringResource(id = R.string.cancel),
+                                    fontFamily = nanumSquareNeo,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 18.sp,
+                                    color = IconColor
+                                )
+                            }
+                            TextButton(onClick = {
+                                // TODO : Floor Change Logic
+                                openFloorDialog.value = false
+                                floorState = tempFloorState
+                            }) {
+                                Text(
+                                    text = stringResource(id = R.string.ok),
                                     fontFamily = nanumSquareNeo,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 18.sp,
@@ -531,9 +548,7 @@ fun MainScreen(
                 } // End of Surface
             } // End of Dialog
         } // Floor Dialog if-state
-
-
-
+        
         // ModalBottomSheet
         if (openBottomSheet.value) {
             MainModalBottomSheet(
