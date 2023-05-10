@@ -1,6 +1,7 @@
 package com.dijkstra.pathfinder.screen.main
 
 import android.Manifest
+import android.content.Intent
 import android.os.Build
 import android.speech.SpeechRecognizer
 import android.util.Log
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -53,14 +55,16 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.altbeacon.beacon.BeaconManager
+import org.altbeacon.beacon.service.BeaconService
+import org.altbeacon.beacon.service.ScanJob
 
 
 private const val TAG = "MainScreen_SDR"
 
-@Preview
 @OptIn(
     ExperimentalPermissionsApi::class, ExperimentalComposeUiApi::class,
     ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class
@@ -79,7 +83,24 @@ fun MainScreen(
     val isRecording = remember { mutableStateOf(false) }
     val context = LocalContext.current
     val speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context)
-    val speechPermissionState = rememberPermissionState(Manifest.permission.RECORD_AUDIO)
+    val speechPermissionState = rememberPermissionState(
+        Manifest.permission.RECORD_AUDIO,
+        onPermissionResult = { permission ->
+            if (permission) {
+                if (!isRecording.value) {
+                    isRecording.value = true
+                    Log.d(TAG, "MainScreen: speech")
+                    startListening(speechRecognizer, searchQueryState, isRecording)
+                }
+            } else {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.mic_permission_plz),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    )
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
 
@@ -99,7 +120,7 @@ fun MainScreen(
     // Floor State
     val openFloorDialog = remember { mutableStateOf(false) }
 
-    // Permission State
+    // Beacon State
     val btPermissionsState = rememberMultiplePermissionsState(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             listOf(
@@ -117,23 +138,31 @@ fun MainScreen(
                 Manifest.permission.BLUETOOTH,
                 Manifest.permission.BLUETOOTH_ADMIN,
             )
+        },
+        onPermissionsResult = { permissionMap ->
+            var flag = true
+            permissionMap.forEach { entry ->
+                if (!entry.value) {
+                    flag = false
+                }
+            }
+            if (flag) {
+                mainViewModel.startRangingBeacons()
+            } else {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.bt_permission_plz),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
     ) // End of btPermissionsState
 
     LaunchedEffect(key1 = btPermissionsState) {
-        Log.d(TAG, "MainScreen: 1")
         if (btPermissionsState.allPermissionsGranted) {
-            Log.d(TAG, "MainScreen: 2")
             mainViewModel.startRangingBeacons()
         } else {
             btPermissionsState.launchMultiplePermissionRequest()
-            when {
-                btPermissionsState.allPermissionsGranted -> {
-                    Log.d(TAG, "MainScreen: go")
-                    mainViewModel.startRangingBeacons()
-                }
-                else -> {}
-            }
         }
     }
 
@@ -308,7 +337,19 @@ fun MainScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     MainScreenBottomIconButton(
-                        onClick = { Toast.makeText(context, "hi", Toast.LENGTH_SHORT).show() }
+                        onClick = {
+                            if (btPermissionsState.allPermissionsGranted) {
+                                Toast.makeText(
+                                    context,
+                                    context.getString(R.string.cal_now_location),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                // TODO: Now Location to Server
+                                Log.d(TAG, "MyLocation: ${mainViewModel.kalmanLocation.value}")
+                            } else {
+                                btPermissionsState.launchMultiplePermissionRequest()
+                            }
+                        }
                     ) {
                         Icon(
                             imageVector = Icons.Default.MyLocation,
@@ -377,6 +418,7 @@ fun MainScreen(
                         )
                         Button(
                             onClick = {
+                                // TODO : AED로 이동
                                 destinationQueryState.value = "심장제세동기"
                                 openEmergencyDialog.value = false
                                 openBottomSheet.value = true
@@ -398,6 +440,7 @@ fun MainScreen(
                         } // End of AED Button
                         Button(
                             onClick = {
+                                // TODO : 소화기로 이동
                                 destinationQueryState.value = "소화기"
                                 openEmergencyDialog.value = false
                                 openBottomSheet.value = true
@@ -454,11 +497,42 @@ fun MainScreen(
                             .padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = "Emergency Button",
+                            modifier = Modifier
+                                .width(40.dp)
+                                .height(40.dp)
+                                .padding(bottom = 16.dp),
+                            tint = Color.Red
+                        )
+                        Text(
+                            text = "경고",
+                            modifier = Modifier.padding(bottom = 16.dp),
+                            fontFamily = nanumSquareNeo,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 24.sp,
+                        )
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.BottomEnd
+                        ) {
+                            TextButton(onClick = { openEmergencyDialog.value = false }) {
+                                Text(
+                                    text = stringResource(id = R.string.cancel),
+                                    fontFamily = nanumSquareNeo,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 18.sp,
+                                    color = IconColor
+                                )
+                            }
+                        } // End of Cancel Button Box
+                    } // End of Column
+                } // End of Surface
+            } // End of Dialog
+        } // Floor Dialog if-state
 
-                    }
-                }
-            }
-        }
+
 
         // ModalBottomSheet
         if (openBottomSheet.value) {
