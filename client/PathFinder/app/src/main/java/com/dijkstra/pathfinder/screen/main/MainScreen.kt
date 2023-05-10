@@ -418,6 +418,7 @@ fun MainScreen(
                         )
                         Button(
                             onClick = {
+                                // TODO : AED로 이동
                                 destinationQueryState.value = "심장제세동기"
                                 openEmergencyDialog.value = false
                                 openBottomSheet.value = true
@@ -439,6 +440,7 @@ fun MainScreen(
                         } // End of AED Button
                         Button(
                             onClick = {
+                                // TODO : 소화기로 이동
                                 destinationQueryState.value = "소화기"
                                 openEmergencyDialog.value = false
                                 openBottomSheet.value = true
@@ -495,11 +497,42 @@ fun MainScreen(
                             .padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = "Emergency Button",
+                            modifier = Modifier
+                                .width(40.dp)
+                                .height(40.dp)
+                                .padding(bottom = 16.dp),
+                            tint = Color.Red
+                        )
+                        Text(
+                            text = "경고",
+                            modifier = Modifier.padding(bottom = 16.dp),
+                            fontFamily = nanumSquareNeo,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 24.sp,
+                        )
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.BottomEnd
+                        ) {
+                            TextButton(onClick = { openEmergencyDialog.value = false }) {
+                                Text(
+                                    text = stringResource(id = R.string.cancel),
+                                    fontFamily = nanumSquareNeo,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 18.sp,
+                                    color = IconColor
+                                )
+                            }
+                        } // End of Cancel Button Box
+                    } // End of Column
+                } // End of Surface
+            } // End of Dialog
+        } // Floor Dialog if-state
 
-                    }
-                }
-            }
-        }
+
 
         // ModalBottomSheet
         if (openBottomSheet.value) {

@@ -147,5 +147,8 @@ dependencies {
     // Apache Commons Math
     implementation "org.apache.commons:commons-math3:3.6.1"
 
+    // NumberPicker
+    implementation "com.chargemap.compose:numberpicker:1.0.3"
+
 
 }
