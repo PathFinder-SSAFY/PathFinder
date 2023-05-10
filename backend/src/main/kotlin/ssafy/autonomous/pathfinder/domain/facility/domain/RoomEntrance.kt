@@ -15,7 +15,7 @@ class RoomEntrance(
     val entranceRightDownX: Double ?= 0.0,
     val entranceRightDownY: Double ?= 0.0,
     val entranceDirection: Int ? = 0, // 1: 윗 방향, 2: 오른쪽 방향, 3: 아랫 방향, 4: 왼쪽 방향
-    val entranceZone: Int ? = 0,
+    val entranceZone: Int ? = 0, // 밀접 거리
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
