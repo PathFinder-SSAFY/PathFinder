@@ -68,6 +68,7 @@ fun TestScreen(
                         if (it.data == 200) {
                             Text(text = "collectAs : Success")
                         }
+
                     }
                     is NetworkResult.Error -> {
                         Text(text = "Test Call Error")
@@ -122,8 +123,8 @@ fun TestScreen(
             failTestResponseStateFlowCollect.let {
                 when (it.value) {
                     is NetworkResult.Success -> {
-                        if (it.value.data == 400) {
-                            Text(text = "collectAs : 400 Error")
+                        if (it.value?.data == 200) {
+                            Text(text = "collectAs : Success")
                         }
                     }
                     is NetworkResult.Error -> {
@@ -132,61 +133,14 @@ fun TestScreen(
                     is NetworkResult.Loading -> {
                         Text(text = "Test Call Loading..")
                     }
+                    else -> {
+                        Text(text = "")
+                    }
                 }
             }
 
-
-//            response.let {
-//                when (it) {
-//                    is NetworkResult.Success -> {
-//                        if (it.data == 200) {
-//                            Text(text = "Success")
-//                        }
-//                    }
-//                    is NetworkResult.Error -> {
-//                        Text(text = "Test Call Error")
-//                    }
-//                    is NetworkResult.Loading -> {
-//                        Text(text = "Test Call Loading..")
-//                    }
-//                }
-//            }
-
-//            testCall2State.value.let {
-//                when (it) {
-//                    is NetworkResult.Success -> {
-//                        if (it.data == 200) {
-//                            Text(text = "Test Call Success")
-//                        }
-//                    }
-//                    is NetworkResult.Error -> {
-//                        Text(text = "Test Call Error")
-//                    }
-//                    is NetworkResult.Loading -> {
-//                        Text(text = "Test Call Loading..")
-//                    }
-//                }
-//            }
-
-//            testCallState.value.let {
-//                // LaunchedEffect 써야되나?? -> 안써도 되는듯
-//                when (it) {
-//                    is NetworkResult.Success -> {
-//                        if (it.data == 200) {
-//                            Text(text = "Test Call Success")
-//                        }
-//                    }
-//                    is NetworkResult.Error -> {
-//                        Text(text = "Test Call Error")
-//                    }
-//                    is NetworkResult.Loading -> {
-//                        Text(text = "Test Call Loading..")
-//                    }
-//                }
-//            }
         }
     }
-
 } // End of TestScreen
 
 

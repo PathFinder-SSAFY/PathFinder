@@ -66,7 +66,8 @@ class TestViewModel @Inject constructor(
                         it.message ?: "Something went wrong!"
                     )
                 )
-            }.collect {
+            }.collectLatest {
+                Log.d(TAG, "testCall2: collectLatest")
                 _testCall2ResponseFlow.value = NetworkResult.Success(it.code())
                 _testCall2StateFlow.emit(
                     NetworkResult.Success(it.code())
@@ -84,31 +85,34 @@ class TestViewModel @Inject constructor(
         private set
 
     // mutableStateOf
-    private val _failTestResponseState = mutableStateOf<NetworkResult<Int>>(NetworkResult.Loading())
+    private val _failTestResponseState = mutableStateOf< NetworkResult<Int>>(NetworkResult.Loading())
     var failTestResponseState = _failTestResponseState
         private set
 
     // MutableStateFlow
     private val _failTestResponseStateFlow =
-        MutableStateFlow<NetworkResult<Int>>(NetworkResult.Loading())
+        MutableStateFlow<NetworkResult<Int>?>(null)
     var failTestResponseStateFlow = _failTestResponseStateFlow
         private set
 
     suspend fun failTest() {
         viewModelScope.launch {
             testRepository.failTest().onStart {
-                _failTestResponseStateFlow.emit(NetworkResult.Loading())
+                failTestResponseStateFlow.emit(
+                    NetworkResult.Loading()
+                )
             }.catch {
-                it.printStackTrace()
-                Log.d(TAG, "failTest: ${it.printStackTrace()}")
-                _failTestResponseStateFlow.emit(
+                failTestResponseStateFlow.emit(
                     NetworkResult.Error(
-                        it.message ?: "Something went wrong!"
+                        it.printStackTrace().toString()
                     )
                 )
-            }.collect {
-                Log.d(TAG, "failTest: ${it.body()}")
-                _failTestResponseStateFlow.emit(NetworkResult.Success(it.code()))
+            }.collectLatest { result ->
+                failTestResponseStateFlow.emit(
+                    NetworkResult.Success(
+                        result.data!!.code()
+                    )
+                )
             }
         }
     } // End of failTest

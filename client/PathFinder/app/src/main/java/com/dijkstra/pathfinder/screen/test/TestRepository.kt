@@ -40,10 +40,7 @@ class TestRepository @Inject constructor(
         emit(testApi.testCall2())
     }.flowOn(Dispatchers.IO)  // End of testCall2
 
-    suspend fun failTest(): Flow<Response<Void>> = flow {
-        val response = testApi.failTest()
-        Log.d(TAG, "body: ${response.body()}")
-        Log.d(TAG, "code: ${response.code()}")
+    suspend fun failTest(): Flow<NetworkResult<Response<Void>>> = flow {
         emit(testApi.failTest())
     }.flowOn(Dispatchers.IO)
 
