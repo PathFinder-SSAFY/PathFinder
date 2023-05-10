@@ -15,6 +15,9 @@ class Facility(
         private var densityMax: Int, // 최대 밀집도
         private var hitCount: Int, // 시설 조회 횟수
 
+
+
+
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(name = "facility_id")
@@ -28,7 +31,11 @@ class Facility(
 
         // 시설과 각 방의 기능 1 : N
         @OneToMany(mappedBy = "facility")
-        private var floatingPopularity: List<FloatingPopularity> = mutableListOf()
+        private var floatingPopularity: List<FloatingPopularity> = mutableListOf(),
+
+        // 방 하나에는 여러개의 입구가 있을 수 있다.
+        @OneToMany(mappedBy = "facility")
+        private val entrance: List<RoomEntrance> = mutableListOf()
 
 ){
         fun plusHitCount(){
@@ -44,7 +51,11 @@ class Facility(
                 return this.facilityName
         }
 
-        fun getHisCount(): Int{
+        fun getHisCount(): Int {
                 return this.hitCount
+        }
+
+        fun getEntrance(): List<RoomEntrance>{
+                return this.entrance
         }
 }

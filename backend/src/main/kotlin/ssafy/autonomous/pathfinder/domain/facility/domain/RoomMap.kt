@@ -2,19 +2,13 @@ package ssafy.autonomous.pathfinder.domain.facility.domain
 
 import javax.persistence.*
 
+// 비콘을 기준으로 중간 좌표
 @Entity
 class RoomMap(
 
         // Room 중앙 위치
         val longitude: Double,
         val latitude: Double,
-
-
-        // 입구 좌상, 우상, 좌하, 우하 추가
-        val entrancLeftUp: Double ?= 0.0,
-        val entranceRightUp: Double ?= 0.0,
-        val entranceLeftDown: Double ?= 0.0,
-        val entranceRightDown: Double ?= 0.0,
 
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
