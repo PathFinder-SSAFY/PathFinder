@@ -17,10 +17,12 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.dijkstra.pathfinder.data.dto.Point
 import com.dijkstra.pathfinder.util.MyBluetoothHandler
 import com.dijkstra.pathfinder.util.NetworkResult
 import com.dijkstra.pathfinder.util.ViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.gson.Gson
 import com.unity3d.player.UnityPlayer
 import com.unity3d.player.UnityPlayerActivity
 import kotlinx.coroutines.CoroutineScope
@@ -60,7 +62,7 @@ class UnityHolderActivity : UnityPlayerActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Log.d(TAG, "onCreate: ${this.applicationContext}")
+        val dest = intent.getDoubleArrayExtra("destination")
 
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         roationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
@@ -68,16 +70,16 @@ class UnityHolderActivity : UnityPlayerActivity(),
         initTTS()
         initUiLayout()
         myBluetoothHandler = MyBluetoothHandler {
-            Log.d(TAG, "onCreate: ${unityViewModel.userCameraInfoDto}")
+            Log.d(TAG, "onCreate: ${unityViewModel.userCameraInfo}")
             pathList.clear()
-            pathList.add("x: ${unityViewModel.userCameraInfoDto.x}\n" +
-                    "y: ${unityViewModel.userCameraInfoDto.y}\n" +
-                    "z: ${unityViewModel.userCameraInfoDto.z}")
+            pathList.add("x: ${unityViewModel.userCameraInfo.x}\n" +
+                    "y: ${unityViewModel.userCameraInfo.y}\n" +
+                    "z: ${unityViewModel.userCameraInfo.z}")
             navigationPathAdapter.notifyDataSetChanged()
             UnityPlayer.UnitySendMessage(
                 "SystemController",
                 "SetARCameraPosition",
-                unityViewModel.userCameraInfoDto.toString()
+                unityViewModel.userCameraInfo.toString()
             )
         }
         viewModelProvider = ViewModelFactory(application, myBluetoothHandler)
@@ -210,13 +212,11 @@ class UnityHolderActivity : UnityPlayerActivity(),
         Log.d(TAG, "onResume: ")
         sensorManager.registerListener(this, roationVectorSensor, SensorManager.SENSOR_DELAY_UI)
         cameraInitFlag = true
-        unityViewModel.startBeaconScanning()
     } // End of onResume
 
     override fun onPause() {
         super.onPause()
         sensorManager.unregisterListener(this)
-        unityViewModel.stopBeaconScanning()
     } // End of onPause
 
     override fun onDestroy() {
@@ -241,9 +241,9 @@ class UnityHolderActivity : UnityPlayerActivity(),
         }
 
         // todo delete
-        unityViewModel.userCameraInfoDto.azimuth = orientationDeg[0]
-        unityViewModel.userCameraInfoDto.pitch = orientationDeg[1]
-        unityViewModel.userCameraInfoDto.roll = orientationDeg[2]
+        unityViewModel.userCameraInfo.azimuth = orientationDeg[0]
+        unityViewModel.userCameraInfo.pitch = orientationDeg[1]
+        unityViewModel.userCameraInfo.roll = orientationDeg[2]
 
         if (cameraInitFlag) {
             initCameraPosition()
@@ -261,7 +261,7 @@ class UnityHolderActivity : UnityPlayerActivity(),
         UnityPlayer.UnitySendMessage(
             "SystemController",
             "InitializeARCameraAngle",
-            unityViewModel.userCameraInfoDto.toString()
+            unityViewModel.userCameraInfo.toString()
         )
     } // End of initCameraPosition
 

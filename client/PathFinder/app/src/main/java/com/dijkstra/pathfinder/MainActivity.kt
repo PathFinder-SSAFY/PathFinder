@@ -191,6 +191,7 @@ class MainActivity : ComponentActivity() {
                         }
                         if (btPermissionsState.allPermissionsGranted) {
                             val intent = Intent(this@MainActivity, UnityHolderActivity::class.java)
+                            intent.putExtra("destination", doubleArrayOf(0.0, 0.0, 0.0))
                             startActivity(intent)
                         } else {
                             btPermissionsState.launchMultiplePermissionRequest()
