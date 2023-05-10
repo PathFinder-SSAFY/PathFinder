@@ -40,6 +40,10 @@ class Facility(
         }
 
 
+        fun getFacilityName(): String{
+                return this.facilityName
+        }
+
         fun getHisCount(): Int{
                 return this.hitCount
         }
