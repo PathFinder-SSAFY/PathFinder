@@ -1,6 +1,7 @@
 package com.dijkstra.pathfinder.screen.main
 
 import android.Manifest
+import android.os.Build
 import android.speech.SpeechRecognizer
 import android.util.Log
 import android.widget.Toast
@@ -39,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -49,9 +51,11 @@ import com.dijkstra.pathfinder.ui.theme.IconColor
 import com.dijkstra.pathfinder.ui.theme.nanumSquareNeo
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.altbeacon.beacon.BeaconManager
 
 
 private const val TAG = "MainScreen_SDR"
@@ -64,7 +68,8 @@ private const val TAG = "MainScreen_SDR"
 @Composable
 fun MainScreen(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
-    navController: NavController = NavController(LocalContext.current)
+    navController: NavController,
+    mainViewModel: MainViewModel = hiltViewModel()
 ) {
     // Search State
     val searchQueryState = remember { mutableStateOf("") }
@@ -93,6 +98,44 @@ fun MainScreen(
 
     // Floor State
     val openFloorDialog = remember { mutableStateOf(false) }
+
+    // Permission State
+    val btPermissionsState = rememberMultiplePermissionsState(
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            listOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.BLUETOOTH,
+                Manifest.permission.BLUETOOTH_ADMIN,
+                Manifest.permission.BLUETOOTH_SCAN,
+                Manifest.permission.BLUETOOTH_ADVERTISE,
+            )
+        } else {
+            listOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.BLUETOOTH,
+                Manifest.permission.BLUETOOTH_ADMIN,
+            )
+        }
+    ) // End of btPermissionsState
+
+    LaunchedEffect(key1 = btPermissionsState) {
+        Log.d(TAG, "MainScreen: 1")
+        if (btPermissionsState.allPermissionsGranted) {
+            Log.d(TAG, "MainScreen: 2")
+            mainViewModel.startRangingBeacons()
+        } else {
+            btPermissionsState.launchMultiplePermissionRequest()
+            when {
+                btPermissionsState.allPermissionsGranted -> {
+                    Log.d(TAG, "MainScreen: go")
+                    mainViewModel.startRangingBeacons()
+                }
+                else -> {}
+            }
+        }
+    }
 
     LaunchedEffect(key1 = openBottomSheet.value) {
         if (openBottomSheet.value) {
@@ -136,6 +179,7 @@ fun MainScreen(
                 onSearch = {
                     // TODO: logic onSearch
                     destinationQueryState.value = searchQueryState.value.trim()
+                    Log.d(TAG, "MainScreen: ${destinationQueryState.value}")
                     focusManager.clearFocus()
                     keyboardController?.hide()
                 }
@@ -337,7 +381,9 @@ fun MainScreen(
                                 openEmergencyDialog.value = false
                                 openBottomSheet.value = true
                             },
-                            modifier = Modifier.fillMaxWidth(0.9f).padding(bottom = 8.dp),
+                            modifier = Modifier
+                                .fillMaxWidth(0.9f)
+                                .padding(bottom = 8.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color.Red
                             )
@@ -356,7 +402,9 @@ fun MainScreen(
                                 openEmergencyDialog.value = false
                                 openBottomSheet.value = true
                             },
-                            modifier = Modifier.fillMaxWidth(0.9f).padding(bottom = 8.dp),
+                            modifier = Modifier
+                                .fillMaxWidth(0.9f)
+                                .padding(bottom = 8.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color.Red
                             )
@@ -388,6 +436,7 @@ fun MainScreen(
             } // End of Dialog
         }  // Emergency Dialog if-state
 
+        // Floor Dialog
         if (openFloorDialog.value) {
             Dialog(
                 onDismissRequest = {
@@ -425,6 +474,6 @@ fun MainScreen(
             )
         } // End of Bottom Modal
 
-    } // End of MainScreen
+    } // End of MainScreen Surface
 
 } // End of MainScreen

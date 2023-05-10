@@ -1,5 +1,6 @@
 package com.dijkstra.pathfinder.di
 
+import android.content.Context
 import androidx.core.view.DragAndDropPermissionsCompat.*
 import com.dijkstra.pathfinder.BuildConfig
 import com.dijkstra.pathfinder.domain.api.MainApi
@@ -8,11 +9,13 @@ import com.dijkstra.pathfinder.util.Constant
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
+import org.altbeacon.beacon.BeaconManager
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
@@ -86,6 +89,4 @@ object AppModule {
             .build()
             .create(MainApi::class.java)
     }
-
-
 } // End of AppModule
