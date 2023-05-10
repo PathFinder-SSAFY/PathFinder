@@ -1,6 +1,5 @@
 package com.dijkstra.pathfinder.screen.test
 
-import android.util.Log
 import com.dijkstra.pathfinder.di.AppModule
 import com.dijkstra.pathfinder.domain.api.TestApi
 import com.dijkstra.pathfinder.util.NetworkResult
@@ -34,7 +33,6 @@ class TestRepository @Inject constructor(
             }
         }
     } // End of testCall
-
 
     suspend fun testCall2(): Flow<Response<Void>> = flow {
         emit(testApi.testCall2())

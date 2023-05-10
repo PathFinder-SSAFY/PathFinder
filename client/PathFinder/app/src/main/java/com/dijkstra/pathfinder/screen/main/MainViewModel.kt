@@ -1,25 +1,32 @@
 package com.dijkstra.pathfinder.screen.main
 
 import android.app.Application
-import android.provider.Settings.Global.getString
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.res.stringResource
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
-import com.dijkstra.pathfinder.R
+import androidx.lifecycle.viewModelScope
+import com.dijkstra.pathfinder.data.dto.SearchResponse
+import com.dijkstra.pathfinder.domain.repository.MainRepository
 import com.dijkstra.pathfinder.util.KalmanFilter3D
+import com.dijkstra.pathfinder.util.NetworkResult
 import com.dijkstra.pathfinder.util.trilateration
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 import org.altbeacon.beacon.*
+import retrofit2.Response
 import javax.inject.Inject
 
-private const val TAG = "MainViewModel_SDR"
+private const val TAG = "MainViewModel_싸피"
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val application: Application
+    private val application: Application,
+    private val mainRepo: MainRepository
 ) : ViewModel() {
     var beaconList: MutableState<List<Beacon>> = mutableStateOf(emptyList())
     var kalmanLocation = mutableStateOf(listOf(0.0, 0.0, 0.0))
@@ -99,4 +106,35 @@ class MainViewModel @Inject constructor(
         super.onCleared()
     }
 
-} // End of MainViewModel
+    // ========================================== postFacilityDynamic ==========================================
+
+    private val _postFacilityDynamicResponseStateFlow =
+        MutableStateFlow<NetworkResult<Response<SearchResponse>>?>(null)
+    var postFacilityDynamicResponseStateFlow = _postFacilityDynamicResponseStateFlow
+        private set
+
+    suspend fun postFacilityDynamic(searchData: String) {
+        viewModelScope.launch {
+            mainRepo.postFacilityDynamic(searchData).onStart {
+                Log.d(TAG, "postFacilityDynamic onStart {} ")
+                _postFacilityDynamicResponseStateFlow.emit(
+                    NetworkResult.Loading()
+                )
+            }.catch {
+                Log.d(TAG, "postFacilityDynamic NetworkResult Error searchData : $searchData ")
+                Log.d(TAG, "postFacilityDynamic NetworkResult Error : ${it.printStackTrace()}")
+                Log.d(TAG, "postFacilityDynamic: ${it.message}")
+                _postFacilityDynamicResponseStateFlow.emit(
+                    NetworkResult.Error(
+                        it.message
+                    )
+                )
+            }.collectLatest {
+                Log.d(TAG, "postFacilityDynamic: ${it.data!!.body()}")
+                _postFacilityDynamicResponseStateFlow.emit(
+                    NetworkResult.Success(it.data!!)
+                )
+            }
+        }
+    } // End of postFacilityDynamic
+} // End of MainViewModel class

@@ -11,7 +11,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.Surface
@@ -23,16 +22,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,8 +35,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import com.dijkstra.pathfinder.R
@@ -53,12 +45,13 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.altbeacon.beacon.BeaconManager
 
 
-private const val TAG = "MainScreen_SDR"
+private const val TAG = "MainScreen_싸피"
 
 @Preview
 @OptIn(
@@ -98,6 +91,11 @@ fun MainScreen(
 
     // Floor State
     val openFloorDialog = remember { mutableStateOf(false) }
+
+    // MainViewModelState
+    val postFacilityDynamicResponseStateFlow =
+        mainViewModel.postFacilityDynamicResponseStateFlow.collectAsState()
+
 
     // Permission State
     val btPermissionsState = rememberMultiplePermissionsState(
@@ -168,7 +166,13 @@ fun MainScreen(
     ) {
         AutoCompleteSearchBar(
             value = searchQueryState.value,
-            onValueChange = { value -> searchQueryState.value = value },
+            onValueChange = { value ->
+                searchQueryState.value = value
+                CoroutineScope(Dispatchers.IO).launch {
+                    Log.d(TAG, "MainScreen: ${searchQueryState.value}")
+                    mainViewModel.postFacilityDynamic(searchQueryState.value)
+                }
+            },
             active = searchBarActiveState.value,
             onActiveChange = { searchBarActiveState.value = it },
             modifier = Modifier
@@ -473,7 +477,5 @@ fun MainScreen(
                 scope = coroutineScope
             )
         } // End of Bottom Modal
-
     } // End of MainScreen Surface
-
 } // End of MainScreen

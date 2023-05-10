@@ -26,7 +26,6 @@ class TestViewModel @Inject constructor(
     } // End of testCall
 
     // ================================ LiveData 코드 Flow코드로 수정
-
     // MutableSharedFlow
     private val _testCall2SharedFlow = MutableSharedFlow<NetworkResult<Int>>()
     var testCall2SharedFlow = _testCall2SharedFlow.asSharedFlow()

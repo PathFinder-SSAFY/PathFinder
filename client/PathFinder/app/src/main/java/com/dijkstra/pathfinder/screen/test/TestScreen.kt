@@ -70,7 +70,6 @@ fun TestScreen(
                         if (it.data == 200) {
                             Text(text = "collectAs : Success")
                         }
-
                     }
                     is NetworkResult.Error -> {
                         Text(text = "Test Call Error")

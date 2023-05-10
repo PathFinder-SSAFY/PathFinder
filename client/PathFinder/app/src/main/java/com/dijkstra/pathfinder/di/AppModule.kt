@@ -1,21 +1,19 @@
 package com.dijkstra.pathfinder.di
 
-import android.content.Context
 import androidx.core.view.DragAndDropPermissionsCompat.*
 import com.dijkstra.pathfinder.BuildConfig
 import com.dijkstra.pathfinder.domain.api.MainApi
+import com.dijkstra.pathfinder.domain.api.NFCApi
 import com.dijkstra.pathfinder.domain.api.TestApi
 import com.dijkstra.pathfinder.util.Constant
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
-import org.altbeacon.beacon.BeaconManager
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
@@ -67,6 +65,7 @@ object AppModule {
             .build()
     } // End of provideInterceptorOkHttpClient
 
+    // ============================================ Test Retrofit Module ============================================
     @Provides
     @OkHttpInterceptorApi
     @Singleton
@@ -79,14 +78,28 @@ object AppModule {
             .create()
     } // End of testCallApi
 
-    // ============================================ Main ============================================
+    // ============================================ Main Retrofit Module ============================================
     @Provides
-    fun provideMainApi(@OkHttpInterceptorClient interceptor: OkHttpClient): MainApi {
+    @OkHttpInterceptorApi
+    @Singleton
+    fun mainCallApi(@OkHttpInterceptorClient interceptor: OkHttpClient): MainApi {
         return Retrofit.Builder()
             .client(interceptor)
             .baseUrl(Constant.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(MainApi::class.java)
-    }
-} // End of AppModule
+            .create()
+    } // End of mainCallApi
+
+    // ============================================ NFC Retrofit Module ============================================
+    @Provides
+    @OkHttpInterceptorApi
+    @Singleton
+    fun nfcCallApi(@OkHttpInterceptorClient interceptor: OkHttpClient): NFCApi {
+        return Retrofit.Builder()
+            .client(interceptor)
+            .baseUrl(Constant.BASE_URL).addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create()
+    } // End of nfcCallApi
+} // End of AppModule object
