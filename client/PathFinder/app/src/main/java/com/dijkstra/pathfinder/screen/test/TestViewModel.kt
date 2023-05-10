@@ -79,8 +79,7 @@ class TestViewModel @Inject constructor(
 
 
     // ========================================= FailTest =========================================
-
-    private val _failTestResponseSharedFlow = MutableSharedFlow<NetworkResult<Int>>()
+    private val _failTestResponseSharedFlow = MutableSharedFlow<NetworkResult<Int>?>(0)
     var failTestResponseSharedFlow = _failTestResponseSharedFlow.asSharedFlow()
         private set
 
@@ -98,17 +97,32 @@ class TestViewModel @Inject constructor(
     suspend fun failTest() {
         viewModelScope.launch {
             testRepository.failTest().onStart {
-                failTestResponseStateFlow.emit(
+                _failTestResponseSharedFlow.emit(
                     NetworkResult.Loading()
                 )
-            }.catch {
-                failTestResponseStateFlow.emit(
+
+                _failTestResponseStateFlow.emit(
+                    NetworkResult.Loading()
+                )
+            }.catch { result ->
+                _failTestResponseSharedFlow.emit(
                     NetworkResult.Error(
-                        it.printStackTrace().toString()
+                        result.printStackTrace().toString()
+                    )
+                )
+                _failTestResponseStateFlow.emit(
+                    NetworkResult.Error(
+                        result.printStackTrace().toString()
                     )
                 )
             }.collectLatest { result ->
-                failTestResponseStateFlow.emit(
+                _failTestResponseSharedFlow.emit(
+                    NetworkResult.Success(
+                        result.data!!.code()
+                    )
+                )
+
+                _failTestResponseStateFlow.emit(
                     NetworkResult.Success(
                         result.data!!.code()
                     )

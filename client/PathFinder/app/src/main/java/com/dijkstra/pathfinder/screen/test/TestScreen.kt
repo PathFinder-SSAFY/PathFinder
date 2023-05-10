@@ -42,6 +42,8 @@ fun TestScreen(
 
     val failTestResponseStateFlowCollect = testViewModel.failTestResponseStateFlow.collectAsState()
 
+    val failTestResposneSharedFlowCollect =
+        testViewModel.failTestResponseSharedFlow.collectAsState(null)
 
     Surface(
         modifier = Modifier.fillMaxSize()
@@ -139,6 +141,25 @@ fun TestScreen(
                 }
             }
 
+            Spacer(Modifier.padding(40.dp))
+            Text(text = "아래는 실패 테스트 결과 값 : FailTestResponseSharedFlow")
+            failTestResposneSharedFlowCollect.let {
+                when (it.value!!) {
+                    is NetworkResult.Success -> {
+                        if (it.value?.data == 200) {
+                            Text(text = "FailTestResponse SharedFlow Result : Success")
+                        }
+                    }
+
+                    is NetworkResult.Error -> {
+                        Text(text = "FailTestResponse SharedFlow Result : Error")
+                    }
+
+                    is NetworkResult.Loading -> {
+                        Text(text = "FailTestResponse SharedFlow Result : Loading")
+                    }
+                }
+            }
         }
     }
 } // End of TestScreen
