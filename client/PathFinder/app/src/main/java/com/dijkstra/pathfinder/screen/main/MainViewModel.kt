@@ -15,7 +15,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import org.altbeacon.beacon.*
 import javax.inject.Inject
 
-private const val TAG = "MainViewModel_SDR"
+private const val TAG = "MainViewModel_SSAFY"
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -26,8 +26,8 @@ class MainViewModel @Inject constructor(
     private val beaconManager = BeaconManager.getInstanceForApplication(application)
 
     private val region = Region(
-        "estimote",
-        Identifier.parse("E2C56DB5-DFFB-48D2-B060-D0F5A71096E0"),
+        application.getString(R.string.beacon_unique_id),
+        Identifier.parse(application.getString(R.string.beacon_uuid)),
         null,
         null
     )
@@ -68,27 +68,25 @@ class MainViewModel @Inject constructor(
                 listOf(1.0, 1.0, 1.0) // Adjust this value based on your measurement noise
             val filteredCentroid = kalmanFilter.update(centroid, measurementNoise)
 
-            filteredCentroid.forEach {
-                Log.d(TAG, "getMyLocation: $it")
-            }
-
+            Log.d(TAG, "getMyLocation: $filteredCentroid")
+            
             kalmanLocation.value = filteredCentroid
             return
         }
     } // End of getMyLocation
 
     fun startRangingBeacons() {
+        Log.d(TAG, "startRangingBeacons: ")
         beaconManager.startRangingBeacons(region)
     }
 
     init {
         beaconManager.apply {
             beaconParsers.add(
-                BeaconParser().setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24")
+                BeaconParser().setBeaconLayout(application.getString(R.string.beacon_layout))
             )
             addRangeNotifier(rangeNotifier)
         }
-        Log.d(TAG, "init: $beaconManager")
     }
 
 

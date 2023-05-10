@@ -34,7 +34,6 @@ val beaconPositionList = listOf<BeaconPositionDto>(
         id = 33240,
         x = 22.24,
         y = 2.38,
-//        z = -1.1
         z = -1.7
     ),
     BeaconPositionDto(
@@ -73,31 +72,30 @@ val beaconPositionList = listOf<BeaconPositionDto>(
     ),
     BeaconPositionDto(
         id = 33160,
-        x = 23.6,
+        x = 19.0,
         y = 2.38,
 //        z = -7.0
-        z = -8.93
+        z = -4.99
     ),
     BeaconPositionDto(
         id = 33157,
-        x = 21.1,
-        y = 2.49,
-//        z = -8.41
-        z = -9.07
+        x = 27.19,
+        y = 2.38,
+        z = -1.7
     ),
     BeaconPositionDto(
         id = 33164,
-        x = 22.4,
-        y = 0.79,
+        x = 24.18,
+        y = 2.38,
 //        z = -12.71
-        z = -13.37
+        z = -5.33
     ),
     BeaconPositionDto(
         id = 33158,
-        x = 21.1,
-        y = -0.9,
+        x = 31.25,
+        y = 2.38,
 //        z = -8.41
-        z = -9.07
+        z = -5.66
     ),
     BeaconPositionDto(
         id = 33241,
