@@ -1,4 +1,4 @@
-package ssafy.autonomous.pathfinder.domain.PathFinding.dto
+package ssafy.autonomous.pathfinder.domain.pathfinding.dto
 
 data class PathFindingRequest(val start: Node, val goal: Node, val obstacles: List<Node>)
 

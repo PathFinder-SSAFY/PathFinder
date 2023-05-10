@@ -1,7 +1,7 @@
-package ssafy.autonomous.pathfinder.domain.PathFinding.service
+package ssafy.autonomous.pathfinder.domain.pathfinding.service
 
 import org.springframework.stereotype.Service
-import ssafy.autonomous.pathfinder.domain.PathFinding.dto.Node
+import ssafy.autonomous.pathfinder.domain.pathfinding.dto.Node
 
 @Service
 class PathFindingServiceImpl : PathFindingService {
