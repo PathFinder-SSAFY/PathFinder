@@ -41,6 +41,7 @@ import com.dijkstra.pathfinder.R
 import com.dijkstra.pathfinder.components.*
 import com.dijkstra.pathfinder.ui.theme.IconColor
 import com.dijkstra.pathfinder.ui.theme.nanumSquareNeo
+import com.dijkstra.pathfinder.util.NetworkResult
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -169,7 +170,6 @@ fun MainScreen(
             onValueChange = { value ->
                 searchQueryState.value = value
                 CoroutineScope(Dispatchers.IO).launch {
-                    Log.d(TAG, "MainScreen: ${searchQueryState.value}")
                     mainViewModel.postFacilityDynamic(searchQueryState.value)
                 }
             },
@@ -241,12 +241,34 @@ fun MainScreen(
                     .background(Color.Transparent),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                val itemList = emptyList<String>()
+
+                postFacilityDynamicResponseStateFlow.let {
+                    when (it.value) {
+                        is NetworkResult.Success -> {
+                            if (it.value!!.data!!.code() == 200) {
+                                Log.d(TAG, "MainScreen: ")
+                            }
+                        }
+
+                        is NetworkResult.Error -> {
+                            Log.e(TAG, "MainScreen: ")
+                        }
+
+                        is NetworkResult.Loading -> {
+
+                        }
+                        else -> {
+
+                        }
+                    }
+
+                    Log.d(TAG, "MainScreen: ${it.value!!.data!!.body()}")
+                }
+
+
                 items(
-                    persons.map { person ->
-                        person.name
-                    }.filter { name ->
-                        name.lowercase().contains(searchQueryState.value.lowercase())
-                    }.sorted()
+                    itemList
                 ) { name ->
                     ListItem(
                         headlineContent = {

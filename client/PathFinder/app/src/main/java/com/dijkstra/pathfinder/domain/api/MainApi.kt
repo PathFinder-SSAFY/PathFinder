@@ -20,7 +20,7 @@ interface MainApi {
     @POST("facility/dynamic")
     suspend fun postFacilityDynamic(
         @Body filteringSearch: JsonObject
-    ): NetworkResult<Response<SearchResponse>>
+    ): Response<SearchResponse>
 
     @POST("facility/search")
     suspend fun postFacilitySearch(

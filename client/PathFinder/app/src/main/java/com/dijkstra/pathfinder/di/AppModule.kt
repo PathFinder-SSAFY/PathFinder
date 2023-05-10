@@ -98,7 +98,8 @@ object AppModule {
     fun nfcCallApi(@OkHttpInterceptorClient interceptor: OkHttpClient): NFCApi {
         return Retrofit.Builder()
             .client(interceptor)
-            .baseUrl(Constant.BASE_URL).addConverterFactory(GsonConverterFactory.create())
+            .baseUrl(Constant.BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create()
     } // End of nfcCallApi

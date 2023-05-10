@@ -116,25 +116,21 @@ class MainViewModel @Inject constructor(
     suspend fun postFacilityDynamic(searchData: String) {
         viewModelScope.launch {
             mainRepo.postFacilityDynamic(searchData).onStart {
-                Log.d(TAG, "postFacilityDynamic onStart {} ")
                 _postFacilityDynamicResponseStateFlow.emit(
                     NetworkResult.Loading()
                 )
             }.catch {
-                Log.d(TAG, "postFacilityDynamic NetworkResult Error searchData : $searchData ")
-                Log.d(TAG, "postFacilityDynamic NetworkResult Error : ${it.printStackTrace()}")
-                Log.d(TAG, "postFacilityDynamic: ${it.message}")
                 _postFacilityDynamicResponseStateFlow.emit(
                     NetworkResult.Error(
-                        it.message
+                        it.message.toString()
                     )
                 )
-            }.collectLatest {
-                Log.d(TAG, "postFacilityDynamic: ${it.data!!.body()}")
-                _postFacilityDynamicResponseStateFlow.emit(
-                    NetworkResult.Success(it.data!!)
-                )
             }
+                .collectLatest {
+                    _postFacilityDynamicResponseStateFlow.emit(
+                        NetworkResult.Success(it)
+                    )
+                }
         }
     } // End of postFacilityDynamic
 } // End of MainViewModel class

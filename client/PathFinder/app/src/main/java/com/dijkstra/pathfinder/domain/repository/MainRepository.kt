@@ -1,11 +1,8 @@
 package com.dijkstra.pathfinder.domain.repository
 
-import android.util.Log
-import com.dijkstra.pathfinder.data.dto.Search
 import com.dijkstra.pathfinder.data.dto.SearchResponse
 import com.dijkstra.pathfinder.di.AppModule
 import com.dijkstra.pathfinder.domain.api.MainApi
-import com.dijkstra.pathfinder.util.NetworkResult
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -15,6 +12,7 @@ import retrofit2.Response
 import javax.inject.Inject
 
 private const val TAG = "MainRepository_싸피"
+
 class MainRepository @Inject constructor(
     @AppModule.OkHttpInterceptorApi private val mainApi: MainApi
 ) {
@@ -37,14 +35,16 @@ class MainRepository @Inject constructor(
 //        }
 //    }
 
-    suspend fun postFacilityDynamic(searchData: String): Flow<NetworkResult<Response<SearchResponse>>> =
-        flow {
-            val json = JsonObject().apply {
-                addProperty("filteringSearch", searchData)
-            }
+    suspend fun postFacilityDynamic(searchData: String): Flow<Response<SearchResponse>> = flow {
+        val json = JsonObject().apply {
+            addProperty("filteringSearch", searchData)
+        }
 
-            Log.d(TAG, "postFacilityDynamic: $json")
+//            Log.d(TAG, "postFacilityDynamic: ${json.toString()}")
+//            Log.d(TAG, "postFacilityDynamic: ${SearchTest(searchData)}")
 
-            emit(mainApi.postFacilityDynamic(json))
-        }.flowOn(Dispatchers.IO)
+        //Log.d(TAG, "mainApi.postFacilityDynamic(json).data!!.body() : ${mainApi.postFacilityDynamic(json).data!!.body()}")
+
+        emit(mainApi.postFacilityDynamic(json))
+    }.flowOn(Dispatchers.IO)
 } // End of MainRepository class
