@@ -5,3 +5,6 @@ sealed class NetworkResult<T>(var data: T? = null, val message: String? = null) 
     class Error<T>(message: String?, data: T? = null) : NetworkResult<T>(data, message)
     class Loading<T> : NetworkResult<T>()
 } // End of NetworkResult sealed class
+
+sealed class ApiResult<out T> {
+} // End of ApiResult sealed class
