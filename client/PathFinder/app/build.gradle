@@ -144,7 +144,8 @@ dependencies {
     implementation 'org.altbeacon:android-beacon-library:2+'
     // trilateration
     implementation 'com.lemmingapex.trilateration:trilateration:1.0.2'
-
+    // Apache Commons Math
+    implementation "org.apache.commons:commons-math3:3.6.1"
 
 
 }

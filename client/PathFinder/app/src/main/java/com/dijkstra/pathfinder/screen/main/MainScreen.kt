@@ -1,6 +1,7 @@
 package com.dijkstra.pathfinder.screen.main
 
 import android.Manifest
+import android.os.Build
 import android.speech.SpeechRecognizer
 import android.util.Log
 import android.widget.Toast
@@ -16,10 +17,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material.icons.filled.NotificationImportant
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,15 +26,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -44,11 +48,14 @@ import androidx.navigation.NavController
 import com.dijkstra.pathfinder.R
 import com.dijkstra.pathfinder.components.*
 import com.dijkstra.pathfinder.ui.theme.IconColor
+import com.dijkstra.pathfinder.ui.theme.nanumSquareNeo
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.altbeacon.beacon.BeaconManager
 
 
 private const val TAG = "MainScreen_SDR"
@@ -61,7 +68,8 @@ private const val TAG = "MainScreen_SDR"
 @Composable
 fun MainScreen(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
-    navController: NavController = NavController(LocalContext.current)
+    navController: NavController,
+    mainViewModel: MainViewModel = hiltViewModel()
 ) {
     // Search State
     val searchQueryState = remember { mutableStateOf("") }
@@ -84,6 +92,50 @@ fun MainScreen(
         skipPartiallyExpanded = true
     )
     val countdownText = remember { mutableStateOf("3") }
+
+    // Emergency State
+    val openEmergencyDialog = remember { mutableStateOf(false) }
+
+    // Floor State
+    val openFloorDialog = remember { mutableStateOf(false) }
+
+    // Permission State
+    val btPermissionsState = rememberMultiplePermissionsState(
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            listOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.BLUETOOTH,
+                Manifest.permission.BLUETOOTH_ADMIN,
+                Manifest.permission.BLUETOOTH_SCAN,
+                Manifest.permission.BLUETOOTH_ADVERTISE,
+            )
+        } else {
+            listOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.BLUETOOTH,
+                Manifest.permission.BLUETOOTH_ADMIN,
+            )
+        }
+    ) // End of btPermissionsState
+
+    LaunchedEffect(key1 = btPermissionsState) {
+        Log.d(TAG, "MainScreen: 1")
+        if (btPermissionsState.allPermissionsGranted) {
+            Log.d(TAG, "MainScreen: 2")
+            mainViewModel.startRangingBeacons()
+        } else {
+            btPermissionsState.launchMultiplePermissionRequest()
+            when {
+                btPermissionsState.allPermissionsGranted -> {
+                    Log.d(TAG, "MainScreen: go")
+                    mainViewModel.startRangingBeacons()
+                }
+                else -> {}
+            }
+        }
+    }
 
     LaunchedEffect(key1 = openBottomSheet.value) {
         if (openBottomSheet.value) {
@@ -127,6 +179,7 @@ fun MainScreen(
                 onSearch = {
                     // TODO: logic onSearch
                     destinationQueryState.value = searchQueryState.value.trim()
+                    Log.d(TAG, "MainScreen: ${destinationQueryState.value}")
                     focusManager.clearFocus()
                     keyboardController?.hide()
                 }
@@ -171,7 +224,7 @@ fun MainScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = "Search",
+                        contentDescription = stringResource(id = R.string.search),
                         tint = IconColor
                     )
                 } // Search Icon
@@ -219,7 +272,7 @@ fun MainScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .zIndex(2.0f)
-                .padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
+                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Bottom
         ) {
@@ -227,25 +280,11 @@ fun MainScreen(
                 modifier = Modifier,
                 contentAlignment = Alignment.BottomStart
             ) {
-//                FloatingActionButton(
-//                    onClick = {
-//                        Toast.makeText(context, "hi", Toast.LENGTH_SHORT).show()
-//                    },
-//                    shape = CircleShape,
-//                ) {
-//                    Icon(
-//                        imageVector = Icons.Default.Search,
-//                        contentDescription = "Emergency Button"
-//                    )
-//                }
-                IconButton(
-                    onClick = { Toast.makeText(context, "hi", Toast.LENGTH_SHORT).show() },
-                    modifier = Modifier.clip(CircleShape).background(IconColor)
-                ) {
+                MainScreenBottomIconButton(onClick = { openEmergencyDialog.value = true }) {
                     Icon(
-                        imageVector = Icons.Default.Search,
+                        imageVector = Icons.Default.Warning,
                         contentDescription = "Emergency Button",
-                        tint = Color.White
+                        tint = Color.Red
                     )
                 }
             } // End of Emergency Button
@@ -256,29 +295,31 @@ fun MainScreen(
                 contentAlignment = Alignment.BottomEnd
             ) {
                 Column(modifier = Modifier) {
-                    FloatingActionButton(
-                        onClick = {
-                            Toast.makeText(context, "hi", Toast.LENGTH_SHORT).show()
-                        },
-                        shape = FloatingActionButtonDefaults.extendedFabShape,
-                        modifier = Modifier.padding(bottom = 4.dp)
+                    MainScreenBottomIconButton(
+                        onClick = { openFloorDialog.value = true }
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Emergency Button"
+                            imageVector = Icons.Default.Layers,
+                            contentDescription = "Floor Button",
+                            tint = IconColor
                         )
-                    }
-                    FloatingActionButton(onClick = {
-                        Toast.makeText(context, "hi", Toast.LENGTH_SHORT).show()
-                    }) {
+                    } // End of Stair Button
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    MainScreenBottomIconButton(
+                        onClick = { Toast.makeText(context, "hi", Toast.LENGTH_SHORT).show() }
+                    ) {
                         Icon(
-                            imageVector = Icons.Default.StarBorder,
-                            contentDescription = "Emergency Button"
+                            imageVector = Icons.Default.MyLocation,
+                            contentDescription = "My Location Button",
+                            tint = IconColor
                         )
-                    }
-                }
+                    } // End of My Location Button
+
+                } // End of Floating Action Buttons Column
             } // End of Floating Action Buttons Box
-        }
+        } // End of Bottom Floating Button Row
 
 
         // Speech Dialog
@@ -300,12 +341,132 @@ fun MainScreen(
             }
         } // Speech Dialog if-state
 
+        // Emergency Dialog
+        if (openEmergencyDialog.value) {
+            Dialog(
+                onDismissRequest = {
+                    openEmergencyDialog.value = false
+                }
+            ) {
+                Surface(
+                    modifier = Modifier,
+                    shape = RoundedCornerShape(24.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = "Emergency Button",
+                            modifier = Modifier
+                                .width(40.dp)
+                                .height(40.dp)
+                                .padding(bottom = 16.dp),
+                            tint = Color.Red
+                        )
+                        Text(
+                            text = "경고",
+                            modifier = Modifier.padding(bottom = 16.dp),
+                            fontFamily = nanumSquareNeo,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 24.sp,
+                        )
+                        Button(
+                            onClick = {
+                                destinationQueryState.value = "심장제세동기"
+                                openEmergencyDialog.value = false
+                                openBottomSheet.value = true
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth(0.9f)
+                                .padding(bottom = 8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Red
+                            )
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.start_nav_to_aed),
+                                fontFamily = nanumSquareNeo,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp,
+                                color = Color.White
+                            )
+                        } // End of AED Button
+                        Button(
+                            onClick = {
+                                destinationQueryState.value = "소화기"
+                                openEmergencyDialog.value = false
+                                openBottomSheet.value = true
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth(0.9f)
+                                .padding(bottom = 8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Red
+                            )
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.start_nav_to_fire_extinguisher),
+                                fontFamily = nanumSquareNeo,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp,
+                                color = Color.White
+                            )
+                        } // End of Fire Extinguisher Button
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.BottomEnd
+                        ) {
+                            TextButton(onClick = { openEmergencyDialog.value = false }) {
+                                Text(
+                                    text = stringResource(id = R.string.cancel),
+                                    fontFamily = nanumSquareNeo,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 18.sp,
+                                    color = IconColor
+                                )
+                            }
+                        } // End of Cancel Button Box
+                    } // End of Column
+                } // End of Surface
+            } // End of Dialog
+        }  // Emergency Dialog if-state
+
+        // Floor Dialog
+        if (openFloorDialog.value) {
+            Dialog(
+                onDismissRequest = {
+                    openFloorDialog.value = false
+                }
+            ) {
+                Surface(
+                    modifier = Modifier,
+                    shape = RoundedCornerShape(24.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+
+                    }
+                }
+            }
+        }
+
         // ModalBottomSheet
         if (openBottomSheet.value) {
             MainModalBottomSheet(
                 onDismissRequest = { openBottomSheet.value = false },
                 sheetState = bottomSheetState,
                 openBottomSheet = openBottomSheet,
+                // TODO : 현재 위치 -> 진짜 위치
                 nowLocation = "현재 위치",
                 destination = destinationQueryState.value,
                 countdownText = countdownText.value,
@@ -313,7 +474,6 @@ fun MainScreen(
             )
         } // End of Bottom Modal
 
-    } // End of MainScreen
-
+    } // End of MainScreen Surface
 
 } // End of MainScreen
