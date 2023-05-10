@@ -1,7 +1,10 @@
 package ssafy.autonomous.pathfinder.domain.facility.service
 
 import ssafy.autonomous.pathfinder.domain.facility.domain.Facility
+import ssafy.autonomous.pathfinder.domain.facility.domain.RoomEntrance
+import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityCurrentLocationDto
 import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityTypesRequestDto
+import java.util.*
 
 interface FacilityService {
 
@@ -11,4 +14,7 @@ interface FacilityService {
 
     // 조회한 시설 정보 얻기
     fun getFacilityTypes(facilitySearchRequest: FacilityTypesRequestDto): Facility
+
+    // 3-3
+    fun getCurrentLocation(facilityCurrentLocationDto: FacilityCurrentLocationDto): Optional<RoomEntrance>
 }

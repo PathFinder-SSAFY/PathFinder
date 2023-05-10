@@ -3,10 +3,13 @@ package ssafy.autonomous.pathfinder.domain.facility.service
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import ssafy.autonomous.pathfinder.domain.facility.domain.Facility
+import ssafy.autonomous.pathfinder.domain.facility.domain.RoomEntrance
+import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityCurrentLocationDto
 import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityTypesRequestDto
 import ssafy.autonomous.pathfinder.domain.facility.exception.FacilityNotFoundException
 import ssafy.autonomous.pathfinder.domain.facility.repository.FacilityJpaRepository
 import ssafy.autonomous.pathfinder.domain.facility.repository.FacilityQuerydslRepository
+import java.util.*
 import javax.transaction.Transactional
 
 @Service
@@ -47,6 +50,11 @@ class FacilityServiceImpl(
         facilityQuerydslRepository.updateFacility(curFacility)
 
         return curFacility
+    }
+
+    // 현재 위치 입력 후, 해당 범위 내인지 확인한다.
+    override fun getCurrentLocation(facilityCurrentLocationDto: FacilityCurrentLocationDto): Optional<RoomEntrance> {
+//        val roomEntrance: RoomEntrance = facilityJpaRepository.findBy
     }
 }
 

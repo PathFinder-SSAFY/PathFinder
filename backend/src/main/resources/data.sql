@@ -16,12 +16,12 @@ VALUES
 
 -- 방 입구 좌표
 INSERT INTO room_entrance
-(entrance_left_up_x, entrance_left_up_y, entrance_right_down_x, entrance_right_down_y, entrance_direction, entrance_zone, facility_id)
+(entrance_left_upx, entrance_left_upy, entrance_right_downx, entrance_right_downy, entrance_direction, entrance_zone, facility_id)
 VALUES
     (15.509, -6.32, 16.009, -8.00, 2, 0.20, 4),
     (27.88, -10.09, 28.38, -10.9, 1, 0.20, 5),
     (36.77, -10.09, 37.27, -10.9, 1, 0.20, 6),
     (21.22, -5.05, 22.62, -6.05, 3, 0.20, 7),
     (27.89, -5.05, 37.39, -6.05, 3, 0.20, 7),
-    (24.77, -7.85, 23.77, -8.35, 1, 20, 8),
-    (31.15, -8.35, 33.75, -8.85, 1, 20, 10);
+    (24.77, -7.85, 23.77, -8.35, 1, 0.20, 8),
+    (31.15, -8.35, 33.75, -8.85, 1, 0.20, 10);
