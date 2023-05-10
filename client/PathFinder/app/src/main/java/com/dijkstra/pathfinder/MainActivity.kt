@@ -62,8 +62,8 @@ class MainActivity : ComponentActivity() {
                 navController = rememberNavController()
 //                SetUpNavGraph(navController = navController)
 
-                MainScreen(navController = navController)
-//                startUnityLayout()
+//                MainScreen(navController = navController)
+                startUnityLayout()
             }
         }
 
@@ -153,7 +153,9 @@ class MainActivity : ComponentActivity() {
                     Manifest.permission.ACCESS_COARSE_LOCATION,
                     Manifest.permission.BLUETOOTH_SCAN,
                     Manifest.permission.BLUETOOTH_ADVERTISE,
-                    Manifest.permission.CAMERA
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.RECORD_AUDIO,
+                    Manifest.permission.NFC
                 )
             } else {
                 listOf(
@@ -161,7 +163,9 @@ class MainActivity : ComponentActivity() {
                     Manifest.permission.ACCESS_COARSE_LOCATION,
                     Manifest.permission.BLUETOOTH,
                     Manifest.permission.BLUETOOTH_ADMIN,
-                    Manifest.permission.CAMERA
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.RECORD_AUDIO,
+                    Manifest.permission.NFC
                 )
             }
         ) // End of btPermissionsState
@@ -183,11 +187,12 @@ class MainActivity : ComponentActivity() {
                         for (i in btPermissionsState.permissions.indices) {
                             Log.d(
                                 "SSAFY_PERMISSION",
-                                "${btPermissionsState.permissions[i]}: ${btPermissionsState.permissions[i].status}"
+                                "${btPermissionsState.permissions[i].permission}: ${btPermissionsState.permissions[i].status}"
                             )
                         }
-
                         if (btPermissionsState.allPermissionsGranted) {
+                            val intent = Intent(this@MainActivity, UnityHolderActivity::class.java)
+                            intent.putExtra("destination", doubleArrayOf(0.0, 0.0, 0.0))
                             startActivity(intent)
                         } else {
                             btPermissionsState.launchMultiplePermissionRequest()
