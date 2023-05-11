@@ -93,10 +93,16 @@ fun MainScreen(
     // Floor State
     val openFloorDialog = remember { mutableStateOf(false) }
 
-    // MainViewModelState
+    // MainViewModel Response State
     val postFacilityDynamicResponseStateFlow =
         mainViewModel.postFacilityDynamicResponseStateFlow.collectAsState()
 
+    val postFacilityDynamicResponseSharedFlow = mainViewModel.postFacilityDynamicResponseSharedFlow.collectAsState(null)
+
+    // Search LazyColumn
+    var searchingList by remember {
+        mutableStateOf(mutableListOf<String>())
+    }
 
     // Permission State
     val btPermissionsState = rememberMultiplePermissionsState(
@@ -169,6 +175,7 @@ fun MainScreen(
             value = searchQueryState.value,
             onValueChange = { value ->
                 searchQueryState.value = value
+                Log.d(TAG, "MainScreen: ${searchQueryState.value}")
                 CoroutineScope(Dispatchers.IO).launch {
                     mainViewModel.postFacilityDynamic(searchQueryState.value)
                 }
@@ -241,18 +248,15 @@ fun MainScreen(
                     .background(Color.Transparent),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                val itemList = emptyList<String>()
-
-                postFacilityDynamicResponseStateFlow.let {
+                postFacilityDynamicResponseSharedFlow.let {
+                    Log.d(TAG, "postFacilityDynamicResponseStateFlow.let : ")
                     when (it.value) {
                         is NetworkResult.Success -> {
-                            if (it.value!!.data!!.code() == 200) {
-                                Log.d(TAG, "MainScreen: ")
-                            }
+                            searchingList = it.value!!.data!!.data
+                            Log.d(TAG, "MainScreen: $searchingList")
                         }
-
                         is NetworkResult.Error -> {
-                            Log.e(TAG, "MainScreen: ")
+                            Log.e(TAG, "dynamicSearchError : ${it.value!!.message} ")
                         }
 
                         is NetworkResult.Loading -> {
@@ -262,21 +266,17 @@ fun MainScreen(
 
                         }
                     }
-
-                    Log.d(TAG, "MainScreen: ${it.value!!.data!!.body()}")
-                }
-
-
+                } // End of postFacilityDynamicResponseStateFlow.let
                 items(
-                    itemList
-                ) { name ->
+                    searchingList
+                ) {
                     ListItem(
                         headlineContent = {
-                            Text(text = name)
+                            Text(text = it)
                         },
                         modifier = Modifier
                             .clickable {
-                                searchQueryState.value = name
+                                searchQueryState.value = it
                                 searchBarActiveState.value = false
                             }
                             .background(Color.Transparent)

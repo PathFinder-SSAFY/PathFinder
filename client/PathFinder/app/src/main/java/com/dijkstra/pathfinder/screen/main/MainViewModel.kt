@@ -12,13 +12,9 @@ import com.dijkstra.pathfinder.util.KalmanFilter3D
 import com.dijkstra.pathfinder.util.NetworkResult
 import com.dijkstra.pathfinder.util.trilateration
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.altbeacon.beacon.*
-import retrofit2.Response
 import javax.inject.Inject
 
 private const val TAG = "MainViewModel_싸피"
@@ -102,33 +98,39 @@ class MainViewModel @Inject constructor(
     override fun onCleared() {
         beaconManager.stopRangingBeacons(region)
         beaconManager.removeAllRangeNotifiers()
-        Log.d(TAG, "onCleared: gone")
         super.onCleared()
     }
 
     // ========================================== postFacilityDynamic ==========================================
 
     private val _postFacilityDynamicResponseStateFlow =
-        MutableStateFlow<NetworkResult<Response<SearchResponse>>?>(null)
+        MutableStateFlow<NetworkResult<SearchResponse>?>(null)
     var postFacilityDynamicResponseStateFlow = _postFacilityDynamicResponseStateFlow
+        private set
+
+    private val _postFacilityDynamicResponseSharedFlow =
+        MutableSharedFlow<NetworkResult<SearchResponse>?>(0)
+    var postFacilityDynamicResponseSharedFlow = _postFacilityDynamicResponseSharedFlow
         private set
 
     suspend fun postFacilityDynamic(searchData: String) {
         viewModelScope.launch {
             mainRepo.postFacilityDynamic(searchData).onStart {
-                _postFacilityDynamicResponseStateFlow.emit(
+                _postFacilityDynamicResponseSharedFlow.emit(
                     NetworkResult.Loading()
                 )
-            }.catch {
-                _postFacilityDynamicResponseStateFlow.emit(
+            }.catch { result ->
+                // 네트워크 통신할 때 에러 발생시 catch에서 잡음
+                result.printStackTrace()
+                _postFacilityDynamicResponseSharedFlow.emit(
                     NetworkResult.Error(
-                        it.message.toString()
+                        result.message.toString()
                     )
                 )
             }
                 .collectLatest {
-                    _postFacilityDynamicResponseStateFlow.emit(
-                        NetworkResult.Success(it)
+                    _postFacilityDynamicResponseSharedFlow.emit(
+                        NetworkResult.Success(it.body()!!)
                     )
                 }
         }

@@ -1,9 +1,10 @@
 package com.dijkstra.pathfinder.data.dto
 
-import androidx.annotation.Keep
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 
 
-@Keep
+@Parcelize
 data class SearchResponse @JvmOverloads constructor(
-    var data: List<String> = emptyList()
-) : java.io.Serializable
+    var data: MutableList<String> = arrayListOf()
+) : Parcelable

@@ -39,12 +39,6 @@ class MainRepository @Inject constructor(
         val json = JsonObject().apply {
             addProperty("filteringSearch", searchData)
         }
-
-//            Log.d(TAG, "postFacilityDynamic: ${json.toString()}")
-//            Log.d(TAG, "postFacilityDynamic: ${SearchTest(searchData)}")
-
-        //Log.d(TAG, "mainApi.postFacilityDynamic(json).data!!.body() : ${mainApi.postFacilityDynamic(json).data!!.body()}")
-
         emit(mainApi.postFacilityDynamic(json))
     }.flowOn(Dispatchers.IO)
 } // End of MainRepository class
