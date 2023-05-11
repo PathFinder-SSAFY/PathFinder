@@ -2,10 +2,11 @@ package ssafy.autonomous.pathfinder.domain.facility.domain
 
 import javax.persistence.*
 
+// 비콘을 기준으로 중간 좌표
 @Entity
 class RoomMap(
 
-        // 위도, 경도
+        // Room 중앙 위치
         val longitude: Double,
         val latitude: Double,
 
@@ -21,8 +22,8 @@ class RoomMap(
         var floors: Floors ?= null,
 
         // 일대일 상하좌우 방향
-        @OneToOne(fetch = FetchType.LAZY, mappedBy="roomMap", cascade = [CascadeType.ALL])
-        var direction: Direction ?= null,
+//        @OneToOne(fetch = FetchType.LAZY, mappedBy="roomMap", cascade = [CascadeType.ALL])
+//        var direction: Direction ?= null,
 
         // 일대일 weight
         @OneToOne(fetch = FetchType.LAZY, mappedBy="roomMap", cascade = [CascadeType.ALL])
