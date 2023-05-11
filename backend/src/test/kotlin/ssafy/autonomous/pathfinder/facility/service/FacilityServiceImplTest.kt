@@ -1,6 +1,7 @@
 package ssafy.autonomous.pathfinder.facility.service
 
 import org.assertj.core.api.Assertions.*
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -42,12 +43,12 @@ class FacilityServiceImplTest @Autowired constructor(
 
         // when
         val passfinderResponse = facilityService.facilityDynamic(request)
-        val filterSearch: List<Facility> = passfinderResponse
+        val filterSearch: List<String> = passfinderResponse
 
         // then
 
         assertThat(filterSearch.isNotEmpty())
-        assertThat(filterSearch.all { it.getFacilityType() == "CLASSROOM401" })
+        assertThat(filterSearch.all { it == "강의실" })
 
     }
 

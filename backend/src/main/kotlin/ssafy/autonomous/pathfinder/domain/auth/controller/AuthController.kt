@@ -16,6 +16,10 @@ import ssafy.autonomous.pathfinder.domain.auth.service.AuthService
 import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityTypesRequestDto
 import ssafy.autonomous.pathfinder.global.common.response.ApiResponse
 
+/*
+* 1.
+*
+* */
 @Api(tags = ["Naver social 로그인"])
 @RestController
 class AuthController(
@@ -25,7 +29,7 @@ class AuthController(
     private val logger = KotlinLogging.logger{}
 
 
-    // (1) naverLogin
+
 
     @ApiOperation(value = "네이버 소셜 로그인 후, 반환 받은 code를 넘겨주면 된다.")
     @ApiImplicitParam(name = "code", value = "소셜 로그인 후 받은 code(고유 식별 번호)", dataTypeClass = TokenRequestDto::class)
