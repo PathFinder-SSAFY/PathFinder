@@ -91,8 +91,8 @@ class FacilityServiceImpl(
 //        logger.info("시설 입구 범위 LX, LY : $leftUpX , $leftUpY")
 //        logger.info("시설 입구 범위 RX, RY : $rightDownX, $rightDownY")
 
-        if (isWithinRangeX(facilityCurrentLocationRequestDto.curX, leftUpX, rightDownX)
-            && isWithinRangeY(facilityCurrentLocationRequestDto.curY, rightDownY, leftUpY)
+        if (isWithinRangeX(facilityCurrentLocationRequestDto.x, leftUpX, rightDownX)
+            && isWithinRangeY(facilityCurrentLocationRequestDto.z, rightDownY, leftUpY)
         ) return true
         return false
     }
@@ -118,17 +118,17 @@ class FacilityServiceImpl(
         * 3 : Y - 20 (하 방향)
         * 4 : X - 20 (왼쪽 방향)
         * */
-        if (entranceDirection == 1 && isWithinRangeX(facilityCurrentLocationRequestDto.curX, leftUpX, rightDownX)
-            && isWithinRangeY(facilityCurrentLocationRequestDto.curY, leftUpY, leftUpY!! + entranceZone!!)
+        if (entranceDirection == 1 && isWithinRangeX(facilityCurrentLocationRequestDto.x, leftUpX, rightDownX)
+            && isWithinRangeY(facilityCurrentLocationRequestDto.z, leftUpY, leftUpY!! + entranceZone!!)
         ) return true
-        else if (entranceDirection == 2 && isWithinRangeY(facilityCurrentLocationRequestDto.curY, leftUpY, rightDownY)
-            && isWithinRangeX(facilityCurrentLocationRequestDto.curX, rightDownX, rightDownX!! + entranceZone!!)
+        else if (entranceDirection == 2 && isWithinRangeY(facilityCurrentLocationRequestDto.z, leftUpY, rightDownY)
+            && isWithinRangeX(facilityCurrentLocationRequestDto.x, rightDownX, rightDownX!! + entranceZone!!)
         ) return true
-        else if (entranceDirection == 3 && isWithinRangeX(facilityCurrentLocationRequestDto.curX, leftUpX, rightDownX)
-            && isWithinRangeY(facilityCurrentLocationRequestDto.curY, rightDownY, rightDownY!! - entranceZone!!)
+        else if (entranceDirection == 3 && isWithinRangeX(facilityCurrentLocationRequestDto.x, leftUpX, rightDownX)
+            && isWithinRangeY(facilityCurrentLocationRequestDto.z, rightDownY, rightDownY!! - entranceZone!!)
         ) return true
-        else if (entranceDirection == 2 && isWithinRangeY(facilityCurrentLocationRequestDto.curY, leftUpY, rightDownY)
-            && isWithinRangeX(facilityCurrentLocationRequestDto.curX, leftUpX, leftUpX!! - entranceZone!!)
+        else if (entranceDirection == 2 && isWithinRangeY(facilityCurrentLocationRequestDto.z, leftUpY, rightDownY)
+            && isWithinRangeX(facilityCurrentLocationRequestDto.x, leftUpX, leftUpX!! - entranceZone!!)
         ) return true
         return false
 
@@ -142,20 +142,20 @@ class FacilityServiceImpl(
 //        logger.info("시설인지 확인한다.")
 
         // 시설 내부인지 확인한다.
-        if (isWithinRangeX(facilityCurrentLocationRequestDto.curX, facilityUpX, facilityDownX)
-            && isWithinRangeY(facilityCurrentLocationRequestDto.curY, facilityDownY, facilityUpY)
+        if (isWithinRangeX(facilityCurrentLocationRequestDto.x, facilityUpX, facilityDownX)
+            && isWithinRangeY(facilityCurrentLocationRequestDto.z, facilityDownY, facilityUpY)
         ) return true
         return false
     }
 
-    fun isWithinRangeX(curX: Double, leftUpX: Double?, rightUpX: Double?): Boolean {
-//        logger.info("curX : $curX , leftUpX : $leftUpX , rightUpX : $rightUpX")
-        return curX in leftUpX!!..rightUpX!!
+    fun isWithinRangeX(x: Double, leftUpX: Double?, rightUpX: Double?): Boolean {
+//        logger.info("x : $x , leftUpX : $leftUpX , rightUpX : $rightUpX")
+        return x in leftUpX!!..rightUpX!!
     }
 
-    fun isWithinRangeY(curY: Double, leftUpY: Double?, rightUpY: Double?): Boolean {
-//        logger.info("curY : $curY , leftUpY : $leftUpY , rightUpY : $rightUpY")
-        return curY in leftUpY!!..rightUpY!!
+    fun isWithinRangeY(z: Double, leftUpY: Double?, rightUpY: Double?): Boolean {
+//        logger.info("z : $z , leftUpY : $leftUpY , rightUpY : $rightUpY")
+        return z in leftUpY!!..rightUpY!!
     }
 
 }
