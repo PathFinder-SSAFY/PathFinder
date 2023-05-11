@@ -79,9 +79,9 @@ class FacilityServiceImpl(
         val (leftUpX, leftUpY) = roomEntrance.getEntranceLeftUpXY()
         val (rightDownX, rightDownY) = roomEntrance.getEntranceRightDownXY()
 
-        logger.info("시설 입구 확인")
-        logger.info("시설 입구 범위 LX, LY : $leftUpX , $leftUpY")
-        logger.info("시설 입구 범위 RX, RY : $rightDownX, $rightDownY")
+//        logger.info("시설 입구 확인")
+//        logger.info("시설 입구 범위 LX, LY : $leftUpX , $leftUpY")
+//        logger.info("시설 입구 범위 RX, RY : $rightDownX, $rightDownY")
 
         if (isWithinRangeX(facilityCurrentLocationRequestDto.curX, leftUpX, rightDownX)
             && isWithinRangeY(facilityCurrentLocationRequestDto.curY, rightDownY, leftUpY)
@@ -100,9 +100,9 @@ class FacilityServiceImpl(
         val entranceZone: Double? = roomEntrance.getEntranceZone()
 
 
-        logger.info("시설 입구 앞 확인")
-        logger.info("시설 입구 범위 LX, LY : $leftUpX , $leftUpY")
-        logger.info("시설 입구 범위 RX, RY : $rightDownX, $rightDownY")
+//        logger.info("시설 입구 앞 확인")
+//        logger.info("시설 입구 범위 LX, LY : $leftUpX , $leftUpY")
+//        logger.info("시설 입구 범위 RX, RY : $rightDownX, $rightDownY")
 
         /*
         * 1 : Y + 20 (상 방향)
@@ -131,7 +131,7 @@ class FacilityServiceImpl(
         val (facilityUpX, facilityUpY) = roomEntrance.facility.getFacilityLeftUpXY()
         val (facilityDownX, facilityDownY) = roomEntrance.facility.getFacilityRightDownXY()
 
-        logger.info("시설인지 확인한다.")
+//        logger.info("시설인지 확인한다.")
 
         // 시설 내부인지 확인한다.
         if (isWithinRangeX(facilityCurrentLocationRequestDto.curX, facilityUpX, facilityDownX)
@@ -141,12 +141,12 @@ class FacilityServiceImpl(
     }
 
     fun isWithinRangeX(curX: Double, leftUpX: Double?, rightUpX: Double?): Boolean {
-        logger.info("curX : $curX , leftUpX : $leftUpX , rightUpX : $rightUpX")
+//        logger.info("curX : $curX , leftUpX : $leftUpX , rightUpX : $rightUpX")
         return curX in leftUpX!!..rightUpX!!
     }
 
     fun isWithinRangeY(curY: Double, leftUpY: Double?, rightUpY: Double?): Boolean {
-        logger.info("curY : $curY , leftUpY : $leftUpY , rightUpY : $rightUpY")
+//        logger.info("curY : $curY , leftUpY : $leftUpY , rightUpY : $rightUpY")
         return curY in leftUpY!!..rightUpY!!
     }
 

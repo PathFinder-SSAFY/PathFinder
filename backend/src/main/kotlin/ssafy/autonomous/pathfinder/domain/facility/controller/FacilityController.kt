@@ -56,8 +56,8 @@ class FacilityController(
 
 
     // 3-3
-    @ApiOperation(value = "현재 여기는 xxx 입니다.")
-    @ApiImplicitParam(name = "facilityCurrentLocation", value = "현재 위치를 입력하세요", dataTypeClass = FacilityCurrentLocationRequestDto::class)
+    @ApiOperation(value = "현재 위치 조회 API")
+    @ApiImplicitParam(name = "facilityCurrentLocation", value = "현재 위치를 입력하세요.", dataTypeClass = FacilityCurrentLocationRequestDto::class)
     @GetMapping("/facility/curloc")
     fun getCurrentLocation(@RequestBody facilityCurrentLocationRequestDto: FacilityCurrentLocationRequestDto): ResponseEntity<ApiResponse>{
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -66,4 +66,5 @@ class FacilityController(
             )
         )
     }
+
 }

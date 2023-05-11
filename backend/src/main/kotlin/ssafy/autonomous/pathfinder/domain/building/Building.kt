@@ -27,6 +27,6 @@ class Building(
         // administrator와 1:1 관계
         @OneToOne
         @JoinColumn(name = "administrator_id")
-        var Administrator: Administrator?= null
+        var administrator: Administrator?= null
 
 )
