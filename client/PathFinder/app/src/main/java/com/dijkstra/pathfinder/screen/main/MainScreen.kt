@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -91,7 +92,8 @@ fun MainScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
 
-    val pictureUrl = remember { mutableStateOf("https://i.redd.it/nxa1etbwlfa51.jpg") }
+    val pictureUrl =
+        remember { mutableStateOf("https://d206-buket.s3.ap-northeast-2.amazonaws.com/3floor_map.png") }
 
     // BottomSheet State
     val openBottomSheet = remember { mutableStateOf(false) }
@@ -100,6 +102,9 @@ fun MainScreen(
         skipPartiallyExpanded = true
     )
     val countdownText = remember { mutableStateOf("3") }
+
+    // Now Location State
+    val openNowLocationDialog = remember { mutableStateOf(false) }
 
     // Emergency State
     val openEmergencyDialog = remember { mutableStateOf(false) }
@@ -334,6 +339,7 @@ fun MainScreen(
                                     context.getString(R.string.cal_now_location),
                                     Toast.LENGTH_SHORT
                                 ).show()
+                                openNowLocationDialog.value = true
                                 // TODO: Now Location to Server
                                 Log.d(TAG, "MyLocation: ${mainViewModel.kalmanLocation.value}")
                             } else {
@@ -371,6 +377,86 @@ fun MainScreen(
                 }
             }
         } // Speech Dialog if-state
+
+        // Now Location Dialog
+        if (openNowLocationDialog.value) {
+            Dialog(
+                onDismissRequest = { openNowLocationDialog.value = false }
+            ) {
+                Surface(
+                    modifier = Modifier,
+                    shape = RoundedCornerShape(24.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.MyLocation,
+                            contentDescription = "My Location Button",
+                            modifier = Modifier
+                                .width(40.dp)
+                                .height(40.dp)
+                                .padding(bottom = 16.dp),
+                            tint = IconColor
+                        )
+                        Text(
+                            text = "현재 위치",
+                            modifier = Modifier.padding(),
+                            fontFamily = nanumSquareNeo,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 24.sp,
+                        )
+                        // Loading
+                        if (true) {
+                            
+                        }
+
+                        // TextButtons
+                        Box (
+                            modifier = Modifier,
+                            contentAlignment = Alignment.BottomEnd
+                        ) {
+                            Row(
+                                modifier = Modifier,
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                TextButton(onClick = { openNowLocationDialog.value = false }) {
+                                    Text(
+                                        text = stringResource(id = R.string.cancel),
+                                        fontFamily = nanumSquareNeo,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 18.sp,
+                                        color = IconColor
+                                    )
+                                }
+                                TextButton(onClick = { openEmergencyDialog.value = false }) {
+                                    Text(
+                                        text = stringResource(id = R.string.retry),
+                                        fontFamily = nanumSquareNeo,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 18.sp,
+                                        color = IconColor
+                                    )
+                                }
+                                TextButton(onClick = { openEmergencyDialog.value = false }) {
+                                    Text(
+                                        text = stringResource(id = R.string.ok),
+                                        fontFamily = nanumSquareNeo,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 18.sp,
+                                        color = IconColor
+                                    )
+                                }
+                            } // End of TextButtons Row
+                        }
+                    }
+                } // End of Surface
+            } // End of Dialog
+        } // Now Location Dialog if-state
 
         // Emergency Dialog
         if (openEmergencyDialog.value) {
@@ -548,7 +634,7 @@ fun MainScreen(
                 } // End of Surface
             } // End of Dialog
         } // Floor Dialog if-state
-        
+
         // ModalBottomSheet
         if (openBottomSheet.value) {
             MainModalBottomSheet(
@@ -566,3 +652,57 @@ fun MainScreen(
     } // End of MainScreen Surface
 
 } // End of MainScreen
+
+@Preview
+@Composable
+fun Test() {
+    Dialog(
+        onDismissRequest = { }
+    ) {
+        Surface(
+            modifier = Modifier,
+            shape = RoundedCornerShape(24.dp)
+        ) {
+            val infoString = "현재위치를 계산 중입니다."
+            var dotCount = 0
+            val resultString = remember {
+                mutableStateOf(infoString)
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    imageVector = Icons.Default.MyLocation,
+                    contentDescription = "My Location Button",
+                    modifier = Modifier
+                        .width(40.dp)
+                        .height(40.dp)
+                        .padding(bottom = 16.dp),
+                    tint = IconColor
+                )
+                Text(
+                    text = "현재 위치",
+                    modifier = Modifier.padding(),
+                    fontFamily = nanumSquareNeo,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp,
+                )
+                // Loading
+                if (true) {
+                    while (true) {
+                        Text(text = resultString.value)
+                        for (i in 0 until dotCount) {
+                            resultString.value += "."
+                        }
+                        dotCount += 1
+                        if (dotCount == 3) dotCount = 0
+                    }
+                }
+            }
+        }
+    }
+}
