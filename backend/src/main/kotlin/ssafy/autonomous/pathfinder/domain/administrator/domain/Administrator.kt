@@ -24,7 +24,7 @@ class Administrator(
     @Column(name = "administrator_id")
     val id: Int = 0,
 
-    @OneToOne(mappedBy = "Administrator")
+    @OneToOne(mappedBy = "administrator")
     var building: Building? = null
 
 )
