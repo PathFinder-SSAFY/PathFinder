@@ -67,4 +67,14 @@ class FacilityController(
         )
     }
 
+
+//    @GetMapping("/facility/wallposition")
+//    fun getWallPosition() : ResponseEntity<ApiResponse>{
+//        return ResponseEntity.status(HttpStatus.OK).body(
+//            ApiResponse(
+//                data = facilityService.getWallPosition()
+//            )
+//        )
+//    }
+
 }

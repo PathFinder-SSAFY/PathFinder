@@ -1,5 +1,6 @@
 package ssafy.autonomous.pathfinder.domain.facility.domain
 
+import ssafy.autonomous.pathfinder.domain.facility.domain.Floors
 import javax.persistence.*
 
 
@@ -14,10 +15,18 @@ class BlockWall(
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "room_coordinates_id")
+    @Column(name = "block_wall_id")
     val id: Int,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "floors_id")
     private val floors: Floors? = null,
-)
+){
+    fun getBlockWallLeftUpXY(): List<Double?>{
+        return listOf(blockWallLeftUpX, blockWallLeftUpY)
+    }
+
+    fun getBlockWallRightDownXY(): List<Double?> {
+        return listOf(blockWallRightDownX, blockWallRightDownY)
+    }
+}

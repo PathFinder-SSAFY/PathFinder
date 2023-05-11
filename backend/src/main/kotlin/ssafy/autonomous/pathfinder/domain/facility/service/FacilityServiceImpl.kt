@@ -2,11 +2,13 @@ package ssafy.autonomous.pathfinder.domain.facility.service
 
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
+import ssafy.autonomous.pathfinder.domain.facility.domain.BlockWall
 import ssafy.autonomous.pathfinder.domain.facility.domain.Facility
 import ssafy.autonomous.pathfinder.domain.facility.domain.RoomEntrance
 import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityCurrentLocationRequestDto
 import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityTypesRequestDto
 import ssafy.autonomous.pathfinder.domain.facility.exception.FacilityNotFoundException
+import ssafy.autonomous.pathfinder.domain.facility.repository.BlockWallRepository
 import ssafy.autonomous.pathfinder.domain.facility.repository.FacilityRepository
 import ssafy.autonomous.pathfinder.domain.facility.repository.FacilityQuerydslRepository
 import ssafy.autonomous.pathfinder.domain.facility.repository.RoomEntranceRepository
@@ -17,7 +19,8 @@ import javax.transaction.Transactional
 class FacilityServiceImpl(
     private val facilityRepository: FacilityRepository,
     private val roomEntranceRepository: RoomEntranceRepository,
-    private val facilityQuerydslRepository: FacilityQuerydslRepository
+    private val facilityQuerydslRepository: FacilityQuerydslRepository,
+    private val blockWallRepository: BlockWallRepository
 ) : FacilityService {
 
     private val logger = KotlinLogging.logger {}
@@ -63,6 +66,11 @@ class FacilityServiceImpl(
         }
         return "4층 복도입니다."
 
+    }
+
+    // 3-4 벽 위치 반환하는 함수
+    override fun getWallPosition(): List<BlockWall> {
+        return blockWallRepository.findAll()
     }
 
     // 입력한 문자열을 기반으로 방 이름 리스트를 가져온다.

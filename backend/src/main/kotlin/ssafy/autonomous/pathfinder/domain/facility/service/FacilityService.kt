@@ -1,5 +1,6 @@
 package ssafy.autonomous.pathfinder.domain.facility.service
 
+import ssafy.autonomous.pathfinder.domain.facility.domain.BlockWall
 import ssafy.autonomous.pathfinder.domain.facility.domain.Facility
 import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityCurrentLocationRequestDto
 import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityTypesRequestDto
@@ -17,4 +18,7 @@ interface FacilityService {
 
     // 3-3 현재 나의 위치 조회
     fun getCurrentLocation(facilityCurrentLocationRequestDto: FacilityCurrentLocationRequestDto): String
+
+    // 3-4 벽 위치 반환하는 함수
+    fun getWallPosition(): List<BlockWall>
 }
