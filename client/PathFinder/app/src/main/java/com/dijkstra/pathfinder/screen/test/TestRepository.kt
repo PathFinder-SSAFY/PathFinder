@@ -3,6 +3,7 @@ package com.dijkstra.pathfinder.screen.test
 import com.dijkstra.pathfinder.di.AppModule
 import com.dijkstra.pathfinder.domain.api.TestApi
 import com.dijkstra.pathfinder.util.NetworkResult
+import com.dijkstra.pathfinder.util.SubNetworkResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import retrofit2.Response
@@ -13,21 +14,21 @@ private const val TAG = "testRepository_싸피"
 class TestRepository @Inject constructor(
     @AppModule.OkHttpInterceptorApi private val testApi: TestApi
 ) {
-    private val _testCallStateFlow = MutableStateFlow<NetworkResult<Int>>(NetworkResult.Loading())
-    val testCallStateFlow: StateFlow<NetworkResult<Int>> = _testCallStateFlow.asStateFlow()
+    private val _testCallStateFlow = MutableStateFlow<SubNetworkResult<Int>>(SubNetworkResult.Loading())
+    val testCallStateFlow: StateFlow<SubNetworkResult<Int>> = _testCallStateFlow.asStateFlow()
 
     suspend fun testCall() {
         val response = testApi.testCall()
 
-        _testCallStateFlow.value = NetworkResult.Loading()
+        _testCallStateFlow.value = SubNetworkResult.Loading()
         when {
             response.isSuccessful -> {
-                _testCallStateFlow.value = NetworkResult.Success(
+                _testCallStateFlow.value = SubNetworkResult.Success(
                     response.code()
                 )
             }
             response.errorBody() != null -> {
-                _testCallStateFlow.value = NetworkResult.Error(
+                _testCallStateFlow.value = SubNetworkResult.Error(
                     response.errorBody()!!.string()
                 )
             }
@@ -38,7 +39,7 @@ class TestRepository @Inject constructor(
         emit(testApi.testCall2())
     }.flowOn(Dispatchers.IO)  // End of testCall2
 
-    suspend fun failTest(): Flow<NetworkResult<Response<Void>>> = flow {
+    suspend fun failTest(): Flow<SubNetworkResult<Response<Void>>> = flow {
         emit(testApi.failTest())
     }.flowOn(Dispatchers.IO)
 

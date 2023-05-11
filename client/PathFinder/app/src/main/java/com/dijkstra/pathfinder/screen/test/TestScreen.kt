@@ -12,6 +12,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.dijkstra.pathfinder.screen.test.TestViewModel
 import com.dijkstra.pathfinder.util.NetworkResult
+import com.dijkstra.pathfinder.util.SubNetworkResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,12 +29,12 @@ fun TestScreen(
 
     val response = testViewModel.testCall2ResponseFlow.value
     var responseResultData by remember {
-        mutableStateOf<NetworkResult<Int>>(NetworkResult.Loading())
+        mutableStateOf<SubNetworkResult<Int>>(SubNetworkResult.Loading())
     }
 
     val testCall2StateFlowResponse = testViewModel.testCall2StateFlow.collectAsState()
 
-    val collectAs = testViewModel.testCall2SharedFlow.collectAsState(NetworkResult.Loading())
+    val collectAs = testViewModel.testCall2SharedFlow.collectAsState(SubNetworkResult.Loading())
     collectAs.value.let {
         // 이거 안됌
         Log.d(TAG, "collectAs: $it")
@@ -66,15 +67,15 @@ fun TestScreen(
 
             collectAs.value.let {
                 when (it) {
-                    is NetworkResult.Success -> {
+                    is SubNetworkResult.Success -> {
                         if (it.data == 200) {
                             Text(text = "collectAs : Success")
                         }
                     }
-                    is NetworkResult.Error -> {
+                    is SubNetworkResult.Error -> {
                         Text(text = "Test Call Error")
                     }
-                    is NetworkResult.Loading -> {
+                    is SubNetworkResult.Loading -> {
                         Text(text = "Test Call Loading..")
                     }
                 }
@@ -86,15 +87,15 @@ fun TestScreen(
 
             responseResultData.let {
                 when (it) {
-                    is NetworkResult.Success -> {
+                    is SubNetworkResult.Success -> {
                         if (it.data == 200) {
                             Text(text = "responseResultData : Success")
                         }
                     }
-                    is NetworkResult.Error -> {
+                    is SubNetworkResult.Error -> {
                         Text(text = "Test Call Error")
                     }
-                    is NetworkResult.Loading -> {
+                    is SubNetworkResult.Loading -> {
                         Text(text = "Test Call Loading..")
                     }
                 }
@@ -104,15 +105,15 @@ fun TestScreen(
             Text(text = "아래는 StateFlow.let으로 짜여진 코드")
             testCall2StateFlowResponse.let {
                 when (it.value) {
-                    is NetworkResult.Success -> {
+                    is SubNetworkResult.Success -> {
                         if (it.value.data == 200) {
                             Text(text = "testCall2StateFlowResponse : Success")
                         }
                     }
-                    is NetworkResult.Error -> {
+                    is SubNetworkResult.Error -> {
                         Text(text = "Test Call Error")
                     }
-                    is NetworkResult.Loading -> {
+                    is SubNetworkResult.Loading -> {
                         Text(text = "Test Call Loading..")
                     }
                 }
@@ -123,15 +124,15 @@ fun TestScreen(
             Text(text = "아래는 실패 테스트 결과 값임")
             failTestResponseStateFlowCollect.let {
                 when (it.value) {
-                    is NetworkResult.Success -> {
+                    is SubNetworkResult.Success -> {
                         if (it.value?.data == 200) {
                             Text(text = "collectAs : Success")
                         }
                     }
-                    is NetworkResult.Error -> {
+                    is SubNetworkResult.Error -> {
                         Text(text = "Test Call Error")
                     }
-                    is NetworkResult.Loading -> {
+                    is SubNetworkResult.Loading -> {
                         Text(text = "Test Call Loading..")
                     }
                     else -> {
@@ -144,17 +145,17 @@ fun TestScreen(
             Text(text = "아래는 실패 테스트 결과 값 : FailTestResponseSharedFlow")
             failTestResposneSharedFlowCollect.let {
                 when (it.value!!) {
-                    is NetworkResult.Success -> {
+                    is SubNetworkResult.Success -> {
                         if (it.value?.data == 200) {
                             Text(text = "FailTestResponse SharedFlow Result : Success")
                         }
                     }
 
-                    is NetworkResult.Error -> {
+                    is SubNetworkResult.Error -> {
                         Text(text = "FailTestResponse SharedFlow Result : Error")
                     }
 
-                    is NetworkResult.Loading -> {
+                    is SubNetworkResult.Loading -> {
                         Text(text = "FailTestResponse SharedFlow Result : Loading")
                     }
                 }

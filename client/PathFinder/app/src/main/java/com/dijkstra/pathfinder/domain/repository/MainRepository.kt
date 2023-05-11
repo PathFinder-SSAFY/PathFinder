@@ -37,22 +37,22 @@ class MainRepository @Inject constructor(
 //        }
 //    }
 
-    suspend fun postFacilityDynamic(searchData: String): Flow<Response<SearchResponse>> = flow {
-        val json = JsonObject().apply {
-            addProperty("filteringSearch", searchData)
-        }
-        emit(mainApi.postFacilityDynamic(json))
-    }.flowOn(Dispatchers.IO) // End of postFacilityDynamic
+//    suspend fun postFacilityDynamic(searchData: String): Flow<Response<SearchResponse>> = flow {
+//        val json = JsonObject().apply {
+//            addProperty("filteringSearch", searchData)
+//        }
+//        emit(mainApi.postFacilityDynamic(json))
+//    }.flowOn(Dispatchers.IO) // End of postFacilityDynamic
+//
+//    suspend fun postFacilityDynamic2(searchData: String): Flow<NetworkResult<Response<SearchResponse>>> =
+//        safeFlow {
+//            val json = JsonObject().apply {
+//                addProperty("filteringSearch", searchData)
+//            }
+//            mainApi.postFacilityDynamic(json)
+//        }.flowOn(Dispatchers.IO) // End of postFacilityDynamic2
 
-    suspend fun postFacilityDynamic2(searchData: String): Flow<NetworkResult<Response<SearchResponse>>> =
-        safeFlow {
-            val json = JsonObject().apply {
-                addProperty("filteringSearch", searchData)
-            }
-            mainApi.postFacilityDynamic(json)
-        }.flowOn(Dispatchers.IO) // End of postFacilityDynamic2
-
-    suspend fun postFacilityDynamic3(searchData: String): Flow<Response<SearchResponse>> =
+    suspend fun postFacilityDynamic(searchData: String): Flow<Response<SearchResponse>> =
         flow {
             val json = JsonObject().apply {
                 addProperty("filteringSearch", searchData)

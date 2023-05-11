@@ -5,34 +5,20 @@ import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
 import retrofit2.Response
 
-sealed class NetworkResult<T>(var data: T? = null, val message: String? = null) {
-    class Success<T>(data: T) : NetworkResult<T>(data)
-    class Error<T>(message: String?, data: T? = null) : NetworkResult<T>(data, message)
-    class Loading<T> : NetworkResult<T>()
-} // End of NetworkResult sealed class
-
-fun <T> safeFlow(apiFunc: suspend () -> T): Flow<NetworkResult<T>> = flow {
-    try {
-        emit(NetworkResult.Success(apiFunc.invoke()))
-    } catch (e: java.lang.Exception) {
-        emit(NetworkResult.Error(e.printStackTrace().toString()))
-    }
-} // End of safeFlow
-
 // =========================================================================================
 
-sealed class TestNetworkResult<out T>(var data: Any? = null, val message: String? = null) {
-    data class Success<out T> @JvmOverloads constructor(val value: T) : TestNetworkResult<T>()
-    data class Error @JvmOverloads constructor(
+sealed class NetworkResult<T>(var data: Any? = null, val message: String? = null) {
+    data class Success<T> constructor(val value: T) : NetworkResult<T>(value)
+    class Error<T> @JvmOverloads constructor(
         var code: Int? = null,
         var msg: String? = null,
         var exception: Throwable? = null
-    ) : TestNetworkResult<Nothing>()
+    ) : NetworkResult<T>(code, msg)
 
-    object Loading : TestNetworkResult<Nothing>()
+    class Loading<T> : NetworkResult<T>()
 } // End of TestNetworkResult sealed class
 
-fun <T> testSafeFlow(apiFunc: suspend () -> T): Flow<Response<T>> = flow {
+fun <T> safeFlow(apiFunc: suspend () -> T): Flow<Response<T>> = flow {
     try {
         emit(Response.success(apiFunc.invoke()))
     } catch (e: HttpException) {
@@ -42,6 +28,18 @@ fun <T> testSafeFlow(apiFunc: suspend () -> T): Flow<Response<T>> = flow {
     }
 } // End of safeFlow
 
-sealed class UiState<out T>() {
+// =======================================================================================
 
-} // End of UiState sealed class
+sealed class SubNetworkResult<T>(var data: T? = null, val message: String? = null) {
+    class Success<T>(value: T) : SubNetworkResult<T>(value)
+    class Error<T>(message: String?, data: T? = null) : SubNetworkResult<T>(data, message)
+    class Loading<T> : SubNetworkResult<T>()
+} // End of NetworkResult sealed class
+
+fun <T> SubSafeFlow(apiFunc: suspend () -> T): Flow<SubNetworkResult<T>> = flow {
+    try {
+        emit(SubNetworkResult.Success(apiFunc.invoke()))
+    } catch (e: java.lang.Exception) {
+        emit(SubNetworkResult.Error(e.printStackTrace().toString()))
+    }
+} // End of safeFlow

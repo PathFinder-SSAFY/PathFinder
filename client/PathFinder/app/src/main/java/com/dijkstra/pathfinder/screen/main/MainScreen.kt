@@ -41,7 +41,7 @@ import com.dijkstra.pathfinder.R
 import com.dijkstra.pathfinder.components.*
 import com.dijkstra.pathfinder.ui.theme.IconColor
 import com.dijkstra.pathfinder.ui.theme.nanumSquareNeo
-import com.dijkstra.pathfinder.util.TestNetworkResult
+import com.dijkstra.pathfinder.util.NetworkResult
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -175,7 +175,7 @@ fun MainScreen(
             onValueChange = { value ->
                 searchQueryState.value = value
                 Log.d(TAG, "MainScreen: ${searchQueryState.value}")
-                    mainViewModel.postFacilityDynamic(searchQueryState.value)
+                mainViewModel.postFacilityDynamic(searchQueryState.value)
 
             },
             active = searchBarActiveState.value,
@@ -247,23 +247,21 @@ fun MainScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 postFacilityDynamicResponseSharedFlow.let {
-                    if (it.value != null) {
+                    if (it.value?.data != null) {
                         Log.d(TAG, "postFacilityDynamicResponseStateFlow.let : ")
                         Log.d(TAG, "postFacilityDynamicResponseStateFlow.let : ${it.value?.data}")
                         when (it.value!!) {
-                            is TestNetworkResult.Success -> {
+                            is NetworkResult.Success -> {
                                 Log.d(TAG, "TestNetworkResult.Success : 성공하긴함?")
-//                            if(it.value != null && it.value!!.data != null) {
-//                                searchingList = it.value!!.data as MutableList<String>
-//                            }
+                                searchingList = it.value!!.data as MutableList<String>
                             }
 
-                            is TestNetworkResult.Loading -> {
+                            is NetworkResult.Loading -> {
                                 // Progressbar show
                                 //searchingList = it.value!!.data as MutableList<String>
                             }
 
-                            is TestNetworkResult.Error -> {
+                            is NetworkResult.Error -> {
                                 // Error message Showing
                                 //searchingList = it.value!!.data as MutableList<String>
                             }
