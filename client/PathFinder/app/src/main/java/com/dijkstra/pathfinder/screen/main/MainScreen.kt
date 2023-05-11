@@ -47,8 +47,11 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.log
 
 
 private const val TAG = "MainScreen_SDR"
@@ -105,6 +108,25 @@ fun MainScreen(
 
     // Now Location State
     val openNowLocationDialog = remember { mutableStateOf(false) }
+    val nowLocation = remember { mutableStateOf("4층 대강의실") }
+    // TODO : uiState, responseState
+    val nowLocationloading = remember { mutableStateOf(false) }
+    val dot = remember { mutableStateOf("") }
+
+
+    LaunchedEffect(key1 = nowLocationloading.value) {
+        Log.d(TAG, "MainScreen: go?")
+        if (nowLocationloading.value) {
+            Log.d(TAG, "MainScreen: nowLocationLoading")
+            while (true) {
+                delay(500L)
+                Log.d(TAG, "MainScreen: nowLocationLoading,,")
+                if (dot.value != "...") dot.value += "." else dot.value = ""
+            }
+        } else {
+            dot.value = ""
+        }
+    }
 
     // Emergency State
     val openEmergencyDialog = remember { mutableStateOf(false) }
@@ -334,14 +356,9 @@ fun MainScreen(
                     MainScreenBottomIconButton(
                         onClick = {
                             if (btPermissionsState.allPermissionsGranted) {
-                                Toast.makeText(
-                                    context,
-                                    context.getString(R.string.cal_now_location),
-                                    Toast.LENGTH_SHORT
-                                ).show()
                                 openNowLocationDialog.value = true
                                 // TODO: Now Location to Server
-                                Log.d(TAG, "MyLocation: ${mainViewModel.kalmanLocation.value}")
+                                nowLocationloading.value = true
                             } else {
                                 btPermissionsState.launchMultiplePermissionRequest()
                             }
@@ -379,9 +396,13 @@ fun MainScreen(
         } // Speech Dialog if-state
 
         // Now Location Dialog
+        // TODO: Stop Every This onDismiss
         if (openNowLocationDialog.value) {
             Dialog(
-                onDismissRequest = { openNowLocationDialog.value = false }
+                onDismissRequest = {
+                    openNowLocationDialog.value = false
+                    nowLocationloading.value = false
+                }
             ) {
                 Surface(
                     modifier = Modifier,
@@ -410,44 +431,79 @@ fun MainScreen(
                             fontWeight = FontWeight.Bold,
                             fontSize = 24.sp,
                         )
+                        Spacer(modifier = Modifier.height(16.dp))
                         // Loading
-                        if (true) {
-                            
-                        }
+                        Column(
+                            modifier = Modifier.height(100.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            if (nowLocationloading.value) {
+                                Text(
+                                    text = stringResource(id = R.string.cal_now_location) + dot.value,
+                                    modifier = Modifier.padding(),
+                                    color = Color.LightGray,
+                                    fontFamily = nanumSquareNeo,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 18.sp,
+                                )
+                            } else {
+                                Text(
+                                    text = nowLocation.value,
+                                    modifier = Modifier.padding(bottom = 16.dp),
+                                    fontFamily = nanumSquareNeo,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 20.sp,
+                                )
+                                Text(
+                                    text = stringResource(id = R.string.retry_now_location),
+                                    modifier = Modifier.padding(),
+                                    color = Color.LightGray,
+                                    fontFamily = nanumSquareNeo,
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 16.sp,
+                                )
+                            }
+                        } // End of NowLocation Dialog Main Contents
 
                         // TextButtons
                         Box (
-                            modifier = Modifier,
+                            modifier = Modifier.fillMaxWidth(),
                             contentAlignment = Alignment.BottomEnd
                         ) {
                             Row(
                                 modifier = Modifier,
-                                horizontalArrangement = Arrangement.End
+                                horizontalArrangement = Arrangement.Center
                             ) {
-                                TextButton(onClick = { openNowLocationDialog.value = false }) {
+                                TextButton(
+                                    onClick = {
+                                        openNowLocationDialog.value = false
+                                        nowLocationloading.value = false
+                                          },
+                                ) {
                                     Text(
                                         text = stringResource(id = R.string.cancel),
                                         fontFamily = nanumSquareNeo,
                                         fontWeight = FontWeight.Bold,
-                                        fontSize = 18.sp,
+                                        fontSize = 16.sp,
                                         color = IconColor
                                     )
                                 }
-                                TextButton(onClick = { openEmergencyDialog.value = false }) {
+                                TextButton(onClick = { /* TODO : retry */ }) {
                                     Text(
                                         text = stringResource(id = R.string.retry),
                                         fontFamily = nanumSquareNeo,
                                         fontWeight = FontWeight.Bold,
-                                        fontSize = 18.sp,
+                                        fontSize = 16.sp,
                                         color = IconColor
                                     )
                                 }
-                                TextButton(onClick = { openEmergencyDialog.value = false }) {
+                                TextButton(onClick = { openNowLocationDialog.value = false }) {
                                     Text(
                                         text = stringResource(id = R.string.ok),
                                         fontFamily = nanumSquareNeo,
                                         fontWeight = FontWeight.Bold,
-                                        fontSize = 18.sp,
+                                        fontSize = 16.sp,
                                         color = IconColor
                                     )
                                 }
@@ -547,7 +603,7 @@ fun MainScreen(
                                     text = stringResource(id = R.string.cancel),
                                     fontFamily = nanumSquareNeo,
                                     fontWeight = FontWeight.Bold,
-                                    fontSize = 18.sp,
+                                    fontSize = 16.sp,
                                     color = IconColor
                                 )
                             }
@@ -612,7 +668,7 @@ fun MainScreen(
                                     text = stringResource(id = R.string.cancel),
                                     fontFamily = nanumSquareNeo,
                                     fontWeight = FontWeight.Bold,
-                                    fontSize = 18.sp,
+                                    fontSize = 16.sp,
                                     color = IconColor
                                 )
                             }
@@ -625,7 +681,7 @@ fun MainScreen(
                                     text = stringResource(id = R.string.ok),
                                     fontFamily = nanumSquareNeo,
                                     fontWeight = FontWeight.Bold,
-                                    fontSize = 18.sp,
+                                    fontSize = 16.sp,
                                     color = IconColor
                                 )
                             }
@@ -642,7 +698,7 @@ fun MainScreen(
                 sheetState = bottomSheetState,
                 openBottomSheet = openBottomSheet,
                 // TODO : 현재 위치 -> 진짜 위치
-                nowLocation = "현재 위치",
+                nowLocation = nowLocation.value,
                 destination = destinationQueryState.value,
                 countdownText = countdownText.value,
                 scope = coroutineScope
@@ -652,57 +708,3 @@ fun MainScreen(
     } // End of MainScreen Surface
 
 } // End of MainScreen
-
-@Preview
-@Composable
-fun Test() {
-    Dialog(
-        onDismissRequest = { }
-    ) {
-        Surface(
-            modifier = Modifier,
-            shape = RoundedCornerShape(24.dp)
-        ) {
-            val infoString = "현재위치를 계산 중입니다."
-            var dotCount = 0
-            val resultString = remember {
-                mutableStateOf(infoString)
-            }
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Icon(
-                    imageVector = Icons.Default.MyLocation,
-                    contentDescription = "My Location Button",
-                    modifier = Modifier
-                        .width(40.dp)
-                        .height(40.dp)
-                        .padding(bottom = 16.dp),
-                    tint = IconColor
-                )
-                Text(
-                    text = "현재 위치",
-                    modifier = Modifier.padding(),
-                    fontFamily = nanumSquareNeo,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 24.sp,
-                )
-                // Loading
-                if (true) {
-                    while (true) {
-                        Text(text = resultString.value)
-                        for (i in 0 until dotCount) {
-                            resultString.value += "."
-                        }
-                        dotCount += 1
-                        if (dotCount == 3) dotCount = 0
-                    }
-                }
-            }
-        }
-    }
-}
