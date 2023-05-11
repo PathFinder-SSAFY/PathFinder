@@ -43,12 +43,12 @@ class FacilityServiceImplTest @Autowired constructor(
 
         // when
         val passfinderResponse = facilityService.facilityDynamic(request)
-        val filterSearch: List<Facility> = passfinderResponse
+        val filterSearch: List<String> = passfinderResponse
 
         // then
 
         assertThat(filterSearch.isNotEmpty())
-//        assertThat(filterSearch.all { it == "강의실" })
+        assertThat(filterSearch.all { it == "강의실" })
 
     }
 
