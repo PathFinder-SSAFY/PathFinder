@@ -23,20 +23,13 @@ class FacilityServiceImpl(
     private val logger = KotlinLogging.logger {}
 
     // 필터링 입력할 때마다 리스트로 출력
-    override fun facilityDynamic(facilityTypesRequest: FacilityTypesRequestDto): List<String> {
+    override fun facilityDynamic(facilityTypesRequest: FacilityTypesRequestDto): List<Facility> {
         val inputFacilityType = facilityTypesRequest.filteringSearch
 
         // Repository -> Containing 사용
 //        val resultFacilityTypes: List<Facility> = facilityRepository.findAllByFacilityTypeLikeOrderByHitCountDesc("%$inputFacilityType%")
-        val facilityList: List<Facility> = getFacilityTypesDynamic(inputFacilityType)
-        return facilityList.map{ facility -> facility.getFacilityName()}
+        return getFacilityTypesDynamic(inputFacilityType)
     }
-
-    // 입력한 문자열을 기반으로 방 이름 리스트를 가져온다.
-    fun getFacilityTypesDynamic(inputFacilityType: String): List<Facility> {
-        return facilityJpaRepository.findByFacilityNameContainingOrderByHitCountDesc(inputFacilityType)
-    }
-
 
     // 필터링에 입력 후, 검색 버튼 클릭
     @Transactional
@@ -110,7 +103,7 @@ class FacilityServiceImpl(
         logger.info("시설 입구 앞 확인")
         logger.info("시설 입구 범위 LX, LY : $leftUpX , $leftUpY")
         logger.info("시설 입구 범위 RX, RY : $rightDownX, $rightDownY")
-        
+
         /*
         * 1 : Y + 20 (상 방향)
         * 2 : X + 20 (오른쪽 방향)
