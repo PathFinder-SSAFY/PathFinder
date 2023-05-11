@@ -16,5 +16,5 @@ interface FacilityService {
     fun getFacilityTypes(facilitySearchRequest: FacilityTypesRequestDto): Facility
 
     // 3-3
-    fun getCurrentLocation(facilityCurrentLocationDto: FacilityCurrentLocationDto): Optional<RoomEntrance>
+    fun getCurrentLocation(facilityCurrentLocationDto: FacilityCurrentLocationDto): String
 }

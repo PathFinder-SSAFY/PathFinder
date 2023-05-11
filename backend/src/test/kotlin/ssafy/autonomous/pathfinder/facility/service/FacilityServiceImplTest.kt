@@ -1,31 +1,29 @@
 package ssafy.autonomous.pathfinder.facility.service
 
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.HttpStatus
 import ssafy.autonomous.pathfinder.domain.facility.domain.Facility
 import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityTypesRequestDto
 import ssafy.autonomous.pathfinder.domain.facility.exception.FacilityNotFoundException
-import ssafy.autonomous.pathfinder.domain.facility.repository.FacilityJpaRepository
+import ssafy.autonomous.pathfinder.domain.facility.repository.FacilityRepository
 import ssafy.autonomous.pathfinder.domain.facility.repository.FacilityQuerydslRepository
 import ssafy.autonomous.pathfinder.domain.facility.service.FacilityService
 
 @SpringBootTest
 class FacilityServiceImplTest @Autowired constructor(
     private val facilityService: FacilityService,
-    private val facilityJpaRepository: FacilityJpaRepository,
+    private val facilityRepository: FacilityRepository,
     private val facilityQuerydslRepository: FacilityQuerydslRepository
 ){
 
     // 테스트에서 repository 사용 후, 삭제
     @AfterEach
     fun clean() {
-        facilityJpaRepository.deleteAll()
+        facilityRepository.deleteAll()
     }
 
 
@@ -63,7 +61,7 @@ class FacilityServiceImplTest @Autowired constructor(
         val inputFacilityType = FacilityTypesRequestDto("CLASSROOM401").filteringSearch
 
         // when
-        val resultFacilityTypes: Facility = facilityJpaRepository.findByFacilityName(inputFacilityType).orElseThrow{ FacilityNotFoundException() }
+        val resultFacilityTypes: Facility = facilityRepository.findByFacilityName(inputFacilityType).orElseThrow{ FacilityNotFoundException() }
 
         resultFacilityTypes.plusHitCount()
         val resultFacility = facilityQuerydslRepository.updateFacility(resultFacilityTypes)
