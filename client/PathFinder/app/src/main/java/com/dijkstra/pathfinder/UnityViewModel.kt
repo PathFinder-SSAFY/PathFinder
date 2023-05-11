@@ -1,9 +1,6 @@
 package com.dijkstra.pathfinder
 
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.dijkstra.pathfinder.data.dto.Point
 import com.dijkstra.pathfinder.data.dto.UserCameraInfo
 import com.dijkstra.pathfinder.domain.repository.NavigationRepository
@@ -18,13 +15,13 @@ import kotlinx.coroutines.launch
 private const val TAG = "UnityViewModel_ssafy"
 
 class UnityViewModel(
-    application: android.app.Application,
     private val navigationRepository: NavigationRepository,
-    private val myBluetoothHandler: MyBluetoothHandler
-) : AndroidViewModel(application) {
+) : ViewModel() {
 
     var isVolumeMuted = false
     var userCameraInfo: UserCameraInfo = UserCameraInfo()
+    var startPosition = Point(0.0, 0.0, 0.0)
+    var goal = Point(0.0, 0.0, 0.0)
 
     private val _nowLocation: MutableLiveData<DoubleArray> =
         MutableLiveData(doubleArrayOf(0.0, 0.0, 0.0))
@@ -33,6 +30,11 @@ class UnityViewModel(
     private val _navigationTestNetworkResultStateFlow: MutableStateFlow<NetworkResult<Unit>> =
         MutableStateFlow(NetworkResult.Success(Unit))
     val navigationTestNetworkResultStateFlow: StateFlow<NetworkResult<Unit>> get() = _navigationTestNetworkResultStateFlow
+
+    private val _navigationNetworkResultStateFlow: MutableStateFlow<NetworkResult<List<Point>>> = MutableStateFlow(NetworkResult.Success(
+        emptyList()
+    ))
+    val navigationNetworkResultStateFlow: StateFlow<NetworkResult<List<Point>>> get() = _navigationNetworkResultStateFlow
 
     fun navigationTest() {
         viewModelScope.launch {
@@ -44,10 +46,33 @@ class UnityViewModel(
 
     fun navigate(start: Point, goal: Point) {
         viewModelScope.launch {
-            navigationRepository.navigate(start, goal).collect() { pathList ->
-
+            navigationRepository.navigate(start, goal).collect() { navigateNetworkResult ->
+                _navigationNetworkResultStateFlow.value = navigateNetworkResult
             }
         }
     }
 
+    fun initCamera() {
+        navigationRepository.initCamera(userCameraInfo)
+    }
+
+    fun setCameraAngle() {
+        navigationRepository.setCameraAngle(userCameraInfo)
+    }
+
+    fun setCameraPosition() {
+        navigationRepository.setCameraPosition(userCameraInfo)
+    }
+
+    fun setUserCameraInfoPosition(currentPosition: Point) {
+        userCameraInfo.x = currentPosition.x.toFloat()
+        userCameraInfo.y = currentPosition.y.toFloat()
+        userCameraInfo.z = currentPosition.z.toFloat()
+    }
+
+    fun setUserCameraInfoAngle(azimuth: Float, pitch: Float, roll: Float ) {
+        userCameraInfo.azimuth = azimuth
+        userCameraInfo.pitch = pitch
+        userCameraInfo.roll = roll
+    }
 }

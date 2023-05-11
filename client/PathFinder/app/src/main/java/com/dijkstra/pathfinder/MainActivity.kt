@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.dijkstra.pathfinder.data.dto.Point
 import com.dijkstra.pathfinder.screen.login.LoginViewModel
 import com.dijkstra.pathfinder.screen.main.MainScreen
 import com.dijkstra.pathfinder.screen.nfc_start.NFCViewModel
@@ -192,7 +193,12 @@ class MainActivity : ComponentActivity() {
                         }
                         if (btPermissionsState.allPermissionsGranted) {
                             val intent = Intent(this@MainActivity, UnityHolderActivity::class.java)
-                            intent.putExtra("destination", doubleArrayOf(0.0, 0.0, 0.0))
+                            intent.putExtra("startPosition", Point(
+                                10.0,
+                                1.8,
+                                -3.0
+                            ))
+                            intent.putExtra("goal", Point(0.0, 0.0, 0.0))
                             startActivity(intent)
                         } else {
                             btPermissionsState.launchMultiplePermissionRequest()

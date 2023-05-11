@@ -5,6 +5,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.os.Build
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.util.Log
@@ -14,7 +15,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.dijkstra.pathfinder.data.dto.Point
@@ -25,10 +25,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.Gson
 import com.unity3d.player.UnityPlayer
 import com.unity3d.player.UnityPlayerActivity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.util.*
 import kotlin.math.absoluteValue
 
@@ -51,7 +48,7 @@ class UnityHolderActivity : UnityPlayerActivity(),
     private lateinit var viewModelProvider: ViewModelFactory
     private lateinit var unityViewModel: UnityViewModel
 
-    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
+    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default)
 
     private var cameraInitFlag: Boolean = true
     private var cameraRepositionFlag = false
@@ -62,66 +59,106 @@ class UnityHolderActivity : UnityPlayerActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val dest = intent.getDoubleArrayExtra("destination")
+        val startPosition =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) intent.getParcelableExtra(
+                "startPosition",
+                Point::class.java
+            )
+            else intent.getParcelableExtra("startPosition")
+        val goal =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) intent.getParcelableExtra(
+                "goal",
+                Point::class.java
+            )
+            else intent.getParcelableExtra("goal")
 
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         roationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
 
         initTTS()
         initUiLayout()
-        myBluetoothHandler = MyBluetoothHandler {
-            Log.d(TAG, "onCreate: ${unityViewModel.userCameraInfo}")
-            pathList.clear()
-            pathList.add("x: ${unityViewModel.userCameraInfo.x}\n" +
-                    "y: ${unityViewModel.userCameraInfo.y}\n" +
-                    "z: ${unityViewModel.userCameraInfo.z}")
-            navigationPathAdapter.notifyDataSetChanged()
-            UnityPlayer.UnitySendMessage(
-                "SystemController",
-                "SetARCameraPosition",
-                unityViewModel.userCameraInfo.toString()
-            )
-        }
-        viewModelProvider = ViewModelFactory(application, myBluetoothHandler)
-        unityViewModel = viewModelProvider.create(UnityViewModel::class.java)
-
-        //todo delete
-//        unityViewModel.beaconList.observe(ProcessLifecycleOwner.get()) {
-//            Log.d(TAG, "observe: ${it}")
+//        myBluetoothHandler = MyBluetoothHandler {
+//            Log.d(TAG, "onCreate: ${unityViewModel.userCameraInfo}")
 //            pathList.clear()
-//            pathList.addAll(it.map { beacon ->
-//                beacon.id3.toString()
-//            })
+//            pathList.add(
+//                "x: ${unityViewModel.userCameraInfo.x}\n" +
+//                        "y: ${unityViewModel.userCameraInfo.y}\n" +
+//                        "z: ${unityViewModel.userCameraInfo.z}"
+//            )
+//            navigationPathAdapter.notifyDataSetChanged()
+//            UnityPlayer.UnitySendMessage(
+//                "SystemController",
+//                "SetARCameraPosition",
+//                unityViewModel.userCameraInfo.toString()
+//            )
 //        }
-        unityViewModel.nowLocation.observe(ProcessLifecycleOwner.get()) {
-            Log.d(TAG, "observe: ${it}")
+        viewModelProvider = ViewModelFactory()
+
+        unityViewModel = viewModelProvider.create(UnityViewModel::class.java)
+        startPosition?.let {
+            unityViewModel.startPosition = it
+            unityViewModel.setUserCameraInfoPosition(startPosition)
         }
+        goal?.let { unityViewModel.goal = it }
 
     } // End of onCreate
 
     override fun onStart() {
         super.onStart()
         coroutineScope.launch {
-            unityViewModel.navigationTestNetworkResultStateFlow.collect { testResult ->
-                when(testResult) {
-                    is NetworkResult.Success -> {
-                        Log.d(TAG, "onStart: Success, ${testResult.data}")
-                    }
-                    is NetworkResult.Error -> {
-                        Log.e(TAG, "onStart: Error, ${testResult.message}", )
-                    }
-                    is NetworkResult.Loading -> {
-                        Log.d(TAG, "onStart: Loading..")
-                    }
+            launch {
+                unityViewModel.navigationTestNetworkResultStateFlow.collect { testResult ->
+                    when (testResult) {
+                        is NetworkResult.Success -> {
+                            Log.d(TAG, "onStart: Success, ${testResult.data}")
+                        }
+                        is NetworkResult.Error -> {
+                            Log.e(TAG, "onStart: Error, ${testResult.message}")
+                        }
+                        is NetworkResult.Loading -> {
+                            Log.d(TAG, "onStart: Loading test..")
+                        }
+                    } // End of when
+                } // End of collect
+            } // End of launch
+            launch {
+                unityViewModel.navigationNetworkResultStateFlow.collect { navigateNetworkResult ->
+                    when (navigateNetworkResult) {
+                        is NetworkResult.Success -> {
+                            Log.d(TAG, "onStart: ${navigateNetworkResult.data}")
+                            pathList.clear()
+                            pathList.addAll(
+                                navigateNetworkResult.data?.map {
+                                    it.toString()
+                                } ?: emptyList()
+                            )
+                        }
+                        is NetworkResult.Error -> {
+                            Log.e(TAG, "onStart: Error, ${navigateNetworkResult.message}")
+                        }
+                        is NetworkResult.Loading -> {
+                            Log.d(TAG, "onStart: Loading navigate..")
+                        }
+                    } // End of when
+                } // End of collect
+            } // End of launch
+            launch {
+                while (true) {
+                    UnityPlayer.UnitySendMessage(
+                        "SystemController",
+                        "SendCameraPositionToAndroid",
+                        ""
+                    )
+                    delay(1000)
                 }
             }
-        }
+        } // End of coroutineScope
     } // End of onStart
 
     override fun onStop() {
         super.onStop()
         coroutineScope.cancel()
-    }
+    } // End of onStop
 
     private fun initTTS() {
         textToSpeech = TextToSpeech(this) { status ->
@@ -139,7 +176,7 @@ class UnityHolderActivity : UnityPlayerActivity(),
                 }
             }
         }
-    }
+    } // End of initTTS
 
     private fun initUiLayout() {
         val inflater = this.getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -166,46 +203,55 @@ class UnityHolderActivity : UnityPlayerActivity(),
             }
         }
 
+        findViewById<Button>(R.id.navigation_finish_button).setOnClickListener {
+            finish()
+        }
+
         bottomSheet = findViewById(R.id.bottom_sheet)
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
 
-        //TODO DELETE
-        (0..10).forEach {
-            pathList.add("$it")
-        }
-
         navigationPathAdapter = NavigationPathAdapter(pathList)
-        navigationPathRecyclerView = findViewById<RecyclerView>(R.id.navigation_path_recyclerview).apply {
-            layoutManager =
-                LinearLayoutManager(this@UnityHolderActivity, RecyclerView.VERTICAL, false)
-            adapter = navigationPathAdapter
-            addOnScrollListener(
-                object : RecyclerView.OnScrollListener() {
-                    override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                        when (newState) {
-                            RecyclerView.SCROLL_STATE_IDLE -> {
-                                bottomSheetBehavior.isDraggable = true
+        navigationPathRecyclerView =
+            findViewById<RecyclerView>(R.id.navigation_path_recyclerview).apply {
+                layoutManager =
+                    LinearLayoutManager(this@UnityHolderActivity, RecyclerView.VERTICAL, false)
+                adapter = navigationPathAdapter
+                addOnScrollListener(
+                    object : RecyclerView.OnScrollListener() {
+                        override fun onScrollStateChanged(
+                            recyclerView: RecyclerView,
+                            newState: Int
+                        ) {
+                            when (newState) {
+                                RecyclerView.SCROLL_STATE_IDLE -> {
+                                    bottomSheetBehavior.isDraggable = true
+                                }
+                                RecyclerView.SCROLL_STATE_DRAGGING -> {
+                                    bottomSheetBehavior.isDraggable = false
+                                }
+                                RecyclerView.SCROLL_STATE_SETTLING -> {
+                                    bottomSheetBehavior.isDraggable = false
+                                }
                             }
-                            RecyclerView.SCROLL_STATE_DRAGGING -> {
-                                bottomSheetBehavior.isDraggable = false
-                            }
-                            RecyclerView.SCROLL_STATE_SETTLING -> {
-                                bottomSheetBehavior.isDraggable = false
-                            }
-                        }
-                        super.onScrollStateChanged(recyclerView, newState)
-                    } // End of onScrollStateChanged
-                })
-        }
+                            super.onScrollStateChanged(recyclerView, newState)
+                        } // End of onScrollStateChanged
+                    })
+            }
 
         findViewById<ImageView>(R.id.sound_toggle_button).setOnClickListener {
             textToSpeech.speak("안녕하세요", TextToSpeech.QUEUE_FLUSH, null, null)
         }
         findViewById<Button>(R.id.unity_map_toggle_button).setOnClickListener {
-            unityViewModel.navigationTest()
+            unityViewModel.navigate(
+                Point(
+                    unityViewModel.userCameraInfo.x.toDouble(),
+                    unityViewModel.userCameraInfo.y.toDouble(),
+                    unityViewModel.userCameraInfo.z.toDouble()
+                ), unityViewModel.goal
+            )
         }
 
-    }
+    } // End of initUiLayout
 
     override fun onResume() {
         super.onResume()
@@ -223,7 +269,7 @@ class UnityHolderActivity : UnityPlayerActivity(),
         super.onDestroy()
         textToSpeech.stop()
         textToSpeech.shutdown()
-    }
+    } // End of onDestroy
 
     override fun onSensorChanged(event: SensorEvent) {
         //지구좌표계로 변환
@@ -240,35 +286,28 @@ class UnityHolderActivity : UnityPlayerActivity(),
             orientationDeg[index] = (Math.toDegrees(element.toDouble()).toFloat() + 360 - 198) % 360
         }
 
-        // todo delete
-        unityViewModel.userCameraInfo.azimuth = orientationDeg[0]
-        unityViewModel.userCameraInfo.pitch = orientationDeg[1]
-        unityViewModel.userCameraInfo.roll = orientationDeg[2]
+        unityViewModel.setUserCameraInfoAngle(
+            azimuth = orientation[0],
+            pitch = orientation[1],
+            roll = orientation[2]
+        )
 
         if (cameraInitFlag) {
-            initCameraPosition()
+            unityViewModel.initCamera()
             cameraInitFlag = false
         }
         if (cameraRepositionFlag) {
-            repositionCamera()
+            changeCameraAngle()
             cameraRepositionFlag = false
         }
     } // End of onSensorChanged
 
     override fun onAccuracyChanged(p0: Sensor?, p1: Int) {} // End of onAccuracyChanged
 
-    private fun initCameraPosition() {
-        UnityPlayer.UnitySendMessage(
-            "SystemController",
-            "InitializeARCameraAngle",
-            unityViewModel.userCameraInfo.toString()
-        )
-    } // End of initCameraPosition
-
-    private fun repositionCamera() {
+    private fun changeCameraAngle() {
         when (cameraPositionValidateState) {
             true -> {
-                initCameraPosition()
+                unityViewModel.setCameraAngle()
             }
             false -> {
                 Toast.makeText(this, "화면을 앞으로 살짝 기울여주세요!", Toast.LENGTH_SHORT).show()
@@ -276,4 +315,11 @@ class UnityHolderActivity : UnityPlayerActivity(),
         }
     } // End of repositionCamera
 
-}
+    private fun getCameraPositionFromUnity(args: String) {
+        val gson = Gson()
+        val currentPosition: Point? = gson.fromJson(args, Point::class.java)
+        currentPosition?.let { unityViewModel.setUserCameraInfoPosition(currentPosition) }
+//        Log.d(TAG, "ReceivedMessageByUnity: ${args} ")
+//        Log.d(TAG, "ReceivedMessageByUnity: ${unityViewModel.userCameraInfo} ")
+    }
+} // End of UnityHolderActivity
