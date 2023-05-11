@@ -6,5 +6,5 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 data class SearchResponse @JvmOverloads constructor(
-    var data: MutableList<String> = arrayListOf()
+    var data: MutableList<String> = mutableListOf()
 ) : Parcelable

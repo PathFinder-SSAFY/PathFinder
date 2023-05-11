@@ -41,13 +41,11 @@ import com.dijkstra.pathfinder.R
 import com.dijkstra.pathfinder.components.*
 import com.dijkstra.pathfinder.ui.theme.IconColor
 import com.dijkstra.pathfinder.ui.theme.nanumSquareNeo
-import com.dijkstra.pathfinder.util.NetworkResult
+import com.dijkstra.pathfinder.util.TestNetworkResult
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -94,10 +92,11 @@ fun MainScreen(
     val openFloorDialog = remember { mutableStateOf(false) }
 
     // MainViewModel Response State
-    val postFacilityDynamicResponseStateFlow =
-        mainViewModel.postFacilityDynamicResponseStateFlow.collectAsState()
+//    val postFacilityDynamicResponseStateFlow =
+//        mainViewModel.postFacilityDynamicResponseStateFlow.collectAsState()
 
-    val postFacilityDynamicResponseSharedFlow = mainViewModel.postFacilityDynamicResponseSharedFlow.collectAsState(null)
+    val postFacilityDynamicResponseSharedFlow =
+        mainViewModel.postFacilityDynamicResponseSharedFlow.collectAsState(null)
 
     // Search LazyColumn
     var searchingList by remember {
@@ -176,9 +175,8 @@ fun MainScreen(
             onValueChange = { value ->
                 searchQueryState.value = value
                 Log.d(TAG, "MainScreen: ${searchQueryState.value}")
-                CoroutineScope(Dispatchers.IO).launch {
                     mainViewModel.postFacilityDynamic(searchQueryState.value)
-                }
+
             },
             active = searchBarActiveState.value,
             onActiveChange = { searchBarActiveState.value = it },
@@ -249,21 +247,26 @@ fun MainScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 postFacilityDynamicResponseSharedFlow.let {
-                    Log.d(TAG, "postFacilityDynamicResponseStateFlow.let : ")
-                    when (it.value) {
-                        is NetworkResult.Success -> {
-                            searchingList = it.value!!.data!!.data
-                            Log.d(TAG, "MainScreen: $searchingList")
-                        }
-                        is NetworkResult.Error -> {
-                            Log.e(TAG, "dynamicSearchError : ${it.value!!.message} ")
-                        }
+                    if (it.value != null) {
+                        Log.d(TAG, "postFacilityDynamicResponseStateFlow.let : ")
+                        Log.d(TAG, "postFacilityDynamicResponseStateFlow.let : ${it.value?.data}")
+                        when (it.value!!) {
+                            is TestNetworkResult.Success -> {
+                                Log.d(TAG, "TestNetworkResult.Success : 성공하긴함?")
+//                            if(it.value != null && it.value!!.data != null) {
+//                                searchingList = it.value!!.data as MutableList<String>
+//                            }
+                            }
 
-                        is NetworkResult.Loading -> {
+                            is TestNetworkResult.Loading -> {
+                                // Progressbar show
+                                //searchingList = it.value!!.data as MutableList<String>
+                            }
 
-                        }
-                        else -> {
-
+                            is TestNetworkResult.Error -> {
+                                // Error message Showing
+                                //searchingList = it.value!!.data as MutableList<String>
+                            }
                         }
                     }
                 } // End of postFacilityDynamicResponseStateFlow.let

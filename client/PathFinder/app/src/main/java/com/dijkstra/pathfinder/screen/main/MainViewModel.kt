@@ -10,6 +10,7 @@ import com.dijkstra.pathfinder.data.dto.SearchResponse
 import com.dijkstra.pathfinder.domain.repository.MainRepository
 import com.dijkstra.pathfinder.util.KalmanFilter3D
 import com.dijkstra.pathfinder.util.NetworkResult
+import com.dijkstra.pathfinder.util.TestNetworkResult
 import com.dijkstra.pathfinder.util.trilateration
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -103,36 +104,61 @@ class MainViewModel @Inject constructor(
 
     // ========================================== postFacilityDynamic ==========================================
 
-    private val _postFacilityDynamicResponseStateFlow =
-        MutableStateFlow<NetworkResult<SearchResponse>?>(null)
-    var postFacilityDynamicResponseStateFlow = _postFacilityDynamicResponseStateFlow
-        private set
+//    private val _postFacilityDynamicResponseStateFlow =
+//        MutableStateFlow<NetworkResult<SearchResponse>?>(null)
+//    var postFacilityDynamicResponseStateFlow = _postFacilityDynamicResponseStateFlow
+//        private set
 
     private val _postFacilityDynamicResponseSharedFlow =
-        MutableSharedFlow<NetworkResult<SearchResponse>?>(0)
+        MutableSharedFlow< TestNetworkResult<SearchResponse>>(0)
     var postFacilityDynamicResponseSharedFlow = _postFacilityDynamicResponseSharedFlow
         private set
 
-    suspend fun postFacilityDynamic(searchData: String) {
+    fun postFacilityDynamic(searchData: String) {
         viewModelScope.launch {
-            mainRepo.postFacilityDynamic(searchData).onStart {
-                _postFacilityDynamicResponseSharedFlow.emit(
-                    NetworkResult.Loading()
-                )
+            mainRepo.postFacilityDynamic3(searchData).onStart {
+                _postFacilityDynamicResponseSharedFlow.emit(TestNetworkResult.Loading)
             }.catch { result ->
-                // 네트워크 통신할 때 에러 발생시 catch에서 잡음
-                result.printStackTrace()
                 _postFacilityDynamicResponseSharedFlow.emit(
-                    NetworkResult.Error(
-                        result.message.toString()
+                    TestNetworkResult.Error(
+                        null,
+                        result.message,
+                        result.cause
                     )
                 )
-            }
-                .collectLatest {
-                    _postFacilityDynamicResponseSharedFlow.emit(
-                        NetworkResult.Success(it.body()!!)
-                    )
+            }.collectLatest { result ->
+                Log.d(TAG, "postFacilityDynamic: ${result.body()}")
+                Log.d(TAG, "postFacilityDynamic: $result")
+                
+                when {
+                    result.isSuccessful && result.body() != null -> {
+                        Log.d(TAG, "postFacilityDynamic: 여기 들어가긴 하냐?")
+                        Log.d(TAG, "postFacilityDynamic: ${result.body()!!}")
+                        _postFacilityDynamicResponseSharedFlow.emit(
+                            TestNetworkResult.Success(result.body()!!)
+                        )
+                    }
+
+                    result.errorBody() != null -> {
+                        _postFacilityDynamicResponseSharedFlow.emit(
+                            TestNetworkResult.Error(
+                                result.code(),
+                                result.message()
+                            )
+                        )
+                    }
                 }
+            }
         }
     } // End of postFacilityDynamic
+
+    fun postFacilityDynamic2(searchData: String) {
+        viewModelScope.launch {
+            mainRepo.postFacilityDynamic2(searchData).collectLatest { result ->
+                _postFacilityDynamicResponseSharedFlow.collectLatest {
+                    result.data
+                }
+            }
+        }
+    } // End of postFacilityDynamic2
 } // End of MainViewModel class

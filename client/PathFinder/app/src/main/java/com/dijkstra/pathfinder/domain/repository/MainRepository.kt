@@ -3,6 +3,8 @@ package com.dijkstra.pathfinder.domain.repository
 import com.dijkstra.pathfinder.data.dto.SearchResponse
 import com.dijkstra.pathfinder.di.AppModule
 import com.dijkstra.pathfinder.domain.api.MainApi
+import com.dijkstra.pathfinder.util.NetworkResult
+import com.dijkstra.pathfinder.util.safeFlow
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -40,5 +42,21 @@ class MainRepository @Inject constructor(
             addProperty("filteringSearch", searchData)
         }
         emit(mainApi.postFacilityDynamic(json))
-    }.flowOn(Dispatchers.IO)
+    }.flowOn(Dispatchers.IO) // End of postFacilityDynamic
+
+    suspend fun postFacilityDynamic2(searchData: String): Flow<NetworkResult<Response<SearchResponse>>> =
+        safeFlow {
+            val json = JsonObject().apply {
+                addProperty("filteringSearch", searchData)
+            }
+            mainApi.postFacilityDynamic(json)
+        }.flowOn(Dispatchers.IO) // End of postFacilityDynamic2
+
+    suspend fun postFacilityDynamic3(searchData: String): Flow<Response<SearchResponse>> =
+        flow {
+            val json = JsonObject().apply {
+                addProperty("filteringSearch", searchData)
+            }
+            emit(mainApi.postFacilityDynamic(json))
+        }.flowOn(Dispatchers.IO) // End of postFacilityDynamic2
 } // End of MainRepository class
