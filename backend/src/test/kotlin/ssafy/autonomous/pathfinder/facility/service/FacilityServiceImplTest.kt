@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import ssafy.autonomous.pathfinder.domain.facility.domain.Facility
+import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityCurrentLocationRequestDto
 import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityTypesRequestDto
 import ssafy.autonomous.pathfinder.domain.facility.exception.FacilityNotFoundException
 import ssafy.autonomous.pathfinder.domain.facility.repository.FacilityRepository
@@ -69,5 +70,19 @@ class FacilityServiceImplTest @Autowired constructor(
         // then
         assertThat(resultFacilityTypes.getHisCount()).isEqualTo(resultFacility.getHisCount())
 
+    }
+
+    
+    @Test
+    @DisplayName("현재 나의 위치를 통한 시설 조회")
+    fun getCurrentLocation(){
+        // given
+        val currentLocation = FacilityCurrentLocationRequestDto(0.0, -10.0)
+
+        // when
+        val resultCurrentLocation = facilityService.getCurrentLocation(currentLocation)
+
+        // then
+        assertThat(resultCurrentLocation).isEqualTo("4층 대강의실 안 입니다.")
     }
 }

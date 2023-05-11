@@ -9,7 +9,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
-import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityCurrentLocationDto
+import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityCurrentLocationRequestDto
 import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityTypesRequestDto
 import ssafy.autonomous.pathfinder.domain.facility.service.FacilityService
 import ssafy.autonomous.pathfinder.global.common.response.ApiResponse
@@ -57,14 +57,13 @@ class FacilityController(
 
     // 3-3
     @ApiOperation(value = "현재 여기는 xxx 입니다.")
-    @ApiImplicitParam(name = "facilityCurrentLocation", value = "현재 위치를 입력하세요", dataTypeClass = FacilityCurrentLocationDto::class)
+    @ApiImplicitParam(name = "facilityCurrentLocation", value = "현재 위치를 입력하세요", dataTypeClass = FacilityCurrentLocationRequestDto::class)
     @GetMapping("/facility/curloc")
-    fun getCurrentLocation(@RequestBody facilityCurrentLocationDto: FacilityCurrentLocationDto): ResponseEntity<ApiResponse>{
-
-        return ResponseEntity.status(HttpStatus.OK).body{
+    fun getCurrentLocation(@RequestBody facilityCurrentLocationRequestDto: FacilityCurrentLocationRequestDto): ResponseEntity<ApiResponse>{
+        return ResponseEntity.status(HttpStatus.OK).body(
             ApiResponse(
-                data = facilityService.
+                data = facilityService.getCurrentLocation(facilityCurrentLocationRequestDto)
             )
-        }
+        )
     }
 }

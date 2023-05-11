@@ -15,6 +15,12 @@ class Facility(
         private var densityMax: Int, // 최대 밀집도
         private var hitCount: Int, // 시설 조회 횟수
 
+        // 시설 사각형 좌표 (UpX, UpY), (DownX, UpY), (UpX, DownY), (DownX, DownY)
+        private val facilityLeftUpX: Double ?= 0.0,
+        private val facilityLeftUpY: Double ?= 0.0,
+        private val facilityRightDownX: Double ?= 0.0,
+        private val facilityRightDownY: Double ?= 0.0,
+
 
 
 
@@ -44,6 +50,14 @@ class Facility(
 
         fun getFacilityType(): String{
                 return this.facilityType
+        }
+
+        fun getFacilityLeftUpXY(): List<Double?> {
+                return listOf(facilityLeftUpX, facilityLeftUpY)
+        }
+
+        fun getFacilityRightDownXY(): List<Double?> {
+                return listOf(facilityRightDownX, facilityRightDownY)
         }
 
 
