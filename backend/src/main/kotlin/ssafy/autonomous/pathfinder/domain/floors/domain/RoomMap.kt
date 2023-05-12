@@ -1,5 +1,6 @@
-package ssafy.autonomous.pathfinder.domain.facility.domain
+package ssafy.autonomous.pathfinder.domain.floors.domain
 
+import ssafy.autonomous.pathfinder.domain.facility.domain.Weight
 import javax.persistence.*
 
 // 비콘을 기준으로 중간 좌표
@@ -19,7 +20,7 @@ class RoomMap(
         // 다대일 단방향
         @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "floors_id")
-        var floors: Floors ?= null,
+        var floors: Floors?= null,
 
         // 일대일 상하좌우 방향
 //        @OneToOne(fetch = FetchType.LAZY, mappedBy="roomMap", cascade = [CascadeType.ALL])
@@ -27,5 +28,5 @@ class RoomMap(
 
         // 일대일 weight
         @OneToOne(fetch = FetchType.LAZY, mappedBy="roomMap", cascade = [CascadeType.ALL])
-        var weight: Weight ?= null
+        var weight: Weight?= null
 )

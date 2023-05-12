@@ -1,10 +1,9 @@
 package ssafy.autonomous.pathfinder.domain.building.service
 
 import org.springframework.stereotype.Service
-import ssafy.autonomous.pathfinder.domain.building.dto.request.BuildingNfcRequestDto
 import ssafy.autonomous.pathfinder.domain.building.dto.response.BuildingNfcResponseDto
 import ssafy.autonomous.pathfinder.domain.building.repository.BuildingRepository
-import ssafy.autonomous.pathfinder.domain.facility.domain.Floors
+import ssafy.autonomous.pathfinder.domain.floors.domain.Floors
 import ssafy.autonomous.pathfinder.domain.floors.domain.Beacon
 import ssafy.autonomous.pathfinder.domain.floors.repository.BeaconRepository
 import ssafy.autonomous.pathfinder.domain.floors.repository.FloorsRepository

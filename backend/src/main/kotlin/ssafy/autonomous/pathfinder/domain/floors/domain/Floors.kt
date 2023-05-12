@@ -1,7 +1,8 @@
-package ssafy.autonomous.pathfinder.domain.facility.domain
+package ssafy.autonomous.pathfinder.domain.floors.domain
 
 import ssafy.autonomous.pathfinder.domain.building.domain.Building
-import ssafy.autonomous.pathfinder.domain.floors.domain.Beacon
+import ssafy.autonomous.pathfinder.domain.facility.domain.Facility
+import ssafy.autonomous.pathfinder.domain.facility.domain.Weight
 import javax.persistence.*
 
 @Entity

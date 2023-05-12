@@ -1,7 +1,7 @@
 package ssafy.autonomous.pathfinder.domain.building.domain
 
 import ssafy.autonomous.pathfinder.domain.administrator.domain.Administrator
-import ssafy.autonomous.pathfinder.domain.facility.domain.Floors
+import ssafy.autonomous.pathfinder.domain.floors.domain.Floors
 import javax.persistence.*
 
 @Entity

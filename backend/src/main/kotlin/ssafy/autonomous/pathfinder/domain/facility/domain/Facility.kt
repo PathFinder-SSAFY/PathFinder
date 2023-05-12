@@ -1,5 +1,7 @@
 package ssafy.autonomous.pathfinder.domain.facility.domain
 
+import ssafy.autonomous.pathfinder.domain.floors.domain.Floors
+import ssafy.autonomous.pathfinder.domain.floors.domain.RoomEntrance
 import ssafy.autonomous.pathfinder.domain.occupancy.domain.FloatingPopularity
 import javax.persistence.*
 
