@@ -64,12 +64,12 @@ class FacilityServiceImpl(
             val curFacilityName = inRoomEntrance.facility.getFacilityName()
 
             when {
-                findWithinRange(facilityCurrentLocationRequestDto, inRoomEntrance) -> return "$curFacilityName 입구입니다."
-                isNearFacilityEntrance(facilityCurrentLocationRequestDto, inRoomEntrance) -> return "$curFacilityName 입구 앞 입니다."
-                isInsideFacility(facilityCurrentLocationRequestDto, inRoomEntrance) -> return "$curFacilityName 안 입니다."
+                findWithinRange(facilityCurrentLocationRequestDto, inRoomEntrance) -> return "$curFacilityName 입구"
+                isNearFacilityEntrance(facilityCurrentLocationRequestDto, inRoomEntrance) -> return "$curFacilityName 입구 앞"
+                isInsideFacility(facilityCurrentLocationRequestDto, inRoomEntrance) -> return "$curFacilityName 안"
             }
         }
-        return "4층 복도입니다."
+        return "4층 복도"
 
     }
 

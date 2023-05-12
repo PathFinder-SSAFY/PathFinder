@@ -1,6 +1,7 @@
 package ssafy.autonomous.pathfinder.domain.facility.domain
 
-import ssafy.autonomous.pathfinder.domain.building.Building
+import ssafy.autonomous.pathfinder.domain.building.domain.Building
+import ssafy.autonomous.pathfinder.domain.floors.domain.Beacon
 import javax.persistence.*
 
 @Entity
@@ -22,6 +23,12 @@ class Floors(
     // 층과 시설 : 1 : N
     @OneToMany(mappedBy = "floors")
     var facilities: List<Facility> = mutableListOf(),
+
+    // 층과 Beacon : 1 : N
+    @OneToMany(mappedBy = "floors")
+    var beacons: List<Beacon> = mutableListOf(),
+
+
 
     // 층과 방 시설 : 1 : N
     // mappedBy : 연관관계 주인에서 사용된 변수 (현재 RoomMaps의 floors가 외래 키 사용한 변수)
