@@ -1,22 +1,21 @@
 package com.dijkstra.pathfinder.domain.repository
 
 import android.util.Log
-import android.widget.Toast
-import com.dijkstra.pathfinder.data.dto.Point
-import com.dijkstra.pathfinder.data.dto.Search
-import com.dijkstra.pathfinder.data.dto.UserCameraInfo
+import com.dijkstra.pathfinder.data.dto.*
 import com.dijkstra.pathfinder.domain.api.NavigationApi
 import com.dijkstra.pathfinder.util.NetworkResult
+import com.dijkstra.pathfinder.util.tempPointList
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonArray
+import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.unity3d.player.UnityPlayer
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
-import javax.inject.Inject
 
-class NavigationRepository (private val navigationApi: NavigationApi) {
+private const val TAG = "NavigationRepository_ssafy"
+class NavigationRepository(private val navigationApi: NavigationApi) {
 
     suspend fun navigationTest(): Flow<NetworkResult<Unit>> {
         return flow {
@@ -40,12 +39,13 @@ class NavigationRepository (private val navigationApi: NavigationApi) {
         }
     }
 
-    suspend fun navigate(start: Point, goal: Point): Flow<NetworkResult<List<Point>>> {
+    suspend fun navigate(start: Point, goal: Point): Flow<NetworkResult<NavigationResponse>> {
 
-        val gson = Gson()
+        val gson = GsonBuilder().create()
         val requestBody = JsonObject().apply {
-            addProperty("start", gson.toJson(start))
-            addProperty("goal", gson.toJson(goal))
+            add("start", gson.toJsonTree(start))
+            add("goal", gson.toJsonTree(goal))
+            add("obstacles", JsonArray())
         }
         return flow {
             try {
@@ -67,7 +67,7 @@ class NavigationRepository (private val navigationApi: NavigationApi) {
         }
     }
 
-    fun initCamera(userCameraInfo: UserCameraInfo) {
+    fun initCameraAtUnity(userCameraInfo: UserCameraInfo) {
         UnityPlayer.UnitySendMessage(
             "SystemController",
             "InitARCameraTransform",
@@ -75,7 +75,7 @@ class NavigationRepository (private val navigationApi: NavigationApi) {
         )
     }
 
-    fun setCameraAngle(userCameraInfo: UserCameraInfo) {
+    fun setCameraAngleAtUnity(userCameraInfo: UserCameraInfo) {
         UnityPlayer.UnitySendMessage(
             "SystemController",
             "SetARCameraAngle",
@@ -83,7 +83,7 @@ class NavigationRepository (private val navigationApi: NavigationApi) {
         )
     } // End of initCameraPosition
 
-    fun setCameraPosition(userCameraInfo: UserCameraInfo) {
+    fun setCameraPositionAtUnity(userCameraInfo: UserCameraInfo) {
         UnityPlayer.UnitySendMessage(
             "SystemController",
             "SetARCameraPosition",
@@ -91,7 +91,19 @@ class NavigationRepository (private val navigationApi: NavigationApi) {
         )
     }
 
-
+    fun setNavigationPathAtUnity(pathList: List<Point>) {
+        if (pathList.isEmpty()) return;
+//        UnityPlayer.UnitySendMessage(
+//            "Indicator",
+//            "SetNavigationPath",
+//            GsonBuilder().create().toJson(pathList)
+//        )
+        UnityPlayer.UnitySendMessage(
+            "Indicator",
+            "SetNavigationPath",
+            tempPointList
+        )
+    }
 
     companion object {
         private var INSTANCE: NavigationRepository? = null

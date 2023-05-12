@@ -15,12 +15,12 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.dijkstra.pathfinder.data.dto.Path
 import com.dijkstra.pathfinder.data.dto.Point
-import com.dijkstra.pathfinder.util.MyBluetoothHandler
-import com.dijkstra.pathfinder.util.NetworkResult
-import com.dijkstra.pathfinder.util.ViewModelFactory
+import com.dijkstra.pathfinder.util.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.Gson
 import com.unity3d.player.UnityPlayer
@@ -53,7 +53,7 @@ class UnityHolderActivity : UnityPlayerActivity(),
     private var cameraInitFlag: Boolean = true
     private var cameraRepositionFlag = false
     private var cameraPositionValidateState = false
-    private val pathList: MutableList<String> = mutableListOf<String>()
+    private val pathList: MutableList<Path> = mutableListOf<Path>()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -100,7 +100,6 @@ class UnityHolderActivity : UnityPlayerActivity(),
             unityViewModel.setUserCameraInfoPosition(startPosition)
         }
         goal?.let { unityViewModel.goal = it }
-
     } // End of onCreate
 
     override fun onStart() {
@@ -126,12 +125,14 @@ class UnityHolderActivity : UnityPlayerActivity(),
                     when (navigateNetworkResult) {
                         is NetworkResult.Success -> {
                             Log.d(TAG, "onStart: ${navigateNetworkResult.data}")
-                            pathList.clear()
-                            pathList.addAll(
-                                navigateNetworkResult.data?.map {
-                                    it.toString()
-                                } ?: emptyList()
-                            )
+                            navigateNetworkResult.data?.pathList?.let {
+                                //Todo activate
+//                                pathList.clear()
+//                                pathList.addAll(it)
+//                                launch(Dispatchers.Main) {
+//                                    navigationPathAdapter.notifyDataSetChanged()
+//                                }
+                            }
                         }
                         is NetworkResult.Error -> {
                             Log.e(TAG, "onStart: Error, ${navigateNetworkResult.message}")
@@ -216,6 +217,7 @@ class UnityHolderActivity : UnityPlayerActivity(),
                 layoutManager =
                     LinearLayoutManager(this@UnityHolderActivity, RecyclerView.VERTICAL, false)
                 adapter = navigationPathAdapter
+                addItemDecoration(DividerItemDecoration(this@UnityHolderActivity, RecyclerView.VERTICAL))
                 addOnScrollListener(
                     object : RecyclerView.OnScrollListener() {
                         override fun onScrollStateChanged(
@@ -255,9 +257,18 @@ class UnityHolderActivity : UnityPlayerActivity(),
 
     override fun onResume() {
         super.onResume()
-        Log.d(TAG, "onResume: ")
         sensorManager.registerListener(this, roationVectorSensor, SensorManager.SENSOR_DELAY_UI)
         cameraInitFlag = true
+
+        CoroutineScope(Dispatchers.Main).launch {
+            delay(3000)
+            // { //TODO Delete
+            pathList.clear()
+            pathList.addAll(tempPathList)
+            navigationPathAdapter.notifyDataSetChanged()
+            unityViewModel.setNavigationPathAtUnity(pathList)
+            //}
+        }
     } // End of onResume
 
     override fun onPause() {
@@ -287,9 +298,9 @@ class UnityHolderActivity : UnityPlayerActivity(),
         }
 
         unityViewModel.setUserCameraInfoAngle(
-            azimuth = orientation[0],
-            pitch = orientation[1],
-            roll = orientation[2]
+            azimuth = orientationDeg[0],
+            pitch = orientationDeg[1],
+            roll = orientationDeg[2]
         )
 
         if (cameraInitFlag) {

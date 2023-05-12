@@ -1,5 +1,6 @@
 package com.dijkstra.pathfinder.domain.api
 
+import com.dijkstra.pathfinder.data.dto.NavigationResponse
 import com.dijkstra.pathfinder.data.dto.Point
 import com.google.gson.JsonObject
 import retrofit2.Response
@@ -12,6 +13,6 @@ interface NavigationApi {
     suspend fun navigationTest(): Response<Unit>
 
     @POST("findPath/protoType")
-    suspend fun navigate(@Body requestBody: JsonObject): Response<List<Point>>
+    suspend fun navigate(@Body requestBody: JsonObject): Response<NavigationResponse>
 
 }

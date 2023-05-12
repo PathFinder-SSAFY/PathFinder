@@ -91,6 +91,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_marginTop="8dp"
+                android:background="@drawable/button_background_shape"
                 android:backgroundTint="@color/bottom_sheet_highlight_color"
                 android:fontFamily="@font/nanum_square_neo_extra_bold"
                 android:text="안내 종료"

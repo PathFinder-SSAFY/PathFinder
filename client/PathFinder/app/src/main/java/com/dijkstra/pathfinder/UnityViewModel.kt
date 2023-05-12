@@ -1,15 +1,15 @@
 package com.dijkstra.pathfinder
 
 import androidx.lifecycle.*
+import com.dijkstra.pathfinder.data.dto.NavigationResponse
+import com.dijkstra.pathfinder.data.dto.Path
 import com.dijkstra.pathfinder.data.dto.Point
 import com.dijkstra.pathfinder.data.dto.UserCameraInfo
 import com.dijkstra.pathfinder.domain.repository.NavigationRepository
-import com.dijkstra.pathfinder.util.KalmanFilter3D
-import com.dijkstra.pathfinder.util.MyBluetoothHandler
+import com.dijkstra.pathfinder.util.Constant
 import com.dijkstra.pathfinder.util.NetworkResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 private const val TAG = "UnityViewModel_ssafy"
@@ -31,10 +31,16 @@ class UnityViewModel(
         MutableStateFlow(NetworkResult.Success(Unit))
     val navigationTestNetworkResultStateFlow: StateFlow<NetworkResult<Unit>> get() = _navigationTestNetworkResultStateFlow
 
-    private val _navigationNetworkResultStateFlow: MutableStateFlow<NetworkResult<List<Point>>> = MutableStateFlow(NetworkResult.Success(
-        emptyList()
-    ))
-    val navigationNetworkResultStateFlow: StateFlow<NetworkResult<List<Point>>> get() = _navigationNetworkResultStateFlow
+    private val _navigationNetworkResultStateFlow: MutableStateFlow<NetworkResult<NavigationResponse>> =
+        MutableStateFlow(
+            NetworkResult.Success(
+                NavigationResponse(
+                    emptyList(),
+                    emptyList()
+                )
+            )
+        )
+    val navigationNetworkResultStateFlow: StateFlow<NetworkResult<NavigationResponse>> get() = _navigationNetworkResultStateFlow
 
     fun navigationTest() {
         viewModelScope.launch {
@@ -53,15 +59,15 @@ class UnityViewModel(
     }
 
     fun initCamera() {
-        navigationRepository.initCamera(userCameraInfo)
+        navigationRepository.initCameraAtUnity(userCameraInfo)
     }
 
     fun setCameraAngle() {
-        navigationRepository.setCameraAngle(userCameraInfo)
+        navigationRepository.setCameraAngleAtUnity(userCameraInfo)
     }
 
     fun setCameraPosition() {
-        navigationRepository.setCameraPosition(userCameraInfo)
+        navigationRepository.setCameraPositionAtUnity(userCameraInfo)
     }
 
     fun setUserCameraInfoPosition(currentPosition: Point) {
@@ -70,9 +76,34 @@ class UnityViewModel(
         userCameraInfo.z = currentPosition.z.toFloat()
     }
 
-    fun setUserCameraInfoAngle(azimuth: Float, pitch: Float, roll: Float ) {
+    fun setUserCameraInfoAngle(azimuth: Float, pitch: Float, roll: Float) {
         userCameraInfo.azimuth = azimuth
         userCameraInfo.pitch = pitch
         userCameraInfo.roll = roll
+    }
+
+    fun setNavigationPathAtUnity(pathList: List<Path>) {
+        if (pathList.isEmpty()) return;
+        val tempPathList = mutableListOf<Point>()
+        tempPathList.add(pathList.first().startPoint)
+        tempPathList.addAll(
+            pathList.filter { it.distance > 0 }.map {
+                when (it.direction) {
+                    Constant.WEST -> {
+                        it.startPoint - Point(it.distance, 0.0, 0.0)
+                    }
+                    Constant.NORTH -> {
+                        it.startPoint + Point(0.0, 0.0, it.distance)
+                    }
+                    Constant.EAST -> {
+                        it.startPoint + Point(it.distance, 0.0, 0.0)
+                    }
+                    Constant.SOUTH -> {
+                        it.startPoint - Point(0.0, 0.0, it.distance)
+                    }
+                    else -> it.startPoint
+                }
+            })
+        navigationRepository.setNavigationPathAtUnity(tempPathList)
     }
 }

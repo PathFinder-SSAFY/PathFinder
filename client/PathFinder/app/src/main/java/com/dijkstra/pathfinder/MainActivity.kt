@@ -193,12 +193,18 @@ class MainActivity : ComponentActivity() {
                         }
                         if (btPermissionsState.allPermissionsGranted) {
                             val intent = Intent(this@MainActivity, UnityHolderActivity::class.java)
-                            intent.putExtra("startPosition", Point(
-                                10.0,
-                                1.8,
-                                -3.0
-                            ))
-                            intent.putExtra("goal", Point(0.0, 0.0, 0.0))
+                            intent.putExtra(
+                                "startPosition", Point(
+                                    16.0,
+                                    0.0,
+                                    -7.0
+                                )
+                            )
+                            intent.putExtra("goal", Point(
+                                32.00,
+                                0.0,
+                                -0.00)
+                            )
                             startActivity(intent)
                         } else {
                             btPermissionsState.launchMultiplePermissionRequest()
