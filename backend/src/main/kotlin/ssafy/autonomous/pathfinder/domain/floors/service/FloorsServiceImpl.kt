@@ -9,6 +9,8 @@ import ssafy.autonomous.pathfinder.domain.facility.repository.RoomEntranceReposi
 import ssafy.autonomous.pathfinder.domain.floors.domain.Beacon
 import ssafy.autonomous.pathfinder.domain.floors.domain.RoomEntrance
 import ssafy.autonomous.pathfinder.domain.floors.dto.request.FloorsCurrentLocationRequestDto
+import ssafy.autonomous.pathfinder.domain.floors.exception.HandleInWallBoundaryException
+import ssafy.autonomous.pathfinder.domain.floors.exception.HandleInvalidUserLocationOnCurrentFloorException
 import ssafy.autonomous.pathfinder.domain.floors.repository.BeaconRepository
 import java.math.BigDecimal
 import kotlin.math.pow
@@ -38,6 +40,8 @@ class FloorsServiceImpl(
                 findWithinRange(floorsCurrentLocationRequestDto, inRoomEntrance) -> return "$curFacilityName 입구"
                 isNearFacilityEntrance(floorsCurrentLocationRequestDto, inRoomEntrance) -> return "$curFacilityName 입구 앞"
                 isInsideFacility(floorsCurrentLocationRequestDto, inRoomEntrance) -> return "$curFacilityName 안"
+                isBlockWall(floorsCurrentLocationRequestDto) -> throw HandleInWallBoundaryException()
+                isOutOfRange(floorsCurrentLocationRequestDto) -> throw HandleInvalidUserLocationOnCurrentFloorException()
             }
         }
         return "4층 복도"
@@ -63,9 +67,6 @@ class FloorsServiceImpl(
 
         return getWallBlindSpotsList(blockWallList)
     }
-
-
-
 
     private fun getAllRoomEntrance(): MutableList<RoomEntrance> {
         return roomEntranceRepository.findAll()
@@ -95,7 +96,7 @@ class FloorsServiceImpl(
     }
 
     // 시설 입구에 있는지 확인
-    private fun findWithinRange(facilityCurrentLocationRequestDto: FloorsCurrentLocationRequestDto, roomEntrance: RoomEntrance): Boolean {
+    private fun findWithinRange(floorsCurrentLocationRequestDto: FloorsCurrentLocationRequestDto, roomEntrance: RoomEntrance): Boolean {
         val (leftUpX, leftUpZ) = roomEntrance.getEntranceLeftUpXZ()
         val (rightDownX, rightDownZ) = roomEntrance.getEntranceRightDownXZ()
 
@@ -103,8 +104,8 @@ class FloorsServiceImpl(
 //        logger.info("시설 입구 범위 LX, LY : $leftUpX , $leftUpZ")
 //        logger.info("시설 입구 범위 RX, RY : $rightDownX, $rightDownZ")
 
-        if (isWithinRangeX(facilityCurrentLocationRequestDto.x, leftUpX, rightDownX)
-            && isWithinRangeZ(facilityCurrentLocationRequestDto.z, rightDownZ, leftUpZ)
+        if (isWithinRangeX(floorsCurrentLocationRequestDto.x, leftUpX, rightDownX)
+            && isWithinRangeZ(floorsCurrentLocationRequestDto.z, rightDownZ, leftUpZ)
         ) return true
         return false
     }
@@ -196,21 +197,62 @@ class FloorsServiceImpl(
 
         val obstacleList : MutableList<Pair<Double, Double>> = mutableListOf()
 
-        logger.info("========================================")
-        logger.info("시작 위치 : $leftUpX 도착 위치 : $rightDownX")
-        logger.info("시작 위치 : $leftUpZ 도착 위치 : $rightDownZ")
+//        logger.info("========================================")
+//        logger.info("시작 위치 : $leftUpX 도착 위치 : $rightDownX")
+//        logger.info("시작 위치 : $leftUpZ 도착 위치 : $rightDownZ")
 
 
         for(x in leftUpXToInt..rightDownXToInt step stepInt){
             for(z in rightDownZToInt .. leftUpZToInt step stepInt){
                 val currentX = BigDecimal.valueOf(x.toDouble() / 10.0.pow(scale)).toDouble()
                 val currentZ = BigDecimal.valueOf(z.toDouble() / 10.0.pow(scale)).toDouble()
-                logger.info("x : $currentX z : $currentZ")
+//                logger.info("x : $currentX z : $currentZ")
                 obstacleList.add(Pair(currentX, currentZ))
             }
         }
 
         return obstacleList
 
+    }
+
+    // 벽 위치일 경우
+    private fun isBlockWall(floorsCurrentLocationRequestDto: FloorsCurrentLocationRequestDto): Boolean{
+        val blockWall : List<BlockWall> = getAllBlockWall()
+        val curX = floorsCurrentLocationRequestDto.x
+        val curZ = floorsCurrentLocationRequestDto.z
+
+        // wall
+        val isInsideBlockWall = blockWall.any { wall ->
+            val leftUpX = wall.getBlockWallLeftUpXZ()[0]
+            val leftUpZ = wall.getBlockWallLeftUpXZ()[1]
+            val rightDownX = wall.getBlockWallRightDownXZ()[0]
+            val rightDownZ = wall.getBlockWallRightDownXZ()[1]
+
+            leftUpX!! <= curX && curX <= rightDownX!! && rightDownZ!! <= curZ &&curZ <= leftUpZ!!
+        }
+
+        // block 범위에 포함되는 경우
+        if(isInsideBlockWall) return true
+        return false
+    }
+
+    // 층 외부에 좌표가 잡혔을 경우
+    private fun isOutOfRange(floorsCurrentLocationRequestDto: FloorsCurrentLocationRequestDto): Boolean {
+        val curX = floorsCurrentLocationRequestDto.x
+        val curZ = floorsCurrentLocationRequestDto.z
+
+        val roundedValueCurX = (curX * 10.0.pow(2)).toInt()
+        val roundedValueCurZ = (curZ * 10.0.pow(2)).toInt()
+
+//        logger.info("현재 X 좌표 : $roundedValueCurX + 현재 Z 좌표 : $roundedValueCurZ")
+
+        /*
+         범위를 벗어난 경우
+         0 <= X <= 65.85
+         -12.95 <= Z <= 0
+         범위 : (0, 0) (65.85, -12.95)
+         */
+        if(roundedValueCurX !in 0..6585 || roundedValueCurZ !in -1295 .. 0) return true
+        return false
     }
 }
