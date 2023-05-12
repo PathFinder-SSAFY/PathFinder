@@ -2,6 +2,7 @@ package ssafy.autonomous.pathfinder.domain.facility.controller
 
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiImplicitParam
+import io.swagger.annotations.ApiImplicitParams
 import io.swagger.annotations.ApiOperation
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -57,8 +58,14 @@ class FacilityController(
 
     // 3-3 현재 나의 위치 조회
     @ApiOperation(value = "현재 위치 조회 API")
-    @ApiImplicitParam(name = "facilityCurrentLocation", value = "현재 위치를 입력하세요.", dataTypeClass = FacilityCurrentLocationRequestDto::class)
-    @GetMapping("/facility/curloc")
+    @ApiImplicitParams(
+        ApiImplicitParam(name = "x", value = "0 < x < 65.xx", dataType = "double"),
+        ApiImplicitParam(name = "y", value = "0.0 입력 필수(4층만)", dataType = "double"),
+        ApiImplicitParam(name = "z", value = "-12.xx < z < 0", dataType = "double")
+
+    )
+
+    @PostMapping("/facility/curloc")
     fun getCurrentLocation(@RequestBody facilityCurrentLocationRequestDto: FacilityCurrentLocationRequestDto): ResponseEntity<ApiResponse>{
         return ResponseEntity.status(HttpStatus.OK).body(
             ApiResponse(
