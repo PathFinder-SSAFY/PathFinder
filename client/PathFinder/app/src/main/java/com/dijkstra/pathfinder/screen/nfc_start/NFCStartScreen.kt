@@ -31,18 +31,6 @@ fun NFCStartScreen(
     val nfcState by nfcViewModel.nfcState.collectAsState()
     val nfcSharedState by nfcViewModel.sharedNFCStateFlow.collectAsState("")
 
-//    nfcSharedState.let {
-//        NFCStartContent()
-//
-//        LaunchedEffect(key1 = nfcSharedState) {
-//            if (nfcSharedState == "NEW NFC DATA") {
-//                navController.navigate(route = Screen.Test.route)
-//            } else if (nfcSharedState == "SECOND") {
-//                navController.navigate(route = Screen.Test2.route)
-//            }
-//        }
-//    }
-
     nfcState.let {
         NFCStartContent(nfcData = nfcState)
         LaunchedEffect(key1 = nfcState) {

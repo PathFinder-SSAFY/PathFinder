@@ -30,7 +30,6 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -43,6 +42,7 @@ import com.dijkstra.pathfinder.R
 import com.dijkstra.pathfinder.components.*
 import com.dijkstra.pathfinder.ui.theme.IconColor
 import com.dijkstra.pathfinder.ui.theme.nanumSquareNeo
+import com.dijkstra.pathfinder.util.NetworkResult
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -54,7 +54,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.log
 
 
-private const val TAG = "MainScreen_SDR"
+private const val TAG = "MainScreen_싸피"
 
 @OptIn(
     ExperimentalPermissionsApi::class, ExperimentalComposeUiApi::class,
@@ -137,7 +137,19 @@ fun MainScreen(
     var tempFloorState by remember { mutableStateOf(floorValues[0]) }
     var floorState by remember { mutableStateOf(floorValues[0]) }
 
-    // Beacon State
+    // MainViewModel Response State
+//    val postFacilityDynamicResponseStateFlow =
+//        mainViewModel.postFacilityDynamicResponseStateFlow.collectAsState()
+
+    val postFacilityDynamicResponseSharedFlow =
+        mainViewModel.postFacilityDynamicResponseSharedFlow.collectAsState(null)
+
+    // Search LazyColumn
+    var searchingList by remember {
+        mutableStateOf(mutableListOf<String>())
+    }
+
+    // Permission State
     val btPermissionsState = rememberMultiplePermissionsState(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             listOf(
@@ -214,7 +226,12 @@ fun MainScreen(
     ) {
         AutoCompleteSearchBar(
             value = searchQueryState.value,
-            onValueChange = { value -> searchQueryState.value = value },
+            onValueChange = { value ->
+                searchQueryState.value = value
+                Log.d(TAG, "MainScreen: ${searchQueryState.value}")
+                mainViewModel.postFacilityDynamic(searchQueryState.value)
+
+            },
             active = searchBarActiveState.value,
             onActiveChange = { searchBarActiveState.value = it },
             modifier = Modifier
@@ -283,20 +300,38 @@ fun MainScreen(
                     .background(Color.Transparent),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                postFacilityDynamicResponseSharedFlow.let {
+                    if (it.value?.data != null) {
+                        Log.d(TAG, "postFacilityDynamicResponseStateFlow.let : ")
+                        Log.d(TAG, "postFacilityDynamicResponseStateFlow.let : ${it.value?.data}")
+                        when (it.value!!) {
+                            is NetworkResult.Success -> {
+                                Log.d(TAG, "TestNetworkResult.Success : 성공하긴함?")
+                                searchingList = it.value!!.data as MutableList<String>
+                            }
+
+                            is NetworkResult.Loading -> {
+                                // Progressbar show
+                                //searchingList = it.value!!.data as MutableList<String>
+                            }
+
+                            is NetworkResult.Error -> {
+                                // Error message Showing
+                                //searchingList = it.value!!.data as MutableList<String>
+                            }
+                        }
+                    }
+                } // End of postFacilityDynamicResponseStateFlow.let
                 items(
-                    persons.map { person ->
-                        person.name
-                    }.filter { name ->
-                        name.lowercase().contains(searchQueryState.value.lowercase())
-                    }.sorted()
-                ) { name ->
+                    searchingList
+                ) {
                     ListItem(
                         headlineContent = {
-                            Text(text = name)
+                            Text(text = it)
                         },
                         modifier = Modifier
                             .clickable {
-                                searchQueryState.value = name
+                                searchQueryState.value = it
                                 searchBarActiveState.value = false
                             }
                             .background(Color.Transparent)
@@ -704,7 +739,5 @@ fun MainScreen(
                 scope = coroutineScope
             )
         } // End of Bottom Modal
-
     } // End of MainScreen Surface
-
 } // End of MainScreen

@@ -1,17 +1,22 @@
 package com.dijkstra.pathfinder.screen.main
 
 import android.app.Application
-import android.provider.Settings.Global.getString
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.res.stringResource
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.dijkstra.pathfinder.R
+import com.dijkstra.pathfinder.domain.repository.MainRepository
 import com.dijkstra.pathfinder.util.KalmanFilter3D
+import com.dijkstra.pathfinder.util.NetworkResult
 import com.dijkstra.pathfinder.util.trilateration
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 import org.altbeacon.beacon.*
 import javax.inject.Inject
 
@@ -19,7 +24,8 @@ private const val TAG = "MainViewModel_SSAFY"
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val application: Application
+    private val application: Application,
+    private val mainRepo: MainRepository
 ) : ViewModel() {
     var beaconList: MutableState<List<Beacon>> = mutableStateOf(emptyList())
     var kalmanLocation = mutableStateOf(listOf(0.0, 0.0, 0.0))
@@ -93,8 +99,53 @@ class MainViewModel @Inject constructor(
     override fun onCleared() {
         beaconManager.stopRangingBeacons(region)
         beaconManager.removeAllRangeNotifiers()
-        Log.d(TAG, "onCleared: gone")
         super.onCleared()
     }
 
-} // End of MainViewModel
+    // ========================================== postFacilityDynamic ==========================================
+
+//    private val _postFacilityDynamicResponseStateFlow =
+//        MutableStateFlow<NetworkResult<SearchResponse>?>(null)
+//    var postFacilityDynamicResponseStateFlow = _postFacilityDynamicResponseStateFlow
+//        private set
+
+    private val _postFacilityDynamicResponseSharedFlow =
+        MutableSharedFlow<NetworkResult<MutableList<String>>>(0)
+    var postFacilityDynamicResponseSharedFlow = _postFacilityDynamicResponseSharedFlow
+        private set
+
+    fun postFacilityDynamic(searchData: String) {
+        viewModelScope.launch {
+            mainRepo.postFacilityDynamic(searchData).onStart {
+                _postFacilityDynamicResponseSharedFlow.emit(NetworkResult.Loading())
+            }.catch { result ->
+                _postFacilityDynamicResponseSharedFlow.emit(
+                    NetworkResult.Error(
+                        null,
+                        result.message,
+                        result.cause
+                    )
+                )
+            }.collectLatest { result ->
+                when {
+                    result.isSuccessful && result.body() != null -> {
+                        Log.d(TAG, "postFacilityDynamic: 여기 들어가긴 하냐?")
+                        Log.d(TAG, "postFacilityDynamic: ${result.body()!!}")
+                        _postFacilityDynamicResponseSharedFlow.emit(
+                            NetworkResult.Success(result.body()!!.data)
+                        )
+                    }
+
+                    result.errorBody() != null -> {
+                        _postFacilityDynamicResponseSharedFlow.emit(
+                            NetworkResult.Error(
+                                result.code(),
+                                result.message()
+                            )
+                        )
+                    }
+                }
+            }
+        }
+    } // End of postFacilityDynamic
+} // End of MainViewModel class

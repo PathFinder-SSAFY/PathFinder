@@ -1,6 +1,8 @@
 package com.dijkstra.pathfinder.domain.api
 
 import com.dijkstra.pathfinder.data.dto.Search
+import com.dijkstra.pathfinder.data.dto.SearchResponse
+import com.dijkstra.pathfinder.util.NetworkResult
 import com.google.gson.JsonObject
 import retrofit2.Response
 import retrofit2.http.Body
@@ -15,4 +17,13 @@ interface MainApi {
         @Body requestBody: JsonObject
     ): Response<List<Search>>
 
-}
+    @POST("facility/dynamic")
+    suspend fun postFacilityDynamic(
+        @Body filteringSearch: JsonObject
+    ): Response<SearchResponse>
+
+    @POST("facility/search")
+    suspend fun postFacilitySearch(
+        @Body filteringSearch: JsonObject
+    ): NetworkResult<Response<Void>>
+} // End of MainApi Interface
