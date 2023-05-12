@@ -13,7 +13,7 @@ VALUES
 
 
 -- 층에 있는 비콘
-INSERT INTO Beacon
+INSERT INTO beacon
 (beacon_id, beaconx, beacony, beaconz, floors_id)
 VALUES
     (33246, 19.18, 2.38, -6.0, 1),

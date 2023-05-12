@@ -25,10 +25,9 @@ class FloorsController(
     // 4-1 현재 나의 위치 조회
     @ApiOperation(value = "현재 위치 조회 API")
     @ApiImplicitParams(
-        ApiImplicitParam(name = "x", value = "0 < x < 65.xx", dataType = "double"),
-        ApiImplicitParam(name = "y", value = "0.0 입력 필수(4층만)", dataType = "double"),
-        ApiImplicitParam(name = "z", value = "-12.xx < z < 0", dataType = "double")
-
+        ApiImplicitParam(name = "x", value = "0 < x < 65.xx", dataTypeClass = Double::class),
+        ApiImplicitParam(name = "y", value = "0.0 입력 필수(4층만)", dataTypeClass = Double::class),
+        ApiImplicitParam(name = "z", value = "-12.xx < z < 0", dataTypeClass = Double::class)
     )
     @PostMapping("/floors/curloc")
     fun getCurrentLocation(@RequestBody floorsCurrentLocationRequestDto: FloorsCurrentLocationRequestDto): ResponseEntity<ApiResponse> {
