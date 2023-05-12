@@ -28,9 +28,9 @@ class UnityViewModel(
         MutableLiveData(doubleArrayOf(0.0, 0.0, 0.0))
     val nowLocation: LiveData<DoubleArray> get() = _nowLocation
 
-    private val _navigationTestNetworkResultStateFlow: MutableStateFlow<NetworkResult<Unit>> =
-        MutableStateFlow(NetworkResult.Success(Unit))
-    val navigationTestNetworkResultStateFlow: StateFlow<NetworkResult<Unit>> get() = _navigationTestNetworkResultStateFlow
+    private val _navigationTestNetworkResultStateFlow: MutableStateFlow<SubNetworkResult<Unit>> =
+        MutableStateFlow(SubNetworkResult.Success(Unit))
+    val navigationTestNetworkResultStateFlow: StateFlow<SubNetworkResult<Unit>> get() = _navigationTestNetworkResultStateFlow
 
     private val _navigationNetworkResultStateFlow: MutableStateFlow<NetworkResult<NavigationResponse>> =
         MutableStateFlow(

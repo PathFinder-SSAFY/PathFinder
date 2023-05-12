@@ -1,7 +1,6 @@
 package com.dijkstra.pathfinder.screen.main
 
 import android.Manifest
-import android.content.Intent
 import android.os.Build
 import android.speech.SpeechRecognizer
 import android.util.Log
@@ -12,7 +11,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.Surface
@@ -24,46 +22,37 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
+import com.chargemap.compose.numberpicker.ListItemPicker
 import com.dijkstra.pathfinder.R
 import com.dijkstra.pathfinder.components.*
+import com.dijkstra.pathfinder.data.dto.CurrentLocationResponse
+import com.dijkstra.pathfinder.data.dto.Point
 import com.dijkstra.pathfinder.ui.theme.IconColor
 import com.dijkstra.pathfinder.ui.theme.nanumSquareNeo
+import com.dijkstra.pathfinder.util.NetworkResult
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.altbeacon.beacon.BeaconManager
-import org.altbeacon.beacon.service.BeaconService
-import org.altbeacon.beacon.service.ScanJob
 
 
-private const val TAG = "MainScreen_SDR"
+private const val TAG = "MainScreen_SSAFY"
 
 @OptIn(
     ExperimentalPermissionsApi::class, ExperimentalComposeUiApi::class,
@@ -104,7 +93,8 @@ fun MainScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
 
-    val pictureUrl = remember { mutableStateOf("https://i.redd.it/nxa1etbwlfa51.jpg") }
+    val pictureUrl =
+        remember { mutableStateOf("https://d206-buket.s3.ap-northeast-2.amazonaws.com/3floor_map.png") }
 
     // BottomSheet State
     val openBottomSheet = remember { mutableStateOf(false) }
@@ -114,13 +104,37 @@ fun MainScreen(
     )
     val countdownText = remember { mutableStateOf("3") }
 
+    // Current Location State
+    val openCurrentLocationDialog = remember { mutableStateOf(false) }
+    val postCurrentLocationResponseSharedFlow =
+        mainViewModel.postCurrentLocationResponseSharedFlow.collectAsState(
+            initial = null
+        )
+    val currentLocationPoint = remember { mainViewModel.currentLocationPoint }
+    val currentLocationName = remember { mainViewModel.currentLocationName }
+
     // Emergency State
     val openEmergencyDialog = remember { mutableStateOf(false) }
 
     // Floor State
     val openFloorDialog = remember { mutableStateOf(false) }
+    val floorValues = listOf("1F", "2F", "3F", "4F", "5F", "6F", "7F")
+    var tempFloorState by remember { mutableStateOf(floorValues[0]) }
+    var floorState by remember { mutableStateOf(floorValues[0]) }
 
-    // Beacon State
+    // MainViewModel Response State
+//    val postFacilityDynamicResponseStateFlow =
+//        mainViewModel.postFacilityDynamicResponseStateFlow.collectAsState()
+
+    val postFacilityDynamicResponseSharedFlow =
+        mainViewModel.postFacilityDynamicResponseSharedFlow.collectAsState(null)
+
+    // Search LazyColumn
+    var searchingList by remember {
+        mutableStateOf(mutableListOf<String>())
+    }
+
+    // Permission State
     val btPermissionsState = rememberMultiplePermissionsState(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             listOf(
@@ -197,7 +211,12 @@ fun MainScreen(
     ) {
         AutoCompleteSearchBar(
             value = searchQueryState.value,
-            onValueChange = { value -> searchQueryState.value = value },
+            onValueChange = { value ->
+                searchQueryState.value = value
+                Log.d(TAG, "MainScreen: ${searchQueryState.value}")
+                mainViewModel.postFacilityDynamic(searchQueryState.value)
+
+            },
             active = searchBarActiveState.value,
             onActiveChange = { searchBarActiveState.value = it },
             modifier = Modifier
@@ -219,13 +238,10 @@ fun MainScreen(
                         if (speechPermissionState.status.isGranted) {
                             if (!isRecording.value) {
                                 isRecording.value = true
-                                Log.d(TAG, "MainScreen: speech")
                                 startListening(speechRecognizer, searchQueryState, isRecording)
                             }
                         } else {
-                            Log.d(TAG, "MainScreen: ${speechPermissionState.permission}")
                             speechPermissionState.launchPermissionRequest()
-
                         }
                     },
                     modifier = Modifier.size(28.dp)
@@ -259,27 +275,44 @@ fun MainScreen(
                 } // Search Icon
             } // End of trailingIcon
         ) {
-            // TODO : Change Person Dummy Data to Coord
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color.Transparent),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                postFacilityDynamicResponseSharedFlow.let {
+                    if (it.value?.data != null) {
+                        Log.d(TAG, "postFacilityDynamicResponseStateFlow.let : ")
+                        Log.d(TAG, "postFacilityDynamicResponseStateFlow.let : ${it.value?.data}")
+                        when (it.value!!) {
+                            is NetworkResult.Success -> {
+                                Log.d(TAG, "TestNetworkResult.Success : 성공하긴함?")
+                                searchingList = it.value!!.data as MutableList<String>
+                            }
+
+                            is NetworkResult.Loading -> {
+                                // Progressbar show
+                                //searchingList = it.value!!.data as MutableList<String>
+                            }
+
+                            is NetworkResult.Error -> {
+                                // Error message Showing
+                                //searchingList = it.value!!.data as MutableList<String>
+                            }
+                        }
+                    }
+                } // End of postFacilityDynamicResponseStateFlow.let
                 items(
-                    persons.map { person ->
-                        person.name
-                    }.filter { name ->
-                        name.lowercase().contains(searchQueryState.value.lowercase())
-                    }.sorted()
-                ) { name ->
+                    searchingList
+                ) {
                     ListItem(
                         headlineContent = {
-                            Text(text = name)
+                            Text(text = it)
                         },
                         modifier = Modifier
                             .clickable {
-                                searchQueryState.value = name
+                                searchQueryState.value = it
                                 searchBarActiveState.value = false
                             }
                             .background(Color.Transparent)
@@ -339,13 +372,14 @@ fun MainScreen(
                     MainScreenBottomIconButton(
                         onClick = {
                             if (btPermissionsState.allPermissionsGranted) {
-                                Toast.makeText(
-                                    context,
-                                    context.getString(R.string.cal_now_location),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                // TODO: Now Location to Server
-                                Log.d(TAG, "MyLocation: ${mainViewModel.kalmanLocation.value}")
+                                openCurrentLocationDialog.value = true
+                                mainViewModel.postCurrentLocation(
+                                    Point(
+                                        mainViewModel.kalmanLocation.value[0],
+                                        0.0,
+                                        mainViewModel.kalmanLocation.value[2]
+                                    )
+                                )
                             } else {
                                 btPermissionsState.launchMultiplePermissionRequest()
                             }
@@ -382,6 +416,153 @@ fun MainScreen(
             }
         } // Speech Dialog if-state
 
+        // Current Location Dialog
+        if (openCurrentLocationDialog.value) {
+            Dialog(
+                onDismissRequest = {
+                    openCurrentLocationDialog.value = false
+                }
+            ) {
+                Surface(
+                    modifier = Modifier,
+                    shape = RoundedCornerShape(24.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.MyLocation,
+                            contentDescription = "My Location Button",
+                            modifier = Modifier
+                                .width(40.dp)
+                                .height(40.dp)
+                                .padding(bottom = 16.dp),
+                            tint = IconColor
+                        )
+                        Text(
+                            text = stringResource(id = R.string.current_location),
+                            modifier = Modifier.padding(),
+                            fontFamily = nanumSquareNeo,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 24.sp,
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        // Loading
+                        Column(
+                            modifier = Modifier.height(100.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            postCurrentLocationResponseSharedFlow.let { networkResult ->
+                                Log.d(TAG, "MainScreen: ${networkResult.value}")
+                                when (networkResult.value!!) {
+                                    is NetworkResult.Success -> {
+                                        Text(
+                                            text = mainViewModel.tempLocationName,
+                                            modifier = Modifier.padding(bottom = 16.dp),
+                                            fontFamily = nanumSquareNeo,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 20.sp,
+                                        )
+                                        Text(
+                                            text = stringResource(id = R.string.retry_current_location),
+                                            modifier = Modifier.padding(),
+                                            color = Color.LightGray,
+                                            fontFamily = nanumSquareNeo,
+                                            fontWeight = FontWeight.Medium,
+                                            fontSize = 16.sp,
+                                        )
+                                    }
+                                    is NetworkResult.Loading -> {
+                                        CircularProgressIndicator()
+                                    }
+                                    is NetworkResult.Error -> {
+                                        // Error message Showing
+                                        Text(
+                                            text = stringResource(id = R.string.error_current_location),
+                                            modifier = Modifier.padding(bottom = 4.dp),
+                                            fontFamily = nanumSquareNeo,
+                                            fontWeight = FontWeight.Medium,
+                                            fontSize = 20.sp,
+                                        )
+                                        Text(
+                                            text = stringResource(id = R.string.retry_after_current_location),
+                                            modifier = Modifier.padding(),
+                                            fontFamily = nanumSquareNeo,
+                                            fontWeight = FontWeight.Medium,
+                                            fontSize = 20.sp,
+                                        )
+                                    }
+                                }
+                            }
+                        } // End of NowLocation Dialog Main Contents
+
+                        // TextButtons
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.BottomEnd
+                        ) {
+                            Row(
+                                modifier = Modifier,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                TextButton(
+                                    onClick = {
+                                        openCurrentLocationDialog.value = false
+                                    },
+                                ) {
+                                    Text(
+                                        text = stringResource(id = R.string.cancel),
+                                        fontFamily = nanumSquareNeo,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 16.sp,
+                                        color = IconColor
+                                    )
+                                }
+                                TextButton(onClick = {
+                                    Log.d(TAG, "Retry: ")
+                                    mainViewModel.postCurrentLocation(
+                                        Point(
+                                            mainViewModel.kalmanLocation.value[0],
+                                            0.0,
+                                            mainViewModel.kalmanLocation.value[2]
+                                        )
+                                    )
+                                }) {
+                                    Text(
+                                        text = stringResource(id = R.string.retry),
+                                        fontFamily = nanumSquareNeo,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 16.sp,
+                                        color = IconColor
+                                    )
+                                }
+                                TextButton(onClick = {
+                                    openCurrentLocationDialog.value = false
+                                    mainViewModel.currentLocationPoint.value =
+                                        mainViewModel.tempLocationPoint
+                                    mainViewModel.currentLocationName.value =
+                                        mainViewModel.tempLocationName
+                                }) {
+                                    Text(
+                                        text = stringResource(id = R.string.ok),
+                                        fontFamily = nanumSquareNeo,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 16.sp,
+                                        color = IconColor
+                                    )
+                                }
+                            } // End of TextButtons Row
+                        }
+                    }
+                } // End of Surface
+            } // End of Dialog
+        } // Current Location Dialog if-state
+
         // Emergency Dialog
         if (openEmergencyDialog.value) {
             Dialog(
@@ -411,11 +592,12 @@ fun MainScreen(
                         )
                         Text(
                             text = "경고",
-                            modifier = Modifier.padding(bottom = 16.dp),
+                            modifier = Modifier.padding(),
                             fontFamily = nanumSquareNeo,
                             fontWeight = FontWeight.Bold,
                             fontSize = 24.sp,
                         )
+                        Spacer(modifier = Modifier.height(16.dp))
                         Button(
                             onClick = {
                                 // TODO : AED로 이동
@@ -460,6 +642,7 @@ fun MainScreen(
                                 color = Color.White
                             )
                         } // End of Fire Extinguisher Button
+                        Spacer(modifier = Modifier.height(24.dp))
                         Box(
                             modifier = Modifier.fillMaxWidth(),
                             contentAlignment = Alignment.BottomEnd
@@ -469,7 +652,7 @@ fun MainScreen(
                                     text = stringResource(id = R.string.cancel),
                                     fontFamily = nanumSquareNeo,
                                     fontWeight = FontWeight.Bold,
-                                    fontSize = 18.sp,
+                                    fontSize = 16.sp,
                                     color = IconColor
                                 )
                             }
@@ -484,6 +667,7 @@ fun MainScreen(
             Dialog(
                 onDismissRequest = {
                     openFloorDialog.value = false
+                    tempFloorState = floorState
                 }
             ) {
                 Surface(
@@ -498,31 +682,55 @@ fun MainScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Warning,
-                            contentDescription = "Emergency Button",
+                            imageVector = Icons.Default.Layers,
+                            contentDescription = "Floor Button",
                             modifier = Modifier
                                 .width(40.dp)
                                 .height(40.dp)
                                 .padding(bottom = 16.dp),
-                            tint = Color.Red
+                            tint = IconColor
                         )
                         Text(
-                            text = "경고",
-                            modifier = Modifier.padding(bottom = 16.dp),
+                            text = "층 선택",
+                            modifier = Modifier.padding(),
                             fontFamily = nanumSquareNeo,
                             fontWeight = FontWeight.Bold,
                             fontSize = 24.sp,
                         )
-                        Box(
+                        Spacer(modifier = Modifier.height(16.dp))
+                        ListItemPicker(
+                            label = { it },
+                            value = tempFloorState,
+                            onValueChange = { tempFloorState = it },
+                            list = floorValues
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Row(
                             modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.BottomEnd
+                            horizontalArrangement = Arrangement.End
                         ) {
-                            TextButton(onClick = { openEmergencyDialog.value = false }) {
+                            TextButton(onClick = {
+                                openFloorDialog.value = false
+                                tempFloorState = floorState
+                            }) {
                                 Text(
                                     text = stringResource(id = R.string.cancel),
                                     fontFamily = nanumSquareNeo,
                                     fontWeight = FontWeight.Bold,
-                                    fontSize = 18.sp,
+                                    fontSize = 16.sp,
+                                    color = IconColor
+                                )
+                            }
+                            TextButton(onClick = {
+                                // TODO : Floor Change Logic
+                                openFloorDialog.value = false
+                                floorState = tempFloorState
+                            }) {
+                                Text(
+                                    text = stringResource(id = R.string.ok),
+                                    fontFamily = nanumSquareNeo,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 16.sp,
                                     color = IconColor
                                 )
                             }
@@ -532,22 +740,36 @@ fun MainScreen(
             } // End of Dialog
         } // Floor Dialog if-state
 
-
-
         // ModalBottomSheet
         if (openBottomSheet.value) {
-            MainModalBottomSheet(
-                onDismissRequest = { openBottomSheet.value = false },
-                sheetState = bottomSheetState,
-                openBottomSheet = openBottomSheet,
-                // TODO : 현재 위치 -> 진짜 위치
-                nowLocation = "현재 위치",
-                destination = destinationQueryState.value,
-                countdownText = countdownText.value,
-                scope = coroutineScope
-            )
-        } // End of Bottom Modal
-
+            if (currentLocationName.value == "") {
+                Log.d(TAG, "BottomSheet: 위치가 없다")
+                if (btPermissionsState.allPermissionsGranted) {
+                    Log.d(TAG, "BottomSheet: 권한이 있다")
+                    mainViewModel.postCurrentLocation(
+                        Point(
+                            mainViewModel.kalmanLocation.value[0],
+                            0.0,
+                            mainViewModel.kalmanLocation.value[2]
+                        )
+                    )
+                    openCurrentLocationDialog.value = true
+                } else {
+                    Log.d(TAG, "BottomSheet: 권한이 없다")
+                    btPermissionsState.launchMultiplePermissionRequest()
+                }
+            } else {
+                Log.d(TAG, "BottomSheet: 바텀시트 열기")
+                MainModalBottomSheet(
+                    onDismissRequest = { openBottomSheet.value = false },
+                    sheetState = bottomSheetState,
+                    openBottomSheet = openBottomSheet,
+                    nowLocation = currentLocationName.value,
+                    destination = destinationQueryState.value,
+                    countdownText = countdownText.value,
+                    scope = coroutineScope
+                )
+            }
+        } // End of BottomSheet Modal
     } // End of MainScreen Surface
-
 } // End of MainScreen

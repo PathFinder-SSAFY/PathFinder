@@ -5,7 +5,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dijkstra.pathfinder.util.NetworkResult
+import com.dijkstra.pathfinder.util.SubNetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -17,7 +17,7 @@ private const val TAG = "TestViewModel_싸피"
 class TestViewModel @Inject constructor(
     private val testRepository: TestRepository
 ) : ViewModel() {
-    val testCallStateFlow: StateFlow<NetworkResult<Int>> = testRepository.testCallStateFlow
+    val testCallStateFlow: StateFlow<SubNetworkResult<Int>> = testRepository.testCallStateFlow
 
     suspend fun testCall() {
         viewModelScope.launch {
@@ -26,21 +26,22 @@ class TestViewModel @Inject constructor(
     } // End of testCall
 
     // ================================ LiveData 코드 Flow코드로 수정
-
     // MutableSharedFlow
-    private val _testCall2SharedFlow = MutableSharedFlow<NetworkResult<Int>>()
+    private val _testCall2SharedFlow = MutableSharedFlow<SubNetworkResult<Int>>()
     var testCall2SharedFlow = _testCall2SharedFlow.asSharedFlow()
         private set
 
     // mutableStateOf
     // Default State = NetworkResult.Loading()
-    private val _testCall2ResponseFlow = mutableStateOf<NetworkResult<Int>>(NetworkResult.Loading())
-    var testCall2ResponseFlow: State<NetworkResult<Int>> = _testCall2ResponseFlow
+    private val _testCall2ResponseFlow =
+        mutableStateOf<SubNetworkResult<Int>>(SubNetworkResult.Loading())
+    var testCall2ResponseFlow: State<SubNetworkResult<Int>> = _testCall2ResponseFlow
         private set
 
     // Default State = NetworkResult.Loading()
-    private val _testCall2StateFlow = MutableStateFlow<NetworkResult<Int>>(NetworkResult.Loading())
-    var testCall2StateFlow: StateFlow<NetworkResult<Int>> = _testCall2StateFlow
+    private val _testCall2StateFlow =
+        MutableStateFlow<SubNetworkResult<Int>>(SubNetworkResult.Loading())
+    var testCall2StateFlow: StateFlow<SubNetworkResult<Int>> = _testCall2StateFlow
         private set
 
     /*
@@ -53,44 +54,45 @@ class TestViewModel @Inject constructor(
     suspend fun testCall2() {
         viewModelScope.launch {
             testRepository.testCall2().onStart {
-                _testCall2ResponseFlow.value = NetworkResult.Loading()
-                _testCall2StateFlow.emit(NetworkResult.Loading())
-                _testCall2SharedFlow.emit(NetworkResult.Loading())
+                _testCall2ResponseFlow.value = SubNetworkResult.Loading()
+                _testCall2StateFlow.emit(SubNetworkResult.Loading())
+                _testCall2SharedFlow.emit(SubNetworkResult.Loading())
             }.catch {
                 it.printStackTrace()
-                _testCall2ResponseFlow.value = NetworkResult.Error(
+                _testCall2ResponseFlow.value = SubNetworkResult.Error(
                     it.message ?: "Something went wrong!"
                 )
                 _testCall2StateFlow.emit(
-                    NetworkResult.Error(
+                    SubNetworkResult.Error(
                         it.message ?: "Something went wrong!"
                     )
                 )
             }.collectLatest {
                 Log.d(TAG, "testCall2: collectLatest")
-                _testCall2ResponseFlow.value = NetworkResult.Success(it.code())
+                _testCall2ResponseFlow.value = SubNetworkResult.Success(it.code())
                 _testCall2StateFlow.emit(
-                    NetworkResult.Success(it.code())
+                    SubNetworkResult.Success(it.code())
                 )
-                _testCall2SharedFlow.emit(NetworkResult.Success(it.code()))
+                _testCall2SharedFlow.emit(SubNetworkResult.Success(it.code()))
             }
         }
     } // End of testCall2
 
 
     // ========================================= FailTest =========================================
-    private val _failTestResponseSharedFlow = MutableSharedFlow<NetworkResult<Int>?>(0)
+    private val _failTestResponseSharedFlow = MutableSharedFlow<SubNetworkResult<Int>?>(0)
     var failTestResponseSharedFlow = _failTestResponseSharedFlow.asSharedFlow()
         private set
 
     // mutableStateOf
-    private val _failTestResponseState = mutableStateOf< NetworkResult<Int>>(NetworkResult.Loading())
+    private val _failTestResponseState =
+        mutableStateOf<SubNetworkResult<Int>>(SubNetworkResult.Loading())
     var failTestResponseState = _failTestResponseState
         private set
 
     // MutableStateFlow
     private val _failTestResponseStateFlow =
-        MutableStateFlow<NetworkResult<Int>?>(null)
+        MutableStateFlow<SubNetworkResult<Int>?>(null)
     var failTestResponseStateFlow = _failTestResponseStateFlow
         private set
 
@@ -98,32 +100,32 @@ class TestViewModel @Inject constructor(
         viewModelScope.launch {
             testRepository.failTest().onStart {
                 _failTestResponseSharedFlow.emit(
-                    NetworkResult.Loading()
+                    SubNetworkResult.Loading()
                 )
 
                 _failTestResponseStateFlow.emit(
-                    NetworkResult.Loading()
+                    SubNetworkResult.Loading()
                 )
             }.catch { result ->
                 _failTestResponseSharedFlow.emit(
-                    NetworkResult.Error(
+                    SubNetworkResult.Error(
                         result.printStackTrace().toString()
                     )
                 )
                 _failTestResponseStateFlow.emit(
-                    NetworkResult.Error(
+                    SubNetworkResult.Error(
                         result.printStackTrace().toString()
                     )
                 )
             }.collectLatest { result ->
                 _failTestResponseSharedFlow.emit(
-                    NetworkResult.Success(
+                    SubNetworkResult.Success(
                         result.data!!.code()
                     )
                 )
 
                 _failTestResponseStateFlow.emit(
-                    NetworkResult.Success(
+                    SubNetworkResult.Success(
                         result.data!!.code()
                     )
                 )

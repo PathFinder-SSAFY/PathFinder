@@ -27,8 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.dijkstra.pathfinder.data.dto.Point
+import com.dijkstra.pathfinder.navigation.SetUpNavGraph
 import com.dijkstra.pathfinder.screen.login.LoginViewModel
-import com.dijkstra.pathfinder.screen.main.MainScreen
 import com.dijkstra.pathfinder.screen.nfc_start.NFCViewModel
 import com.dijkstra.pathfinder.ui.theme.PathFinderTheme
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -61,10 +61,10 @@ class MainActivity : ComponentActivity() {
             PathFinderTheme {
 
                 navController = rememberNavController()
-//                SetUpNavGraph(navController = navController)
+                SetUpNavGraph(navController = navController)
 
 //                MainScreen(navController = navController)
-                startUnityLayout()
+                // startUnityLayout()
             }
         }
 
