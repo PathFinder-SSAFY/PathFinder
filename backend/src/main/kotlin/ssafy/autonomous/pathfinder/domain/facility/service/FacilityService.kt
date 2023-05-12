@@ -20,5 +20,5 @@ interface FacilityService {
     fun getCurrentLocation(facilityCurrentLocationRequestDto: FacilityCurrentLocationRequestDto): String
 
     // 3-4 벽 위치 반환하는 함수
-    fun getWallPosition(): List<BlockWall>
+    fun getWallPosition(): List<Pair<Double, Double>>
 }

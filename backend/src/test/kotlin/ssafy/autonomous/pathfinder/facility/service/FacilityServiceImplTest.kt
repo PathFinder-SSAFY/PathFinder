@@ -78,7 +78,7 @@ class FacilityServiceImplTest @Autowired constructor(
     @DisplayName("현재 나의 위치를 통한 시설 조회")
     fun getCurrentLocation(){
         // given
-        val currentLocation = FacilityCurrentLocationRequestDto(0.0, -10.0)
+        val currentLocation = FacilityCurrentLocationRequestDto(0.0, 0.0, -10.0)
 
         // when
         val resultCurrentLocation = facilityService.getCurrentLocation(currentLocation)

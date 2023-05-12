@@ -9,11 +9,11 @@ import javax.persistence.*
 @Entity
 class RoomEntrance(
     // 입구 좌상X, 좌상Y, 우하X, 우하Y
-    // 입구 사각형 좌표 (UpX, UpY), (DownX, UpY), (UpX, DownY), (DownX, DownY)
+    // 입구 사각형 좌표 (UpX, UpZ), (DownX, UpZ), (UpX, DownZ), (DownX, DownZ)
     private val entranceLeftUpX: Double ?= 0.0,
-    private val entranceLeftUpY: Double ?= 0.0,
+    private val entranceLeftUpZ: Double ?= 0.0,
     private val entranceRightDownX: Double ?= 0.0,
-    private val entranceRightDownY: Double ?= 0.0,
+    private val entranceRightDownZ: Double ?= 0.0,
     private val entranceDirection: Int ? = 0, // 1: 윗 방향, 2: 오른쪽 방향, 3: 아랫 방향, 4: 왼쪽 방향
     private val entranceZone: Double ? = 0.0, // 밀접 거리
 
@@ -28,12 +28,12 @@ class RoomEntrance(
     var facility: Facility
 
 ){
-    fun getEntranceLeftUpXY(): List<Double?> {
-        return listOf(entranceLeftUpX, entranceLeftUpY)
+    fun getEntranceLeftUpXZ(): List<Double?> {
+        return listOf(entranceLeftUpX, entranceLeftUpZ)
     }
 
-    fun getEntranceRightDownXY(): List<Double?> {
-        return listOf(entranceRightDownX, entranceRightDownY)
+    fun getEntranceRightDownXZ(): List<Double?> {
+        return listOf(entranceRightDownX, entranceRightDownZ)
     }
 
     fun getEntranceDirection(): Int? {

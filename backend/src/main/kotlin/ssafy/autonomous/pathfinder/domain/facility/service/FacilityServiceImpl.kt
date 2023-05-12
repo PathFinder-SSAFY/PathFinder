@@ -12,8 +12,12 @@ import ssafy.autonomous.pathfinder.domain.facility.repository.BlockWallRepositor
 import ssafy.autonomous.pathfinder.domain.facility.repository.FacilityRepository
 import ssafy.autonomous.pathfinder.domain.facility.repository.FacilityQuerydslRepository
 import ssafy.autonomous.pathfinder.domain.facility.repository.RoomEntranceRepository
+import java.math.BigDecimal
 import java.util.*
 import javax.transaction.Transactional
+import kotlin.math.ceil
+import kotlin.math.floor
+import kotlin.math.pow
 
 @Service
 class FacilityServiceImpl(
@@ -69,9 +73,69 @@ class FacilityServiceImpl(
     }
 
     // 3-4 벽 위치 반환하는 함수
-    override fun getWallPosition(): List<BlockWall> {
-        return blockWallRepository.findAll()
+    /*
+    * x, y축 List로 전달
+    * 좌표는 반올림
+    * */
+    override fun getWallPosition(): List<Pair<Double, Double>> {
+        val blockWallList : List<BlockWall> = getAllBlockWall()
+
+        // 장애물 구간 만들기
+        return getObstaclePositionsByInterval(blockWallList)
     }
+
+    fun getObstaclePositionsByInterval(blockWallList: List<BlockWall>): List<Pair<Double, Double>>{
+        val coordinates: MutableList<Pair<Double,Double>> = mutableListOf<Pair<Double, Double>>()
+
+        // 1m 간격으로 저장해서 전달한다.
+        for(inBlockWall in blockWallList){
+            coordinates += generateObstacleSegment(inBlockWall)
+        }
+
+        return coordinates
+    }
+
+    fun generateObstacleSegment(inBlockWall: BlockWall): MutableList<Pair<Double, Double>> {
+        val (leftUpX, leftUpZ) = inBlockWall.getBlockWallLeftUpXZ()
+        val (rightDownX, rightDownZ) = inBlockWall.getBlockWallRightDownXZ()
+
+        // 소수점 구간 반복문 돌리기 위해 사용한 변수
+        val scale = 1
+        val leftUpXToInt = (leftUpX!! * 10.0.pow(scale)).toInt()
+        val rightDownXToInt = (rightDownX!! * 10.0.pow(scale)).toInt()
+        val leftUpZToInt = (leftUpZ!! * 10.0.pow(scale)).toInt()
+        val rightDownZToInt = (rightDownZ!! * 10.0.pow(scale)).toInt()
+        val stepInt = (0.1 * 10.0.pow(scale)).toInt()
+
+        val obstacleList : MutableList<Pair<Double, Double>> = mutableListOf()
+
+        logger.info("========================================")
+        logger.info("시작 위치 : $leftUpX 도착 위치 : $rightDownX")
+        logger.info("시작 위치 : $leftUpZ 도착 위치 : $rightDownZ")
+
+
+        for(x in leftUpXToInt..rightDownXToInt step stepInt){
+            for(z in rightDownZToInt .. leftUpZToInt step stepInt){
+                val currentX = BigDecimal.valueOf(x.toDouble() / 10.0.pow(scale)).toDouble()
+                val currentZ = BigDecimal.valueOf(z.toDouble() / 10.0.pow(scale)).toDouble()
+                logger.info("x : $currentX z : $currentZ")
+                obstacleList.add(Pair(currentX, currentZ))
+            }
+        }
+
+
+//        for(x in leftUpX?.toInt()!!..rightDownX?.toInt()!!){
+//            for(z in rightDownZ?.toInt()!! .. leftUpZ?.toInt()!!){
+//                logger.info("x : $x z : $z")
+//                obstacleList.add(Pair(x, z))
+//            }
+//        }
+
+        return obstacleList
+
+    }
+
+
 
     // 입력한 문자열을 기반으로 방 이름 리스트를 가져온다.
     fun getFacilityTypesDynamic(inputFacilityType: String): List<Facility> {
@@ -82,17 +146,21 @@ class FacilityServiceImpl(
         return roomEntranceRepository.findAll()
     }
 
+    fun getAllBlockWall(): MutableList<BlockWall>{
+        return blockWallRepository.findAll()
+    }
+
     // 시설 입구에 있는지 확인
     fun findWithinRange(facilityCurrentLocationRequestDto: FacilityCurrentLocationRequestDto, roomEntrance: RoomEntrance): Boolean {
-        val (leftUpX, leftUpY) = roomEntrance.getEntranceLeftUpXY()
-        val (rightDownX, rightDownY) = roomEntrance.getEntranceRightDownXY()
+        val (leftUpX, leftUpZ) = roomEntrance.getEntranceLeftUpXZ()
+        val (rightDownX, rightDownZ) = roomEntrance.getEntranceRightDownXZ()
 
 //        logger.info("시설 입구 확인")
-//        logger.info("시설 입구 범위 LX, LY : $leftUpX , $leftUpY")
-//        logger.info("시설 입구 범위 RX, RY : $rightDownX, $rightDownY")
+//        logger.info("시설 입구 범위 LX, LY : $leftUpX , $leftUpZ")
+//        logger.info("시설 입구 범위 RX, RY : $rightDownX, $rightDownZ")
 
         if (isWithinRangeX(facilityCurrentLocationRequestDto.x, leftUpX, rightDownX)
-            && isWithinRangeY(facilityCurrentLocationRequestDto.z, rightDownY, leftUpY)
+            && isWithinRangeY(facilityCurrentLocationRequestDto.z, rightDownZ, leftUpZ)
         ) return true
         return false
     }
@@ -102,15 +170,15 @@ class FacilityServiceImpl(
         facilityCurrentLocationRequestDto: FacilityCurrentLocationRequestDto,
         roomEntrance: RoomEntrance
     ): Boolean {
-        val (leftUpX, leftUpY) = roomEntrance.getEntranceLeftUpXY()
-        val (rightDownX, rightDownY) = roomEntrance.getEntranceRightDownXY()
+        val (leftUpX, leftUpZ) = roomEntrance.getEntranceLeftUpXZ()
+        val (rightDownX, rightDownZ) = roomEntrance.getEntranceRightDownXZ()
         val entranceDirection: Int? = roomEntrance.getEntranceDirection()
         val entranceZone: Double? = roomEntrance.getEntranceZone()
 
 
 //        logger.info("시설 입구 앞 확인")
-//        logger.info("시설 입구 범위 LX, LY : $leftUpX , $leftUpY")
-//        logger.info("시설 입구 범위 RX, RY : $rightDownX, $rightDownY")
+//        logger.info("시설 입구 범위 LX, LY : $leftUpX , $leftUpZ")
+//        logger.info("시설 입구 범위 RX, RY : $rightDownX, $rightDownZ")
 
         /*
         * 1 : Y + 20 (상 방향)
@@ -119,15 +187,15 @@ class FacilityServiceImpl(
         * 4 : X - 20 (왼쪽 방향)
         * */
         if (entranceDirection == 1 && isWithinRangeX(facilityCurrentLocationRequestDto.x, leftUpX, rightDownX)
-            && isWithinRangeY(facilityCurrentLocationRequestDto.z, leftUpY, leftUpY!! + entranceZone!!)
+            && isWithinRangeY(facilityCurrentLocationRequestDto.z, leftUpZ, leftUpZ!! + entranceZone!!)
         ) return true
-        else if (entranceDirection == 2 && isWithinRangeY(facilityCurrentLocationRequestDto.z, leftUpY, rightDownY)
+        else if (entranceDirection == 2 && isWithinRangeY(facilityCurrentLocationRequestDto.z, leftUpZ, rightDownZ)
             && isWithinRangeX(facilityCurrentLocationRequestDto.x, rightDownX, rightDownX!! + entranceZone!!)
         ) return true
         else if (entranceDirection == 3 && isWithinRangeX(facilityCurrentLocationRequestDto.x, leftUpX, rightDownX)
-            && isWithinRangeY(facilityCurrentLocationRequestDto.z, rightDownY, rightDownY!! - entranceZone!!)
+            && isWithinRangeY(facilityCurrentLocationRequestDto.z, rightDownZ, rightDownZ!! - entranceZone!!)
         ) return true
-        else if (entranceDirection == 2 && isWithinRangeY(facilityCurrentLocationRequestDto.z, leftUpY, rightDownY)
+        else if (entranceDirection == 2 && isWithinRangeY(facilityCurrentLocationRequestDto.z, leftUpZ, rightDownZ)
             && isWithinRangeX(facilityCurrentLocationRequestDto.x, leftUpX, leftUpX!! - entranceZone!!)
         ) return true
         return false
@@ -136,14 +204,14 @@ class FacilityServiceImpl(
 
     // 시설 안인지 확인한다.
     fun isInsideFacility(facilityCurrentLocationRequestDto: FacilityCurrentLocationRequestDto, roomEntrance: RoomEntrance): Boolean {
-        val (facilityUpX, facilityUpY) = roomEntrance.facility.getFacilityLeftUpXY()
-        val (facilityDownX, facilityDownY) = roomEntrance.facility.getFacilityRightDownXY()
+        val (facilityUpX, facilityUpZ) = roomEntrance.facility.getFacilityLeftUpXZ()
+        val (facilityDownX, facilityDownZ) = roomEntrance.facility.getFacilityRightDownXZ()
 
 //        logger.info("시설인지 확인한다.")
 
         // 시설 내부인지 확인한다.
         if (isWithinRangeX(facilityCurrentLocationRequestDto.x, facilityUpX, facilityDownX)
-            && isWithinRangeY(facilityCurrentLocationRequestDto.z, facilityDownY, facilityUpY)
+            && isWithinRangeY(facilityCurrentLocationRequestDto.z, facilityDownZ, facilityUpZ)
         ) return true
         return false
     }
@@ -153,9 +221,9 @@ class FacilityServiceImpl(
         return x in leftUpX!!..rightUpX!!
     }
 
-    fun isWithinRangeY(z: Double, leftUpY: Double?, rightUpY: Double?): Boolean {
-//        logger.info("z : $z , leftUpY : $leftUpY , rightUpY : $rightUpY")
-        return z in leftUpY!!..rightUpY!!
+    fun isWithinRangeY(z: Double, leftUpZ: Double?, rightUpZ: Double?): Boolean {
+//        logger.info("z : $z , leftUpZ : $leftUpZ , rightUpZ : $rightUpZ")
+        return z in leftUpZ!!..rightUpZ!!
     }
 
 }

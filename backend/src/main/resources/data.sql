@@ -14,7 +14,7 @@ VALUES
 
 -- 시설
 INSERT INTO facility
-(facility_type, facility_name, facility_left_upx, facility_left_upy, facility_right_downx, facility_right_downy, density_max, hit_count, floors_id)
+(facility_type, facility_name, facility_left_upx, facility_left_UpZ, facility_right_downx, facility_right_DownZ, density_max, hit_count, floors_id)
 VALUES
     ("CLASSROOM401", "강의실 401", -1.0,-1.0,-1.0,-1.0, 200, 100, 1),
     ("CLASSROOM402", "강의실 402", -1.0,-1.0,-1.0,-1.0,200, 0, 1),
@@ -32,7 +32,7 @@ VALUES
 
 -- 방 입구 좌표
 INSERT INTO room_entrance
-(entrance_left_upx, entrance_left_upy, entrance_right_downx, entrance_right_downy, entrance_direction, entrance_zone, facility_id)
+(entrance_left_upx, entrance_left_UpZ, entrance_right_downx, entrance_right_DownZ, entrance_direction, entrance_zone, facility_id)
 VALUES
     (15.509, -6.32, 16.009, -8.00, 2, 0.20, 4),
     (27.88, -10.09, 28.38, -10.9, 1, 0.20, 5),
@@ -46,7 +46,7 @@ VALUES
 
 -- 시설에 있는 벽
 INSERT INTO block_wall
-(block_wall_left_upx, block_wall_left_upy, block_wall_right_downx,block_wall_right_downy, floors_id)
+(block_wall_left_upx, block_wall_left_UpZ, block_wall_right_downx,block_wall_right_DownZ, floors_id)
 VALUES
     (15.26, -0.47, 16.26, -6.13, 1),
     (15.26, -7.84, 16.26, -14.44, 1),
