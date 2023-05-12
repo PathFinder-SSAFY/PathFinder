@@ -461,8 +461,6 @@ fun MainScreen(
                                 Log.d(TAG, "MainScreen: ${networkResult.value}")
                                 when (networkResult.value!!) {
                                     is NetworkResult.Success -> {
-                                        val response =
-                                            networkResult.value!!.data as CurrentLocationResponse
                                         Text(
                                             text = mainViewModel.tempLocationName,
                                             modifier = Modifier.padding(bottom = 16.dp),
@@ -486,11 +484,16 @@ fun MainScreen(
                                         // Error message Showing
                                         Text(
                                             text = stringResource(id = R.string.error_current_location),
-                                            modifier = Modifier
-                                                .padding(bottom = 8.dp)
-                                                .align(Alignment.CenterHorizontally),
+                                            modifier = Modifier.padding(bottom = 4.dp),
                                             fontFamily = nanumSquareNeo,
-                                            fontWeight = FontWeight.Bold,
+                                            fontWeight = FontWeight.Medium,
+                                            fontSize = 20.sp,
+                                        )
+                                        Text(
+                                            text = stringResource(id = R.string.retry_after_current_location),
+                                            modifier = Modifier.padding(),
+                                            fontFamily = nanumSquareNeo,
+                                            fontWeight = FontWeight.Medium,
                                             fontSize = 20.sp,
                                         )
                                     }
@@ -540,8 +543,10 @@ fun MainScreen(
                                 }
                                 TextButton(onClick = {
                                     openCurrentLocationDialog.value = false
-                                    mainViewModel.currentLocationPoint.value = mainViewModel.tempLocationPoint
-                                    mainViewModel.currentLocationName.value = mainViewModel.tempLocationName
+                                    mainViewModel.currentLocationPoint.value =
+                                        mainViewModel.tempLocationPoint
+                                    mainViewModel.currentLocationName.value =
+                                        mainViewModel.tempLocationName
                                 }) {
                                     Text(
                                         text = stringResource(id = R.string.ok),
