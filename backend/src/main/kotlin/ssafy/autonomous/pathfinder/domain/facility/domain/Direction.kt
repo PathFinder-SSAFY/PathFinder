@@ -1,5 +1,6 @@
 package ssafy.autonomous.pathfinder.domain.facility.domain
 
+import ssafy.autonomous.pathfinder.domain.floors.domain.RoomMap
 import javax.persistence.*
 
 @Entity
@@ -18,5 +19,5 @@ class Direction(
 
         @OneToOne
         @JoinColumn(name="room_map_id")
-        var roomMap: RoomMap ?= null
+        var roomMap: RoomMap?= null
 )

@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController
 import ssafy.autonomous.pathfinder.domain.auth.dto.request.TokenRequestDto
 import ssafy.autonomous.pathfinder.domain.auth.dto.response.TokenResponseDto
 import ssafy.autonomous.pathfinder.domain.auth.service.AuthService
-import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityTypesRequestDto
 import ssafy.autonomous.pathfinder.global.common.response.ApiResponse
 
 /*

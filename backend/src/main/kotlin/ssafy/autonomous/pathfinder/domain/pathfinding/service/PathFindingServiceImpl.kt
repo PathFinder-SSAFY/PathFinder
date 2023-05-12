@@ -3,13 +3,14 @@ package ssafy.autonomous.pathfinder.domain.pathfinding.service
 import org.springframework.stereotype.Service
 import ssafy.autonomous.pathfinder.domain.facility.dto.response.WallBlindSpotsResponseDto
 import ssafy.autonomous.pathfinder.domain.facility.service.FacilityService
+import ssafy.autonomous.pathfinder.domain.floors.service.FloorsService
 import ssafy.autonomous.pathfinder.domain.pathfinding.dto.Node
 import ssafy.autonomous.pathfinder.domain.pathfinding.dto.PathFindDTO
 import ssafy.autonomous.pathfinder.domain.pathfinding.dto.Step
 
 @Service
 class PathFindingServiceImpl(
-    val facilityService: FacilityService
+    val floorsService: FloorsService
 ) : PathFindingService {
     // 에러 코드 붹
 
@@ -55,7 +56,7 @@ class PathFindingServiceImpl(
         val parentNode = mutableMapOf<Node, Node>()
         val gScore = mutableMapOf<Node, Double>().withDefault { Double.POSITIVE_INFINITY }
         val fScore = mutableMapOf<Node, Double>().withDefault { Double.POSITIVE_INFINITY }
-        val o = facilityService.getWallBlindSpots()
+        val o = floorsService.getWallBlindSpots()
         gScore[start] = 0.0
         fScore[start] = start.distance(goal)
 

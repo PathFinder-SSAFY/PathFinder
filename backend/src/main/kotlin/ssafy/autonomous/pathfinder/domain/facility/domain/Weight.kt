@@ -1,5 +1,6 @@
 package ssafy.autonomous.pathfinder.domain.facility.domain
 
+import ssafy.autonomous.pathfinder.domain.floors.domain.RoomMap
 import javax.persistence.*
 
 @Entity
@@ -16,5 +17,5 @@ class Weight(
         // 일대일
         @OneToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "room_map_id")
-        val roomMap: RoomMap ?= null
+        val roomMap: RoomMap?= null
 )
