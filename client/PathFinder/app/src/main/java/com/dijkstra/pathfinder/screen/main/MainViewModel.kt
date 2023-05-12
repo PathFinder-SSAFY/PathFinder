@@ -102,7 +102,7 @@ class MainViewModel @Inject constructor(
         super.onCleared()
     }
 
-    // ========================================== postFacilityDynamic ==========================================
+    // ========================================== postFacilityDynamicSearch ==========================================
 
 //    private val _postFacilityDynamicResponseStateFlow =
 //        MutableStateFlow<NetworkResult<SearchResponse>?>(null)
@@ -129,8 +129,6 @@ class MainViewModel @Inject constructor(
             }.collectLatest { result ->
                 when {
                     result.isSuccessful && result.body() != null -> {
-                        Log.d(TAG, "postFacilityDynamic: 여기 들어가긴 하냐?")
-                        Log.d(TAG, "postFacilityDynamic: ${result.body()!!}")
                         _postFacilityDynamicResponseSharedFlow.emit(
                             NetworkResult.Success(result.body()!!.data)
                         )

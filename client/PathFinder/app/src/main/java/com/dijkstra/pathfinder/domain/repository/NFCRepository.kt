@@ -19,4 +19,8 @@ class NFCRepository @Inject constructor(
     suspend fun postNFCId(nfcId: Int): Flow<NetworkResult<Response<Void>>> = flow {
         emit(nfcApi.postNFCId(nfcId))
     }.flowOn(Dispatchers.IO)
+
+    suspend fun getNavNFC(): Flow<Response<Void>> = flow {
+        emit(nfcApi.getNavNFC())
+    }.flowOn(Dispatchers.IO)
 } // End of NFCRepository class

@@ -228,9 +228,7 @@ fun MainScreen(
             value = searchQueryState.value,
             onValueChange = { value ->
                 searchQueryState.value = value
-                Log.d(TAG, "MainScreen: ${searchQueryState.value}")
                 mainViewModel.postFacilityDynamic(searchQueryState.value)
-
             },
             active = searchBarActiveState.value,
             onActiveChange = { searchBarActiveState.value = it },
@@ -302,8 +300,6 @@ fun MainScreen(
             ) {
                 postFacilityDynamicResponseSharedFlow.let {
                     if (it.value?.data != null) {
-                        Log.d(TAG, "postFacilityDynamicResponseStateFlow.let : ")
-                        Log.d(TAG, "postFacilityDynamicResponseStateFlow.let : ${it.value?.data}")
                         when (it.value!!) {
                             is NetworkResult.Success -> {
                                 Log.d(TAG, "TestNetworkResult.Success : 성공하긴함?")
