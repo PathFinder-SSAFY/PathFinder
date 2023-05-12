@@ -22,7 +22,7 @@ class FacilityController(
     private val facilityService: FacilityService
 ) {
 
-    // 21.
+    // 3-1 필터링 입력했을 때, 조회 수를 기준 우선순위로 출력
     // 설명 : 필터링 검색 입력했을 때, 관련 시설 출력 (우선순위 : 조회 횟수)
     // - 첫 실행 시, 조회 횟수가 많은 순으로
     // - 사용자가 입력한 형식에 맞게 호출 (우선순위 : 조회 횟수가 많은 순으로)
@@ -38,7 +38,7 @@ class FacilityController(
         )
     }
 
-    // 22.
+    // 3-2 조회한 시설 정보 얻기
     // 설명 : 시설 조회 클릭 시, 조회 횟수 1씩 증가 시키기
     // - 필터링에 입력 후, 검색 버튼 클릭
     @ApiOperation(value = "게시글 조회 클릭 (조회 횟수 1씩 증가 시키기)")
@@ -55,7 +55,7 @@ class FacilityController(
 
 
 
-    // 3-3
+    // 3-3 현재 나의 위치 조회
     @ApiOperation(value = "현재 위치 조회 API")
     @ApiImplicitParam(name = "facilityCurrentLocation", value = "현재 위치를 입력하세요.", dataTypeClass = FacilityCurrentLocationRequestDto::class)
     @GetMapping("/facility/curloc")
@@ -68,13 +68,27 @@ class FacilityController(
     }
 
 
-//    @GetMapping("/facility/wallposition")
-//    fun getWallPosition() : ResponseEntity<ApiResponse>{
-//        return ResponseEntity.status(HttpStatus.OK).body(
-//            ApiResponse(
-//                data = facilityService.getWallPosition()
-//            )
-//        )
-//    }
+    // 3-4 벽 0.1m 간력 점들을 반환하는 함수
+    @ApiOperation(value = "벽 0.1m 기준 모든 점들을 List로 얻기")
+    @ApiImplicitParam(name = "WallPosition")
+    @GetMapping("/facility/wallposition")
+    fun getWallPosition() : ResponseEntity<ApiResponse>{
+        return ResponseEntity.status(HttpStatus.OK).body(
+            ApiResponse(
+                data = facilityService.getWallPositions()
+            )
+        )
+    }
+
+    @ApiOperation(value = "벽 0.1m 기준 모든 점들을 List로 얻기")
+    @ApiImplicitParam(name = "WallBlindSpots")
+    @GetMapping("/facility/wallblindspots")
+    fun getWallBlindSpots() : ResponseEntity<ApiResponse>{
+        return ResponseEntity.status(HttpStatus.OK).body(
+            ApiResponse(
+                data = facilityService.getWallBlindSpots()
+            )
+        )
+    }
 
 }
