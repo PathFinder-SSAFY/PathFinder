@@ -20,8 +20,8 @@ class PathFindingController(private val pathFindingService: PathFindingService) 
         return path
     }
 
-    @PostMapping("/protoType2")
-    fun findHelp(@RequestBody request: PathFindingHelp): List<Node>? {
+    @PostMapping("/findHelp")
+    fun findHelp(@RequestBody request: PathFindingHelp): Node? {
         val path = pathFindingService.findHelp(request.start, request.help)
         return path
     }

@@ -24,9 +24,8 @@ class PathFindingServiceImpl(
         return reconstructPath(aStarAlgorithm(start, goal), start)
     }
 
-    override fun findHelp(start: Node, help: Int): List<Node>? {
-        val goal: Node = Node(1.0, 0.0,-5.0) // 아직은 더미 데이터입니다.
-        return aStarAlgorithm(start, goal)
+    override fun findHelp(start: Node, help: Int): Node? {
+        return Node(-7.0, 0.0, 40.0)
     }
 
     // 합친 Api (findPath, findPath2)

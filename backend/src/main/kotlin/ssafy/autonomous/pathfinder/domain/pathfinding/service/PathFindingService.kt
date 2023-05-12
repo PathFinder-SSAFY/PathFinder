@@ -7,7 +7,7 @@ import ssafy.autonomous.pathfinder.domain.pathfinding.dto.Step
 interface PathFindingService {
     fun findPath(start: Node, goal: Node): List<Node>?
 
-    fun findHelp(start: Node, help: Int): List<Node>?
+    fun findHelp(start: Node, help: Int): Node?
 
     fun findPath2(start: Node, goal: Node): List<Step>?
 
