@@ -6,14 +6,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.dijkstra.pathfinder.UnityViewModel
 
-class ViewModelFactory(private val application: Application, private val handler: Handler) : ViewModelProvider.Factory {
+class ViewModelFactory() : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass == UnityViewModel::class.java && handler is MyBluetoothHandler) {
+        if (modelClass == UnityViewModel::class.java) {
             return UnityViewModel(
-                application,
-                Injection.provideNavigationRepository(),
-                handler
+                Injection.provideNavigationRepository()
             ) as T
         }
         throw IllegalArgumentException("unknown model class $modelClass")
