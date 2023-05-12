@@ -45,7 +45,6 @@ fun NFCStartScreen(
         when (getNavNFCResponseSharedFlowState.value) {
             is NetworkResult.Success -> {
                 if (getNavNFCResponseSharedFlowState.value!!.data == 200) {
-                    Log.d(TAG, "NFCStartScreen: 잡았다")
                     navController.navigate(route = Screen.Main.route)
                 }
             }
@@ -65,7 +64,6 @@ fun NFCStartScreen(
 
     LaunchedEffect(key1 = nfcScreenState.value) {
         if (nfcScreenState.value == "NEW NFC DATA") {
-            Log.d(TAG, "NFCStartScreen: 여기가 계속 도는건가?")
             nfcResponseViewModel.getNavNFC()
         } else if (nfcScreenState.value == "SECOND") {
             navController.navigate(route = Screen.Test.route)

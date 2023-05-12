@@ -19,7 +19,6 @@ class NFCViewModel @Inject constructor(
     val nfcState = _nfcState.asStateFlow()
 
     fun setNFCState(newNFCState: String) {
-        Log.d(TAG, "setNFCState: ")
         _nfcState.value = newNFCState
     } // End of setNFCState
 
@@ -36,5 +35,4 @@ class NFCViewModel @Inject constructor(
     //    suspend fun postNFCData() : Flow<NetworkResult<Response<Void>>> {
     //
     //    }
-
 }  // End of NFCViewModel

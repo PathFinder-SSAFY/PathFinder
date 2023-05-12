@@ -1,6 +1,5 @@
 package com.dijkstra.pathfinder.screen.nfc_start
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dijkstra.pathfinder.domain.repository.NFCRepository
@@ -36,7 +35,6 @@ class NFCResponseViewModel @Inject constructor(
                     )
                 )
             }.collectLatest { result ->
-                Log.d(TAG, "getNavNFC collectLatest {} : ${result.code()} ")
                 when {
                     result.isSuccessful -> {
                         _getNavNFCResponseSharedFlow.emit(
