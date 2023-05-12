@@ -16,7 +16,7 @@ import ssafy.autonomous.pathfinder.domain.facility.service.FacilityService
 import ssafy.autonomous.pathfinder.global.common.response.ApiResponse
 
 // 20 ~ 40
-@Api(tags = ["필터링 검색 컨트롤러"])
+@Api(tags = ["시설 컨트롤러"])
 @Controller
 //@RequestMapping("/facility") : 조회할 때, RequestMapping으로 찾기는 어려움
 class FacilityController(
@@ -64,7 +64,6 @@ class FacilityController(
         ApiImplicitParam(name = "z", value = "-12.xx < z < 0", dataType = "double")
 
     )
-
     @PostMapping("/facility/curloc")
     fun getCurrentLocation(@RequestBody facilityCurrentLocationRequestDto: FacilityCurrentLocationRequestDto): ResponseEntity<ApiResponse>{
         return ResponseEntity.status(HttpStatus.OK).body(
