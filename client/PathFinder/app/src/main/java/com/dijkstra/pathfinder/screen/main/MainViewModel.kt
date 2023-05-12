@@ -4,9 +4,12 @@ import android.app.Application
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dijkstra.pathfinder.R
+import com.dijkstra.pathfinder.data.dto.CurrentLocationResponse
+import com.dijkstra.pathfinder.data.dto.Point
 import com.dijkstra.pathfinder.domain.repository.MainRepository
 import com.dijkstra.pathfinder.util.KalmanFilter3D
 import com.dijkstra.pathfinder.util.NetworkResult
@@ -29,6 +32,10 @@ class MainViewModel @Inject constructor(
 ) : ViewModel() {
     var beaconList: MutableState<List<Beacon>> = mutableStateOf(emptyList())
     var kalmanLocation = mutableStateOf(listOf(0.0, 0.0, 0.0))
+    var tempLocationPoint = Point(-9999.0, -9999.0, -9999.0)
+    var currentLocationPoint = mutableStateOf(Point(-9999.0, -9999.0, -9999.0))
+    var tempLocationName = ""
+    var currentLocationName = mutableStateOf("")
     private val beaconManager = BeaconManager.getInstanceForApplication(application)
 
     private val region = Region(
@@ -75,7 +82,7 @@ class MainViewModel @Inject constructor(
             val filteredCentroid = kalmanFilter.update(centroid, measurementNoise)
 
             Log.d(TAG, "getMyLocation: $filteredCentroid")
-            
+
             kalmanLocation.value = filteredCentroid
             return
         }
@@ -148,4 +155,51 @@ class MainViewModel @Inject constructor(
             }
         }
     } // End of postFacilityDynamic
+
+    // ========================================== getCurrentLocation ==========================================
+    private val _postCurrentLocationResponseSharedFlow =
+        MutableSharedFlow<NetworkResult<CurrentLocationResponse>>(0)
+    var postCurrentLocationResponseSharedFlow = _postCurrentLocationResponseSharedFlow
+        private set
+    fun postCurrentLocation(point: Point) {
+        Log.d(TAG, "postCurrentLocation: $point")
+        viewModelScope.launch {
+            mainRepo.postCurrentLocation(point)
+                .onStart {
+                    tempLocationPoint = Point(-9999.0, -9999.0, -9999.0)
+                    _postCurrentLocationResponseSharedFlow.emit(NetworkResult.Loading())
+                }
+                .catch { response ->
+                    _postCurrentLocationResponseSharedFlow.emit(
+                        NetworkResult.Error(
+                            null,
+                            response.message,
+                            response.cause
+                        )
+                    )
+                }
+                .collectLatest { response ->
+                    Log.d(TAG, "collectLatest: $response")
+                    when {
+                        response.isSuccessful && response.body() != null -> {
+                            Log.d(TAG, "postCurrentLocation: Success")
+                            tempLocationPoint = point
+                            tempLocationName = response.body()!!.data
+                            _postCurrentLocationResponseSharedFlow.emit(
+                                NetworkResult.Success(response.body()!!)
+                            )
+                        }
+                        response.errorBody() != null -> {
+                            _postCurrentLocationResponseSharedFlow.emit(
+                                NetworkResult.Error(
+                                    response.code(),
+                                    response.message()
+                                )
+                            )
+                        }
+                    }
+                }
+        }
+    } // End of postCurrentLocation
+
 } // End of MainViewModel class

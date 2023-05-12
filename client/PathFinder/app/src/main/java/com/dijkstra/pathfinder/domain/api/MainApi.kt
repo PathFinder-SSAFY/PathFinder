@@ -1,5 +1,6 @@
 package com.dijkstra.pathfinder.domain.api
 
+import com.dijkstra.pathfinder.data.dto.CurrentLocationResponse
 import com.dijkstra.pathfinder.data.dto.Search
 import com.dijkstra.pathfinder.data.dto.SearchResponse
 import com.dijkstra.pathfinder.util.NetworkResult
@@ -12,10 +13,10 @@ import javax.inject.Singleton
 @Singleton
 interface MainApi {
     //    http://k8d206.p.ssafy.io/api/
-    @POST
-    suspend fun autoCompleteSearch(
+    @POST("facility/curloc")
+    suspend fun postCurrnetLocation(
         @Body requestBody: JsonObject
-    ): Response<List<Search>>
+    ): Response<CurrentLocationResponse>
 
     @POST("facility/dynamic")
     suspend fun postFacilityDynamic(
