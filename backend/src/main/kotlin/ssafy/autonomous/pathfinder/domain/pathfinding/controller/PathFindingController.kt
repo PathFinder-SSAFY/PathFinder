@@ -6,9 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import ssafy.autonomous.pathfinder.domain.pathfinding.dto.Node
-import ssafy.autonomous.pathfinder.domain.pathfinding.dto.PathFindingHelp
-import ssafy.autonomous.pathfinder.domain.pathfinding.dto.PathFindingRequest
+import ssafy.autonomous.pathfinder.domain.pathfinding.dto.*
 import ssafy.autonomous.pathfinder.domain.pathfinding.service.PathFindingService
 
 
@@ -18,19 +16,29 @@ class PathFindingController(private val pathFindingService: PathFindingService) 
 
     @PostMapping("/protoType")
     fun findPath(@RequestBody request: PathFindingRequest): List<Node>? {
-        val path = pathFindingService.findPath(request.start, request.goal, request.obstacles)
+        val path = pathFindingService.findPath(request.start, request.goal)
         return path
     }
 
     @PostMapping("/protoType2")
     fun findHelp(@RequestBody request: PathFindingHelp): List<Node>? {
-        val path = pathFindingService.findHelp(request.start, request.help, request.obstacles)
+        val path = pathFindingService.findHelp(request.start, request.help)
         return path
     }
 
+    @PostMapping("/protoType3")
+    fun findPath2(@RequestBody request: PathFindingRequest): List<Step>? {
+        val step = pathFindingService.findPath2(request.start, request.goal)
+        return step
+    }
     @GetMapping
     fun test(): ResponseEntity<Void>{
         return ResponseEntity.ok().build()
     }
 
+    @PostMapping
+    fun pathFind(@RequestBody request: PathFindingRequest): PathFindDTO? {
+        val path = pathFindingService.pathFind(request.start, request.goal)
+        return path
+    }
 }
