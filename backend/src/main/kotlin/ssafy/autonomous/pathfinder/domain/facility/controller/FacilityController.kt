@@ -80,6 +80,7 @@ class FacilityController(
         )
     }
 
+    // 3-4-1 벽(장애물) 사각지대 위치 전달
     @ApiOperation(value = "벽 0.1m 기준 모든 점들을 List로 얻기")
     @ApiImplicitParam(name = "WallBlindSpots")
     @GetMapping("/facility/wallblindspots")
