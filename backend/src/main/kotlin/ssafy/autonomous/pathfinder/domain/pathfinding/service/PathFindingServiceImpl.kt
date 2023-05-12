@@ -114,7 +114,7 @@ class PathFindingServiceImpl(
         }
         path.add(currentVar)  // Add the start node
         return path.reversed()
-        }
+    }
 
     // 방향 좌표 좌회전 우회전 그리기
     fun reconstructPath(path: List<Node>?, start:Node?): List<Step> {
@@ -128,10 +128,11 @@ class PathFindingServiceImpl(
             val next = path[i + 1]
             val distance = current.distance(next)
             val direction = when {
-                current.x < next.x -> 2
-                current.x > next.x -> 4
-                current.y < next.y -> 1
-                else -> 3
+                current.x < next.x -> 2 // 동
+                current.x > next.x -> 4 // 서
+                current.z < next.z -> 1 // 북
+                current.z > next.z -> 3 // 남
+                else -> null!!
             }
 
             if (direction == prevDirection) {
@@ -141,9 +142,10 @@ class PathFindingServiceImpl(
                     if (steps.size == 0){
                         steps.add(Step(start, prevDistance, prevDirection))
                         steps.add(Step(start, 0.0, getRotation(prevDirection, direction)))
+                    } else {
+                        steps.add(Step(path[i], prevDistance, prevDirection))
+                        steps.add(Step(path[i], 0.0, getRotation(prevDirection, direction)))
                     }
-                    steps.add(Step(path[i], prevDistance, prevDirection))
-                    steps.add(Step(path[i], 0.0, getRotation(prevDirection, direction)))
                 }
                 prevDistance = distance
                 prevDirection = direction
