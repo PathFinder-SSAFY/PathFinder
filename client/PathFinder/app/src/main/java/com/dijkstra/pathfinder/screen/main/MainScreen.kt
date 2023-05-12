@@ -1,7 +1,6 @@
 package com.dijkstra.pathfinder.screen.main
 
 import android.Manifest
-import android.content.Intent
 import android.os.Build
 import android.speech.SpeechRecognizer
 import android.util.Log
@@ -12,7 +11,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.Surface
@@ -24,46 +22,34 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import com.dijkstra.pathfinder.R
 import com.dijkstra.pathfinder.components.*
 import com.dijkstra.pathfinder.ui.theme.IconColor
 import com.dijkstra.pathfinder.ui.theme.nanumSquareNeo
+import com.dijkstra.pathfinder.util.NetworkResult
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.altbeacon.beacon.BeaconManager
-import org.altbeacon.beacon.service.BeaconService
-import org.altbeacon.beacon.service.ScanJob
 
 
-private const val TAG = "MainScreen_SDR"
+private const val TAG = "MainScreen_싸피"
 
 @OptIn(
     ExperimentalPermissionsApi::class, ExperimentalComposeUiApi::class,
@@ -120,7 +106,19 @@ fun MainScreen(
     // Floor State
     val openFloorDialog = remember { mutableStateOf(false) }
 
-    // Beacon State
+    // MainViewModel Response State
+//    val postFacilityDynamicResponseStateFlow =
+//        mainViewModel.postFacilityDynamicResponseStateFlow.collectAsState()
+
+    val postFacilityDynamicResponseSharedFlow =
+        mainViewModel.postFacilityDynamicResponseSharedFlow.collectAsState(null)
+
+    // Search LazyColumn
+    var searchingList by remember {
+        mutableStateOf(mutableListOf<String>())
+    }
+
+    // Permission State
     val btPermissionsState = rememberMultiplePermissionsState(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             listOf(
@@ -197,7 +195,12 @@ fun MainScreen(
     ) {
         AutoCompleteSearchBar(
             value = searchQueryState.value,
-            onValueChange = { value -> searchQueryState.value = value },
+            onValueChange = { value ->
+                searchQueryState.value = value
+                Log.d(TAG, "MainScreen: ${searchQueryState.value}")
+                mainViewModel.postFacilityDynamic(searchQueryState.value)
+
+            },
             active = searchBarActiveState.value,
             onActiveChange = { searchBarActiveState.value = it },
             modifier = Modifier
@@ -266,20 +269,38 @@ fun MainScreen(
                     .background(Color.Transparent),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                postFacilityDynamicResponseSharedFlow.let {
+                    if (it.value?.data != null) {
+                        Log.d(TAG, "postFacilityDynamicResponseStateFlow.let : ")
+                        Log.d(TAG, "postFacilityDynamicResponseStateFlow.let : ${it.value?.data}")
+                        when (it.value!!) {
+                            is NetworkResult.Success -> {
+                                Log.d(TAG, "TestNetworkResult.Success : 성공하긴함?")
+                                searchingList = it.value!!.data as MutableList<String>
+                            }
+
+                            is NetworkResult.Loading -> {
+                                // Progressbar show
+                                //searchingList = it.value!!.data as MutableList<String>
+                            }
+
+                            is NetworkResult.Error -> {
+                                // Error message Showing
+                                //searchingList = it.value!!.data as MutableList<String>
+                            }
+                        }
+                    }
+                } // End of postFacilityDynamicResponseStateFlow.let
                 items(
-                    persons.map { person ->
-                        person.name
-                    }.filter { name ->
-                        name.lowercase().contains(searchQueryState.value.lowercase())
-                    }.sorted()
-                ) { name ->
+                    searchingList
+                ) {
                     ListItem(
                         headlineContent = {
-                            Text(text = name)
+                            Text(text = it)
                         },
                         modifier = Modifier
                             .clickable {
-                                searchQueryState.value = name
+                                searchQueryState.value = it
                                 searchBarActiveState.value = false
                             }
                             .background(Color.Transparent)
@@ -547,7 +568,5 @@ fun MainScreen(
                 scope = coroutineScope
             )
         } // End of Bottom Modal
-
     } // End of MainScreen Surface
-
 } // End of MainScreen

@@ -4,6 +4,7 @@ import com.dijkstra.pathfinder.data.dto.Point
 import com.dijkstra.pathfinder.data.dto.Search
 import com.dijkstra.pathfinder.domain.api.NavigationApi
 import com.dijkstra.pathfinder.util.NetworkResult
+import com.dijkstra.pathfinder.util.SubNetworkResult
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.coroutines.delay
@@ -14,26 +15,26 @@ import javax.inject.Inject
 
 class NavigationRepository (private val navigationApi: NavigationApi) {
 
-    var flow: Flow<NetworkResult<Unit>> = emptyFlow()
+    var flow: Flow<SubNetworkResult<Unit>> = emptyFlow()
 
-    suspend fun navigationTest(): Flow<NetworkResult<Unit>> {
+    suspend fun navigationTest(): Flow<SubNetworkResult<Unit>> {
         return flow {
             val response = navigationApi.navigationTest()
-            emit(NetworkResult.Loading())
+            emit(SubNetworkResult.Loading())
             when {
                 response.isSuccessful -> {
-                    emit(NetworkResult.Success(response.body()!!))
+                    emit(SubNetworkResult.Success(response.body()!!))
                 }
                 response.errorBody() != null -> {
-                    emit(NetworkResult.Error(response.errorBody()!!.string()))
+                    emit(SubNetworkResult.Error(response.errorBody()!!.string()))
                 }
-                else -> emit(NetworkResult.Error(response.errorBody()!!.string()))
+                else -> emit(SubNetworkResult.Error(response.errorBody()!!.string()))
             }
         }
     }
 
 
-    suspend fun navigate(start: Point, goal: Point): Flow<NetworkResult<List<Point>>> {
+    suspend fun navigate(start: Point, goal: Point): Flow<SubNetworkResult<List<Point>>> {
 
         val gson = Gson()
         val requestBody = JsonObject().apply {
@@ -42,15 +43,15 @@ class NavigationRepository (private val navigationApi: NavigationApi) {
         }
         return flow {
             val response = navigationApi.navigate(requestBody)
-            emit(NetworkResult.Loading())
+            emit(SubNetworkResult.Loading())
             when {
                 response.isSuccessful -> {
-                    emit(NetworkResult.Success(response.body()!!))
+                    emit(SubNetworkResult.Success(response.body()!!))
                 }
                 response.errorBody() != null -> {
-                    emit(NetworkResult.Error(response.errorBody()!!.string()))
+                    emit(SubNetworkResult.Error(response.errorBody()!!.string()))
                 }
-                else -> emit(NetworkResult.Error(response.errorBody()!!.string()))
+                else -> emit(SubNetworkResult.Error(response.errorBody()!!.string()))
             }
         }
     }

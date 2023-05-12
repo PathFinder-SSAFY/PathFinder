@@ -7,12 +7,10 @@ import androidx.lifecycle.viewModelScope
 import com.dijkstra.pathfinder.data.dto.Point
 import com.dijkstra.pathfinder.data.dto.UserCameraInfo
 import com.dijkstra.pathfinder.domain.repository.NavigationRepository
-import com.dijkstra.pathfinder.util.KalmanFilter3D
 import com.dijkstra.pathfinder.util.MyBluetoothHandler
-import com.dijkstra.pathfinder.util.NetworkResult
+import com.dijkstra.pathfinder.util.SubNetworkResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 private const val TAG = "UnityViewModel_ssafy"
@@ -30,9 +28,9 @@ class UnityViewModel(
         MutableLiveData(doubleArrayOf(0.0, 0.0, 0.0))
     val nowLocation: LiveData<DoubleArray> get() = _nowLocation
 
-    private val _navigationTestNetworkResultStateFlow: MutableStateFlow<NetworkResult<Unit>> =
-        MutableStateFlow(NetworkResult.Success(Unit))
-    val navigationTestNetworkResultStateFlow: StateFlow<NetworkResult<Unit>> get() = _navigationTestNetworkResultStateFlow
+    private val _navigationTestNetworkResultStateFlow: MutableStateFlow<SubNetworkResult<Unit>> =
+        MutableStateFlow(SubNetworkResult.Success(Unit))
+    val navigationTestNetworkResultStateFlow: StateFlow<SubNetworkResult<Unit>> get() = _navigationTestNetworkResultStateFlow
 
     fun navigationTest() {
         viewModelScope.launch {

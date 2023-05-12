@@ -3,6 +3,7 @@ package com.dijkstra.pathfinder.screen.nfc_start
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dijkstra.pathfinder.util.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,4 +32,9 @@ class NFCViewModel @Inject constructor() : ViewModel() {
             _sharedNFCStateFlow.emit(newSharedNFCState)
         }
     } // End of setNFCSharedFlow
+
+    // ================================= postNFCData =================================
+//    suspend fun postNFCData() : Flow<NetworkResult<Response<Void>>> {
+//
+//    }
 }  // End of NFCViewModel

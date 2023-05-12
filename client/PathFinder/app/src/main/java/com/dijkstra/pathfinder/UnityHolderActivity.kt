@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.dijkstra.pathfinder.data.dto.Point
 import com.dijkstra.pathfinder.util.MyBluetoothHandler
 import com.dijkstra.pathfinder.util.NetworkResult
+import com.dijkstra.pathfinder.util.SubNetworkResult
 import com.dijkstra.pathfinder.util.ViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.gson.Gson
@@ -104,13 +105,13 @@ class UnityHolderActivity : UnityPlayerActivity(),
         coroutineScope.launch {
             unityViewModel.navigationTestNetworkResultStateFlow.collect { testResult ->
                 when(testResult) {
-                    is NetworkResult.Success -> {
+                    is SubNetworkResult.Success -> {
                         Log.d(TAG, "onStart: Success, ${testResult.data}")
                     }
-                    is NetworkResult.Error -> {
+                    is SubNetworkResult.Error -> {
                         Log.e(TAG, "onStart: Error, ${testResult.message}", )
                     }
-                    is NetworkResult.Loading -> {
+                    is SubNetworkResult.Loading -> {
                         Log.d(TAG, "onStart: Loading..")
                     }
                 }
