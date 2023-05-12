@@ -93,16 +93,19 @@ class NavigationRepository(private val navigationApi: NavigationApi) {
 
     fun setNavigationPathAtUnity(pathList: List<Point>) {
         if (pathList.isEmpty()) return;
-//        UnityPlayer.UnitySendMessage(
-//            "Indicator",
-//            "SetNavigationPath",
-//            GsonBuilder().create().toJson(pathList)
-//        )
+        Log.d(TAG, "setNavigationPathAtUnity: $pathList")
         UnityPlayer.UnitySendMessage(
             "Indicator",
             "SetNavigationPath",
-            tempPointList
+            GsonBuilder().create().toJson(
+                pathList.reversed()
+            )
         )
+//        UnityPlayer.UnitySendMessage(
+//            "Indicator",
+//            "SetNavigationPath",
+//            tempPointList
+//        )
     }
 
     companion object {

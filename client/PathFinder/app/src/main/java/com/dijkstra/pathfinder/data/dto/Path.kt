@@ -5,7 +5,7 @@ import android.os.Parcelable
 import com.google.gson.GsonBuilder
 
 data class Path(
-    val startPoint: Point,
+    val node: Point,
     val distance: Double,
     val direction: Int
 ) : Parcelable {
@@ -17,7 +17,7 @@ data class Path(
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeParcelable(startPoint, flags)
+        parcel.writeParcelable(node, flags)
         parcel.writeDouble(distance)
         parcel.writeInt(direction)
     }

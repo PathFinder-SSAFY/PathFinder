@@ -203,7 +203,7 @@ class MainActivity : ComponentActivity() {
                             intent.putExtra("goal", Point(
                                 32.00,
                                 0.0,
-                                -0.00)
+                                -1.00)
                             )
                             startActivity(intent)
                         } else {

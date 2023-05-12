@@ -12,7 +12,7 @@ interface NavigationApi {
     @GET("findPath")
     suspend fun navigationTest(): Response<Unit>
 
-    @POST("findPath/protoType")
+    @POST("findPath")
     suspend fun navigate(@Body requestBody: JsonObject): Response<NavigationResponse>
 
 }

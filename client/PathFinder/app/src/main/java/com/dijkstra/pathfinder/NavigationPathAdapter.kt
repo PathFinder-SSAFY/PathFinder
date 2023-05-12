@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.dijkstra.pathfinder.data.dto.Path
 import com.dijkstra.pathfinder.databinding.NavigationPathListItemBinding
+import com.dijkstra.pathfinder.util.Constant
 import okhttp3.internal.format
 
 private const val TAG = "NavigationPathAdapter_ssafy"
@@ -27,13 +28,13 @@ class NavigationPathAdapter(var pathList: MutableList<Path>) :
     override fun onBindViewHolder(holder: NavigationPathViewHolder, position: Int) {
         val currentPath = pathList[position]
         when (currentPath.direction) {
-            5 -> {
-                holder.binding.navigationPathDirectionTextview.text = "좌회전"
-                holder.binding.navigationPathDirectionImageview.setImageResource(R.drawable.navigation_diriection_arrow_turn_left)
-            }
-            6 -> {
+            Constant.RIGHT_TURN -> {
                 holder.binding.navigationPathDirectionTextview.text = "우회전"
                 holder.binding.navigationPathDirectionImageview.setImageResource(R.drawable.navigation_diriection_arrow_turn_right)
+            }
+            Constant.LEFT_TURN -> {
+                holder.binding.navigationPathDirectionTextview.text = "좌회전"
+                holder.binding.navigationPathDirectionImageview.setImageResource(R.drawable.navigation_diriection_arrow_turn_left)
             }
             else -> {
                 holder.binding.navigationPathDirectionTextview.text = "${String.format("%.2f", pathList[position].distance) }m 직진"

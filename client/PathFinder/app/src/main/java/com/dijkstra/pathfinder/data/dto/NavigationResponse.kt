@@ -4,8 +4,8 @@ import android.os.Parcel
 import android.os.Parcelable
 
 data class NavigationResponse(
-    val nodeList: List<Point>,
-    val pathList: List<Path>
+    val nodes: List<Point>,
+    val steps: List<Path>
 ): Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.createTypedArrayList(Point) ?: emptyList(),
@@ -14,8 +14,8 @@ data class NavigationResponse(
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeTypedList(nodeList)
-        parcel.writeTypedList(pathList)
+        parcel.writeTypedList(nodes)
+        parcel.writeTypedList(steps)
     }
 
     override fun describeContents(): Int {

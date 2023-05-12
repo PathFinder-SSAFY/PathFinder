@@ -100,6 +100,12 @@ class UnityHolderActivity : UnityPlayerActivity(),
             unityViewModel.setUserCameraInfoPosition(startPosition)
         }
         goal?.let { unityViewModel.goal = it }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            delay(3000)
+            unityViewModel.navigate(unityViewModel.startPosition, unityViewModel.goal)
+        }
+
     } // End of onCreate
 
     override fun onStart() {
@@ -125,14 +131,15 @@ class UnityHolderActivity : UnityPlayerActivity(),
                     when (navigateNetworkResult) {
                         is NetworkResult.Success -> {
                             Log.d(TAG, "onStart: ${navigateNetworkResult.data}")
-                            navigateNetworkResult.data?.pathList?.let {
+                            navigateNetworkResult.data?.steps?.let {
                                 //Todo activate
-//                                pathList.clear()
-//                                pathList.addAll(it)
-//                                launch(Dispatchers.Main) {
-//                                    navigationPathAdapter.notifyDataSetChanged()
-//                                }
+                                pathList.clear()
+                                pathList.addAll(it)
+                                launch(Dispatchers.Main) {
+                                    navigationPathAdapter.notifyDataSetChanged()
+                                }
                             }
+                            unityViewModel.setNavigationPathAtUnity()
                         }
                         is NetworkResult.Error -> {
                             Log.e(TAG, "onStart: Error, ${navigateNetworkResult.message}")
@@ -244,13 +251,6 @@ class UnityHolderActivity : UnityPlayerActivity(),
             textToSpeech.speak("안녕하세요", TextToSpeech.QUEUE_FLUSH, null, null)
         }
         findViewById<Button>(R.id.unity_map_toggle_button).setOnClickListener {
-            unityViewModel.navigate(
-                Point(
-                    unityViewModel.userCameraInfo.x.toDouble(),
-                    unityViewModel.userCameraInfo.y.toDouble(),
-                    unityViewModel.userCameraInfo.z.toDouble()
-                ), unityViewModel.goal
-            )
         }
 
     } // End of initUiLayout
@@ -259,16 +259,6 @@ class UnityHolderActivity : UnityPlayerActivity(),
         super.onResume()
         sensorManager.registerListener(this, roationVectorSensor, SensorManager.SENSOR_DELAY_UI)
         cameraInitFlag = true
-
-        CoroutineScope(Dispatchers.Main).launch {
-            delay(3000)
-            // { //TODO Delete
-            pathList.clear()
-            pathList.addAll(tempPathList)
-            navigationPathAdapter.notifyDataSetChanged()
-            unityViewModel.setNavigationPathAtUnity(pathList)
-            //}
-        }
     } // End of onResume
 
     override fun onPause() {
@@ -332,5 +322,17 @@ class UnityHolderActivity : UnityPlayerActivity(),
         currentPosition?.let { unityViewModel.setUserCameraInfoPosition(currentPosition) }
 //        Log.d(TAG, "ReceivedMessageByUnity: ${args} ")
 //        Log.d(TAG, "ReceivedMessageByUnity: ${unityViewModel.userCameraInfo} ")
-    }
+    } // End of getCameraPositionFromUnity
+
+    private fun researchNavigationPath(args: String = "") {
+//        unityViewModel.navigate(
+//            Point(
+//                unityViewModel.userCameraInfo.x.toDouble(),
+//                unityViewModel.userCameraInfo.y.toDouble(),
+//                unityViewModel.userCameraInfo.z.toDouble()
+//            ),
+//            unityViewModel.goal
+//        )
+    } // End of researchNavigationPath
+
 } // End of UnityHolderActivity

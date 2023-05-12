@@ -1,5 +1,6 @@
 package com.dijkstra.pathfinder
 
+import android.util.Log
 import androidx.lifecycle.*
 import com.dijkstra.pathfinder.data.dto.NavigationResponse
 import com.dijkstra.pathfinder.data.dto.Path
@@ -82,28 +83,32 @@ class UnityViewModel(
         userCameraInfo.roll = roll
     }
 
-    fun setNavigationPathAtUnity(pathList: List<Path>) {
-        if (pathList.isEmpty()) return;
-        val tempPathList = mutableListOf<Point>()
-        tempPathList.add(pathList.first().startPoint)
-        tempPathList.addAll(
-            pathList.filter { it.distance > 0 }.map {
-                when (it.direction) {
-                    Constant.WEST -> {
-                        it.startPoint - Point(it.distance, 0.0, 0.0)
-                    }
-                    Constant.NORTH -> {
-                        it.startPoint + Point(0.0, 0.0, it.distance)
-                    }
-                    Constant.EAST -> {
-                        it.startPoint + Point(it.distance, 0.0, 0.0)
-                    }
-                    Constant.SOUTH -> {
-                        it.startPoint - Point(0.0, 0.0, it.distance)
-                    }
-                    else -> it.startPoint
-                }
-            })
-        navigationRepository.setNavigationPathAtUnity(tempPathList)
+    fun setNavigationPathAtUnity() {
+        navigationNetworkResultStateFlow.value.data?: return
+        val pointList = navigationNetworkResultStateFlow.value.data!!.nodes
+        if (pointList.isEmpty()) return
+//        val tempPathList = mutableListOf<Point>()
+//        tempPathList.add(pathList.first().node)
+//        tempPathList.addAll(
+//            pathList.filter { it.distance > 0 }.map {
+//                when (it.direction) {
+//                    Constant.WEST -> {
+//                        it.node - Point(it.distance, 0.0, 0.0)
+//                    }
+//                    Constant.NORTH -> {
+//                        it.node + Point(0.0, 0.0, it.distance)
+//                    }
+//                    Constant.EAST -> {
+//                        Log.d(TAG, "setNavigationPathAtUnity: ${it}")
+//                        it.node + Point(it.distance, 0.0, 0.0)
+//                    }
+//                    Constant.SOUTH -> {
+//                        it.node - Point(0.0, 0.0, it.distance)
+//                    }
+//                    else -> it.node
+//                }
+//            })
+        
+        navigationRepository.setNavigationPathAtUnity(pointList)
     }
 }
