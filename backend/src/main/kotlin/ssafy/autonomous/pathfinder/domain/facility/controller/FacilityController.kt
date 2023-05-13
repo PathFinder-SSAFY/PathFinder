@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityTypesRequestDto
+import ssafy.autonomous.pathfinder.domain.facility.dto.response.FacilityIsValidResponseDto
 import ssafy.autonomous.pathfinder.domain.facility.service.FacilityService
 import ssafy.autonomous.pathfinder.global.common.response.ApiResponse
 
@@ -56,11 +57,9 @@ class FacilityController(
     @ApiOperation(value = "필터링 검색에서 검색어를 입력했을 때, 유효한 검색어(시설 이름)인지 판별하는 API")
     @ApiImplicitParam(name = "filteringSearch", value = "유효한 검색어인지 알고 싶은 값을 입력하세요.", dataTypeClass = FacilityTypesRequestDto::class)
     @PostMapping("/facility/improvements")
-    fun isValidFacilityValue(@RequestBody facilityTypesRequest: FacilityTypesRequestDto): ResponseEntity<ApiResponse>{
+    fun isValidFacilityValue(@RequestBody facilityTypesRequest: FacilityTypesRequestDto): ResponseEntity<FacilityIsValidResponseDto>{
         return ResponseEntity.status(HttpStatus.OK).body(
-            ApiResponse(
-                data = facilityService.isValidFacilityValue(facilityTypesRequest)
-            )
+            facilityService.isValidFacilityValue(facilityTypesRequest)
         )
     }
 
