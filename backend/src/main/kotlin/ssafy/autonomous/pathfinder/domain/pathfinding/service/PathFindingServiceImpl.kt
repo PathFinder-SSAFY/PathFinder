@@ -55,7 +55,7 @@ class PathFindingServiceImpl(
         val parentNode = mutableMapOf<Node, Node>()
         val gScore = mutableMapOf<Node, Double>().withDefault { Double.POSITIVE_INFINITY }
         val fScore = mutableMapOf<Node, Double>().withDefault { Double.POSITIVE_INFINITY }
-        val o = floorsService.getWallBlindSpots()
+        val obstacles = floorsService.getWallBlindSpots()
         gScore[start] = 0.0
         fScore[start] = start.distance(goal)
 
@@ -68,7 +68,7 @@ class PathFindingServiceImpl(
             openSet.remove(current)
             closedSet.add(current)
 
-            val neighbors = getNeighbors(current, o)
+            val neighbors = getNeighbors(current, obstacles)
             for (neighbor in neighbors) {
                 if (neighbor in closedSet) continue
 
@@ -127,10 +127,10 @@ class PathFindingServiceImpl(
             val next = path[i + 1]
             val distance = current.distance(next)
             val direction = when {
-                current.x < next.x -> 2 // 동
-                current.x > next.x -> 4 // 서
                 current.z < next.z -> 1 // 북
+                current.x < next.x -> 2 // 동
                 current.z > next.z -> 3 // 남
+                current.x > next.x -> 4 // 서
                 else -> null!!
             }
 

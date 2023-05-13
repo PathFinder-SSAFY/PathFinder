@@ -8,15 +8,17 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import ssafy.autonomous.pathfinder.domain.facility.domain.Facility
-import ssafy.autonomous.pathfinder.domain.floors.dto.request.FacilityCurrentLocationRequestDto
 import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityTypesRequestDto
 import ssafy.autonomous.pathfinder.domain.facility.exception.FacilityNotFoundException
 import ssafy.autonomous.pathfinder.domain.facility.repository.FacilityRepository
 import ssafy.autonomous.pathfinder.domain.facility.repository.FacilityQuerydslRepository
 import ssafy.autonomous.pathfinder.domain.facility.service.FacilityService
+import ssafy.autonomous.pathfinder.domain.floors.dto.request.FloorsCurrentLocationRequestDto
+import ssafy.autonomous.pathfinder.domain.floors.service.FloorsService
 
 @SpringBootTest
 class FacilityServiceImplTest @Autowired constructor(
+    private val floorService: FloorsService,
     private val facilityService: FacilityService,
     private val facilityRepository: FacilityRepository,
     private val facilityQuerydslRepository: FacilityQuerydslRepository
@@ -78,10 +80,9 @@ class FacilityServiceImplTest @Autowired constructor(
     @DisplayName("현재 나의 위치를 통한 시설 조회")
     fun getCurrentLocation(){
         // given
-        val currentLocation = FacilityCurrentLocationRequestDto(0.0, 0.0, -10.0)
-
+        val currentLocation = FloorsCurrentLocationRequestDto(0.0, 0.0, -10.0)
         // when
-        val resultCurrentLocation = facilityService.getCurrentLocation(currentLocation)
+        val resultCurrentLocation = floorService.getCurrentLocation(currentLocation)
 
         // then
         assertThat(resultCurrentLocation).isEqualTo("4층 대강의실 안 입니다.")
