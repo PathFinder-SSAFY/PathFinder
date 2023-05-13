@@ -4,7 +4,7 @@ import android.util.Log
 import com.dijkstra.pathfinder.data.dto.*
 import com.dijkstra.pathfinder.domain.api.NavigationApi
 import com.dijkstra.pathfinder.util.NetworkResult
-import com.dijkstra.pathfinder.util.tempPointList
+import com.dijkstra.pathfinder.util.SubNetworkResult
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
@@ -17,31 +17,30 @@ import kotlinx.coroutines.flow.flow
 private const val TAG = "NavigationRepository_ssafy"
 class NavigationRepository(private val navigationApi: NavigationApi) {
 
-    suspend fun navigationTest(): Flow<NetworkResult<Unit>> {
+    suspend fun navigationTest(): Flow<SubNetworkResult<Unit>> {
         return flow {
-
             try {
                 val response = navigationApi.navigationTest()
-                emit(NetworkResult.Loading())
+                emit(SubNetworkResult.Loading())
                 when {
                     response.isSuccessful -> {
-                        emit(NetworkResult.Success(response.body()!!))
+                        emit(SubNetworkResult.Success(response.body()!!))
                     }
                     response.errorBody() != null -> {
-                        emit(NetworkResult.Error(response.errorBody()!!.string()))
+                        emit(SubNetworkResult.Error(response.errorBody()!!.string()))
                     }
-                    else -> emit(NetworkResult.Error(response.errorBody()!!.string()))
+                    else -> emit(SubNetworkResult.Error(response.errorBody()!!.string()))
                 }
             } catch (e: java.lang.Exception) {
                 Log.e("ssafy", "getServerCallTest: ${e.message}")
-                emit(NetworkResult.Error(e.message))
-            }
+                emit(SubNetworkResult.Error(e.message))
+           }
         }
     }
 
-    suspend fun navigate(start: Point, goal: Point): Flow<NetworkResult<NavigationResponse>> {
+    suspend fun navigate(start: Point, goal: Point): Flow<SubNetworkResult<NavigationResponse>> {
 
-        val gson = GsonBuilder().create()
+        val gson = Gson()
         val requestBody = JsonObject().apply {
             add("start", gson.toJsonTree(start))
             add("goal", gson.toJsonTree(goal))
@@ -50,19 +49,19 @@ class NavigationRepository(private val navigationApi: NavigationApi) {
         return flow {
             try {
                 val response = navigationApi.navigate(requestBody)
-                emit(NetworkResult.Loading())
+                emit(SubNetworkResult.Loading())
                 when {
                     response.isSuccessful -> {
-                        emit(NetworkResult.Success(response.body()!!))
+                        emit(SubNetworkResult.Success(response.body()!!))
                     }
                     response.errorBody() != null -> {
-                        emit(NetworkResult.Error(response.errorBody()!!.string()))
+                        emit(SubNetworkResult.Error(response.errorBody()!!.string()))
                     }
-                    else -> emit(NetworkResult.Error(response.errorBody()!!.string()))
+                    else -> emit(SubNetworkResult.Error(response.errorBody()!!.string()))
                 }
             } catch (e: java.lang.Exception) {
                 Log.e("ssafy", "navigate: ${e.message}")
-                emit(NetworkResult.Error(e.message))
+                emit(SubNetworkResult.Error(e.message))
             }
         }
     }

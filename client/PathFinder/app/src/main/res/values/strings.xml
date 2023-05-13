@@ -13,8 +13,14 @@
     <string name="search">Search</string>
     <string name="start_nav_to_aed">심장 제세동기로 안내</string>
     <string name="start_nav_to_fire_extinguisher">소화기로 안내</string>
+    <string name="ok">확인</string>
+    <string name="retry">재시도</string>
     <string name="cancel">취소</string>
-    <string name="cal_now_location">현재 위치를 계산합니다</string>
+    <string name="current_location">현재 위치</string>
+    <string name="cal_current_location">현재 위치를 계산합니다</string>
+    <string name="retry_current_location">현재 위치와 다르다면 재시도해보세요</string>
+    <string name="error_current_location">에러가 발생했습니다</string>
+    <string name="retry_after_current_location">잠시 후 재시도해보세요</string>
     <string name="mic_permission_plz">음성 검색을 위해 권한을 허가해주세요</string>
     <string name="bt_permission_plz">위치 계산을 위해 권한을 허가해주세요</string>
 

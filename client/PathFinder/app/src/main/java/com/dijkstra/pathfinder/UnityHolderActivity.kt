@@ -116,13 +116,13 @@ class UnityHolderActivity : UnityPlayerActivity(),
             launch {
                 unityViewModel.navigationTestNetworkResultStateFlow.collect { testResult ->
                     when (testResult) {
-                        is NetworkResult.Success -> {
+                        is SubNetworkResult.Success -> {
                             Log.d(TAG, "onStart: Success, ${testResult.data}")
                         }
-                        is NetworkResult.Error -> {
+                        is SubNetworkResult.Error -> {
                             Log.e(TAG, "onStart: Error, ${testResult.message}")
                         }
-                        is NetworkResult.Loading -> {
+                        is SubNetworkResult.Loading -> {
                             Log.d(TAG, "onStart: Loading test..")
                         }
                     } // End of when
@@ -131,7 +131,7 @@ class UnityHolderActivity : UnityPlayerActivity(),
             launch {
                 unityViewModel.navigationNetworkResultStateFlow.collect { navigateNetworkResult ->
                     when (navigateNetworkResult) {
-                        is NetworkResult.Success -> {
+                        is SubNetworkResult.Success -> {
                             Log.d(TAG, "onStart: ${navigateNetworkResult.data}")
                             navigateNetworkResult.data?.steps?.let {
                                 pathList.clear()
@@ -142,10 +142,10 @@ class UnityHolderActivity : UnityPlayerActivity(),
                             }
                             unityViewModel.setNavigationPathAtUnity()
                         }
-                        is NetworkResult.Error -> {
+                        is SubNetworkResult.Error -> {
                             Log.e(TAG, "onStart: Error, ${navigateNetworkResult.message}")
                         }
-                        is NetworkResult.Loading -> {
+                        is SubNetworkResult.Loading -> {
                             Log.d(TAG, "onStart: Loading navigate..")
                         }
                     } // End of when
