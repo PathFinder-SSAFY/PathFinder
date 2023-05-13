@@ -1,5 +1,6 @@
 package com.dijkstra.pathfinder.domain.repository
 
+import android.util.Log
 import com.dijkstra.pathfinder.data.dto.CurrentLocationResponse
 import com.dijkstra.pathfinder.data.dto.Point
 import com.dijkstra.pathfinder.data.dto.SearchResponse
@@ -63,12 +64,16 @@ class MainRepository @Inject constructor(
             emit(mainApi.postFacilityDynamic(json))
         }.flowOn(Dispatchers.IO) // End of postFacilityDynamic2
 
-    suspend fun postFindHelp(point: Point): Flow<Response<Point>> =
+    suspend fun postFindHelp(help: Int, point: Point): Flow<Response<Point>> =
         flow {
-            val json = JsonObject().apply {
+            val start = JsonObject().apply {
                 addProperty("x", point.x)
                 addProperty("y", point.y)
                 addProperty("z", point.z)
+            }
+            val json = JsonObject().apply {
+                addProperty("help", help)
+                add("start", start)
             }
             emit(mainApi.postFindHelp(json))
         }.flowOn(Dispatchers.IO) // End of postFindHelp

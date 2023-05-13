@@ -12,6 +12,7 @@ import com.dijkstra.pathfinder.data.dto.CurrentLocationResponse
 import com.dijkstra.pathfinder.data.dto.Point
 import com.dijkstra.pathfinder.data.dto.SearchValidResponse
 import com.dijkstra.pathfinder.domain.repository.MainRepository
+import com.dijkstra.pathfinder.util.Constant
 import com.dijkstra.pathfinder.util.KalmanFilter3D
 import com.dijkstra.pathfinder.util.NetworkResult
 import com.dijkstra.pathfinder.util.trilateration
@@ -92,7 +93,6 @@ class MainViewModel @Inject constructor(
     } // End of getMyLocation
 
     fun startRangingBeacons() {
-        Log.d(TAG, "startRangingBeacons: ")
         beaconManager.startRangingBeacons(region)
     }
 
@@ -166,7 +166,6 @@ class MainViewModel @Inject constructor(
         private set
 
     fun postCurrentLocation(point: Point) {
-        Log.d(TAG, "postCurrentLocation: $point")
         viewModelScope.launch {
             mainRepo.postCurrentLocation(point)
                 .onStart {
@@ -185,7 +184,6 @@ class MainViewModel @Inject constructor(
                 .collectLatest { response ->
                     when {
                         response.isSuccessful && response.body() != null -> {
-                            Log.d(TAG, "postCurrentLocation: Success")
                             tempLocationPoint = point
                             tempLocationName = response.body()!!.responseData
                             _postCurrentLocationResponseSharedFlow.emit(
@@ -211,10 +209,9 @@ class MainViewModel @Inject constructor(
     var postFindHelpResponseSharedFlow = _postFindHelpResponseSharedFlow
         private set
 
-    fun postFindHelp(point: Point) {
-        Log.d(TAG, "postFindHelp: $point")
+    fun postFindHelp(help: Int, point: Point) {
         viewModelScope.launch {
-            mainRepo.postFindHelp(point)
+            mainRepo.postFindHelp(help, point)
                 .onStart {
                     _postFindHelpResponseSharedFlow.emit(NetworkResult.Loading())
                 }
@@ -228,9 +225,14 @@ class MainViewModel @Inject constructor(
                     )
                 }
                 .collectLatest { response ->
-                    Log.d(TAG, "postFindHelpLatest: $response")
                     when {
                         response.isSuccessful && response.body() != null -> {
+                            if (help == Constant.AED) {
+                                destinationLocationName.value = application.getString(R.string.aed)
+                            } else if (help == Constant.FIRE) {
+                                destinationLocationName.value = application.getString(R.string.fire_extinguisher)
+                            }
+                            destinationLocationPoint = response.body()
                             _postFindHelpResponseSharedFlow.emit(
                                 NetworkResult.Success(response.body()!!)
                             )
@@ -245,7 +247,7 @@ class MainViewModel @Inject constructor(
                         }
                     }
                 } // End of collectLatest
-        }
+        } // End of postFindHelp
     } // End of postFindHelp
 
     // ========================================== postFacilityValid ==========================================
@@ -255,7 +257,6 @@ class MainViewModel @Inject constructor(
         private set
 
     fun postFacilityValid(destination: String) {
-        Log.d(TAG, "postFacilityValid: $destination")
         viewModelScope.launch {
             mainRepo.postFacilityValid(destination)
                 .onStart {
@@ -271,7 +272,6 @@ class MainViewModel @Inject constructor(
                     )
                 }
                 .collectLatest { response ->
-                    Log.d(TAG, "postValidLatest: ${response.body()}")
                     when {
                         response.isSuccessful && response.body() != null -> {
                             _postSearchValidResponseSharedFlow.emit(

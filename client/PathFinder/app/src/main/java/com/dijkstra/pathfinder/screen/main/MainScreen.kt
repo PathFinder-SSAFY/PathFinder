@@ -43,12 +43,15 @@ import com.dijkstra.pathfinder.data.dto.Point
 import com.dijkstra.pathfinder.data.dto.SearchValidResponse
 import com.dijkstra.pathfinder.ui.theme.IconColor
 import com.dijkstra.pathfinder.ui.theme.nanumSquareNeo
+import com.dijkstra.pathfinder.util.Constant
 import com.dijkstra.pathfinder.util.NetworkResult
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 
@@ -78,7 +81,6 @@ fun MainScreen(
             if (permission) {
                 if (!isRecording.value) {
                     isRecording.value = true
-                    Log.d(TAG, "MainScreen: speech")
                     startListening(speechRecognizer, searchQueryState, isRecording)
                 }
             } else {
@@ -190,6 +192,7 @@ fun MainScreen(
                 countdownText.value = i.toString()
             }
             coroutineScope.launch { bottomSheetState.hide() }.invokeOnCompletion {
+                // TODO : GO TO UNITY ACTIVITY
                 if (!bottomSheetState.isVisible) {
                     openBottomSheet.value = false
                 }
@@ -228,7 +231,6 @@ fun MainScreen(
             placeholder = stringResource(id = R.string.input_destination),
             keyboardActions = KeyboardActions(
                 onSearch = {
-                    // TODO: logic onSearch
                     mainViewModel.postFacilityValid(searchQueryState.value.trim())
                     focusManager.clearFocus()
                     keyboardController?.hide()
@@ -372,15 +374,10 @@ fun MainScreen(
                                 openCurrentLocationDialog.value = true
                                 mainViewModel.postCurrentLocation(
                                     Point(
-                                        15.759,
+                                        mainViewModel.kalmanLocation.value[0],
                                         0.0,
-                                        -7.0
+                                        mainViewModel.kalmanLocation.value[2]
                                     )
-                                    //                                    Point(
-//                                        mainViewModel.kalmanLocation.value[0],
-//                                        0.0,
-//                                        mainViewModel.kalmanLocation.value[2]
-//                                    )
                                 )
                             } else {
                                 btPermissionsState.launchMultiplePermissionRequest()
@@ -460,7 +457,6 @@ fun MainScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             postCurrentLocationResponseSharedFlow.let { networkResult ->
-                                Log.d(TAG, "MainScreen1: ${networkResult.value}")
                                 when (networkResult.value!!) {
                                     is NetworkResult.Success -> {
                                         Text(
@@ -515,7 +511,6 @@ fun MainScreen(
                                     )
                                 }
                                 TextButton(onClick = {
-                                    Log.d(TAG, "Retry: ")
                                     mainViewModel.postCurrentLocation(
                                         Point(
                                             mainViewModel.kalmanLocation.value[0],
@@ -591,10 +586,18 @@ fun MainScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(
                             onClick = {
-                                // TODO : AED로 이동
-//                                `mainViewModel.destinationLocationName`.value = "심장제세동기"
-                                openEmergencyDialog.value = false
-                                openBottomSheet.value = true
+                                if (mainViewModel.currentLocationName.value == "") {
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.set_now_location),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                } else {
+                                    mainViewModel.postFindHelp(
+                                        Constant.AED,
+                                        mainViewModel.currentLocationPoint
+                                    )
+                                }
                             },
                             modifier = Modifier
                                 .fillMaxWidth(0.9f)
@@ -613,10 +616,18 @@ fun MainScreen(
                         } // End of AED Button
                         Button(
                             onClick = {
-                                // TODO : 소화기로 이동
-//                                `mainViewModel.destinationLocationName`.value = "소화기"
-                                openEmergencyDialog.value = false
-                                openBottomSheet.value = true
+                                if (mainViewModel.currentLocationName.value == "") {
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.set_now_location),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                } else {
+                                    mainViewModel.postFindHelp(
+                                        Constant.FIRE,
+                                        mainViewModel.currentLocationPoint
+                                    )
+                                }
                             },
                             modifier = Modifier
                                 .fillMaxWidth(0.9f)
@@ -713,7 +724,6 @@ fun MainScreen(
                                 )
                             }
                             TextButton(onClick = {
-                                // TODO : Floor Change Logic
                                 openFloorDialog.value = false
                                 floorState = tempFloorState
                             }) {
@@ -750,12 +760,12 @@ fun MainScreen(
                 MainModalBottomSheet(
                     onDismissRequest = { openBottomSheet.value = false },
                     sheetState = bottomSheetState,
-                    openBottomSheet = openBottomSheet,
                     nowLocation = currentLocationName.value,
                     destination = destinationLocationName.value,
                     countdownText = countdownText.value,
-                    scope = coroutineScope,
                     onClick = {
+                        // TODO : GO TO UNITY ACTIVITY
+                        openBottomSheet.value = false
                         Log.d(TAG, "start: ${mainViewModel.currentLocationPoint}")
                         Log.d(TAG, "goal: ${mainViewModel.destinationLocationPoint}")
                     }
@@ -763,6 +773,37 @@ fun MainScreen(
             }
         } // End of BottomSheet Modal
     } // End of MainScreen Surface
+
+    val postFindHelpResponseSharedFlow =
+        mainViewModel.postFindHelpResponseSharedFlow.collectAsState(initial = null)
+
+    postFindHelpResponseSharedFlow.let { networkResult ->
+        LaunchedEffect(key1 = networkResult.value) {
+            if (networkResult.value != null) {
+                when (networkResult.value!!) {
+                    is NetworkResult.Success -> {
+                        openEmergencyDialog.value = false
+                        openBottomSheet.value = true
+                    }
+                    is NetworkResult.Error -> {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.error_current_location),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    is NetworkResult.Loading -> {}
+                    else -> {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.error_current_location),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+        }
+    } // End of postFindHelpResponseSharedFlow
 
     postSearchValidResponseSharedFlow.let { networkResult ->
         LaunchedEffect(key1 = networkResult.value) {
@@ -784,7 +825,6 @@ fun MainScreen(
                         }
                     }
                     is NetworkResult.Error -> {
-                        Log.d(TAG, "when: error ${networkResult.value}")
                         Toast.makeText(
                             context,
                             context.getString(R.string.error_current_location),
@@ -803,6 +843,7 @@ fun MainScreen(
             }
         } // End of LaunchedEffect
     } // End of postSearchValidResponseSharedFlow.let
+
 } // End of MainScreen
 
 @Composable

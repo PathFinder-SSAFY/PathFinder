@@ -9,4 +9,7 @@ object Constant {
     const val WEST = 4
     const val RIGHT_TURN = 5
     const val LEFT_TURN = 6
+
+    const val AED = 0
+    const val FIRE = 1
 } // End of Constant
