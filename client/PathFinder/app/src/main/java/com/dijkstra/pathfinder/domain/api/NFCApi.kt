@@ -1,6 +1,7 @@
 package com.dijkstra.pathfinder.domain.api
 
-import com.dijkstra.pathfinder.util.NetworkResult
+import com.dijkstra.pathfinder.data.dto.NFC
+import com.google.gson.JsonObject
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -12,8 +13,8 @@ interface NFCApi {
     suspend fun getNavNFC(): Response<Void>
 
     // NFC태깅을 해서 현재위치를 받아오는 api
-    @POST("")
+    @POST("building/nfc")
     suspend fun postNFCId(
-        @Body nfcId: Int
-    ): NetworkResult<Response<Void>>
+        @Body id: JsonObject
+    ): Response<NFC>
 } // End of NFCApi Interface

@@ -1,19 +1,15 @@
 package com.dijkstra.pathfinder.domain.repository
 
 import com.dijkstra.pathfinder.data.dto.Point
-import com.dijkstra.pathfinder.data.dto.Search
 import com.dijkstra.pathfinder.domain.api.NavigationApi
-import com.dijkstra.pathfinder.util.NetworkResult
 import com.dijkstra.pathfinder.util.SubNetworkResult
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
-import javax.inject.Inject
 
-class NavigationRepository (private val navigationApi: NavigationApi) {
+class NavigationRepository(private val navigationApi: NavigationApi) {
 
     var flow: Flow<SubNetworkResult<Unit>> = emptyFlow()
 

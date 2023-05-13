@@ -1,6 +1,5 @@
 package com.dijkstra.pathfinder.screen.nfc_start
 
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -38,13 +37,13 @@ fun NFCStartScreen(
 
 //    val nfcSharedState by nfcViewModel.sharedNFCStateFlow.collectAsState("")
 
-    val getNavNFCResponseSharedFlowState =
-        nfcResponseViewModel.getNavNFCResponseSharedFlow.collectAsState(null)
+    val postNFCIdResponseSharedFlowState =
+        nfcResponseViewModel.postNFCIdResponseSharedFlow.collectAsState(null)
 
-    LaunchedEffect(key1 = getNavNFCResponseSharedFlowState.value) {
-        when (getNavNFCResponseSharedFlowState.value) {
+    LaunchedEffect(key1 = postNFCIdResponseSharedFlowState.value) {
+        when (postNFCIdResponseSharedFlowState.value) {
             is NetworkResult.Success -> {
-                if (getNavNFCResponseSharedFlowState.value!!.data == 200) {
+                if (postNFCIdResponseSharedFlowState.value!!.data == 200) {
                     navController.navigate(route = Screen.Main.route)
                 }
             }
@@ -63,8 +62,8 @@ fun NFCStartScreen(
     }
 
     LaunchedEffect(key1 = nfcScreenState.value) {
-        if (nfcScreenState.value == "NEW NFC DATA") {
-            nfcResponseViewModel.getNavNFC()
+        if (nfcScreenState.value == "1") {
+            nfcResponseViewModel.postNFCId(nfcScreenState.value.toInt())
         } else if (nfcScreenState.value == "SECOND") {
             navController.navigate(route = Screen.Test.route)
         }

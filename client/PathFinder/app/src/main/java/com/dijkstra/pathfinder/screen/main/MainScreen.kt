@@ -22,7 +22,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -47,11 +46,8 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.math.log
 
 
 private const val TAG = "MainScreen_싸피"
@@ -302,7 +298,6 @@ fun MainScreen(
                     if (it.value?.data != null) {
                         when (it.value!!) {
                             is NetworkResult.Success -> {
-                                Log.d(TAG, "TestNetworkResult.Success : 성공하긴함?")
                                 searchingList = it.value!!.data as MutableList<String>
                             }
 
@@ -498,7 +493,7 @@ fun MainScreen(
                         } // End of NowLocation Dialog Main Contents
 
                         // TextButtons
-                        Box (
+                        Box(
                             modifier = Modifier.fillMaxWidth(),
                             contentAlignment = Alignment.BottomEnd
                         ) {
@@ -510,7 +505,7 @@ fun MainScreen(
                                     onClick = {
                                         openNowLocationDialog.value = false
                                         nowLocationloading.value = false
-                                          },
+                                    },
                                 ) {
                                     Text(
                                         text = stringResource(id = R.string.cancel),

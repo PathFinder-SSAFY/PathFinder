@@ -1,7 +1,9 @@
 package com.dijkstra.pathfinder.screen.nfc_start
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dijkstra.pathfinder.data.dto.NFC
 import com.dijkstra.pathfinder.domain.repository.NFCRepository
 import com.dijkstra.pathfinder.util.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,30 +22,33 @@ class NFCResponseViewModel @Inject constructor(
 ) : ViewModel() {
 
     // ================================= getNavNFC =================================
-    private val _getNavNFCResponseSharedFlow = MutableSharedFlow<NetworkResult<Int>>()
-    var getNavNFCResponseSharedFlow = _getNavNFCResponseSharedFlow
+    private val _postNFCIdResponseSharedFlow = MutableSharedFlow<NetworkResult<NFC>>()
+    var postNFCIdResponseSharedFlow = _postNFCIdResponseSharedFlow
         private set
 
-    fun getNavNFC() {
+    fun postNFCId(nfcId: Int) {
         viewModelScope.launch {
-            nfcRepo.getNavNFC().onStart {
-                _getNavNFCResponseSharedFlow.emit(NetworkResult.Loading())
+            nfcRepo.postNFCId(nfcId).onStart {
+                _postNFCIdResponseSharedFlow.emit(NetworkResult.Loading())
             }.catch {
-                _getNavNFCResponseSharedFlow.emit(
+                _postNFCIdResponseSharedFlow.emit(
                     NetworkResult.Error(
                         null, it.message, it.cause
                     )
                 )
             }.collectLatest { result ->
+                Log.d(TAG, "postNFCId: ${result.message()}")
+                Log.d(TAG, "postNFCId result.body(): ${result.body()}")
+
                 when {
                     result.isSuccessful -> {
-                        _getNavNFCResponseSharedFlow.emit(
-                            NetworkResult.Success(result.code())
+                        _postNFCIdResponseSharedFlow.emit(
+                            NetworkResult.Success(result.body()!!)
                         )
                     }
 
                     result.errorBody() != null -> {
-                        _getNavNFCResponseSharedFlow.emit(
+                        _postNFCIdResponseSharedFlow.emit(
                             NetworkResult.Error(result.code(), result.message())
                         )
                     }
