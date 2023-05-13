@@ -5,5 +5,5 @@ import org.springframework.http.HttpStatus
 
 data class ApiResponse(
 //    val status: Int = HttpStatus.OK.value(),
-    val resposneData: Any?
+    val responseData: Any?
 )

@@ -1,4 +1,4 @@
-package ssafy.autonomous.pathfinder.facility.service
+package ssafy.autonomous.pathfinder.domain.facility.service
 
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.AfterEach

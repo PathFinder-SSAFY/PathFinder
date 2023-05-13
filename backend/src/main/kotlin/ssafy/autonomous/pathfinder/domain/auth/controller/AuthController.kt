@@ -38,7 +38,7 @@ class AuthController(
 
         return ResponseEntity.status(HttpStatus.OK).body(
             ApiResponse(
-                resposneData =authService.oAuthLogin(tokenRequestDto)
+                responseData =authService.oAuthLogin(tokenRequestDto)
             )
         )
 

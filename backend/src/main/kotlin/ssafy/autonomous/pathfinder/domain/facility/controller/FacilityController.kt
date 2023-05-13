@@ -32,7 +32,7 @@ class FacilityController(
         // service에서 Repository 호출
         return ResponseEntity.status(HttpStatus.OK).body(
             ApiResponse(
-                resposneData =facilityService.facilityDynamic(facilityTypesRequest)
+                responseData =facilityService.facilityDynamic(facilityTypesRequest)
             )
         )
     }
@@ -47,7 +47,7 @@ class FacilityController(
 
         return ResponseEntity.status(HttpStatus.OK).body(
             ApiResponse(
-                resposneData =facilityService.getFacilityTypes(facilityTypesRequest)
+                responseData =facilityService.getFacilityTypes(facilityTypesRequest)
             )
         )
     }
