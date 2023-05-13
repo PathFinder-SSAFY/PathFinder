@@ -11,21 +11,23 @@
         android:layout_height="wrap_content"
         android:layout_gravity="start|top">
 
-        <Button
-            android:id="@+id/camera_reposition_button"
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/camera_angle_reposition_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="화면 재조정"
+            android:backgroundTint="@color/white"
+            android:src="@drawable/camera_angle_reposition_icon"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             />
 
-        <Button
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/toggle_map_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end|top"
-            android:text="지도 토글"
+            android:src="@drawable/wall_display_icon_visible"
+            android:backgroundTint="@color/white"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 

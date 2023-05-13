@@ -20,6 +20,7 @@ class UnityViewModel(
 ) : ViewModel() {
 
     var isVolumeMuted = false
+    var isMapDisplayed = true
     var userCameraInfo: UserCameraInfo = UserCameraInfo()
     var startPosition = Point(0.0, 0.0, 0.0)
     var goal = Point(0.0, 0.0, 0.0)
@@ -108,7 +109,7 @@ class UnityViewModel(
 //                    else -> it.node
 //                }
 //            })
-        
+
         navigationRepository.setNavigationPathAtUnity(pointList)
     }
 }

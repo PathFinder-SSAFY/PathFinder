@@ -15,6 +15,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -22,6 +23,7 @@ import com.dijkstra.pathfinder.data.dto.Path
 import com.dijkstra.pathfinder.data.dto.Point
 import com.dijkstra.pathfinder.util.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
 import com.unity3d.player.UnityPlayer
 import com.unity3d.player.UnityPlayerActivity
@@ -132,7 +134,6 @@ class UnityHolderActivity : UnityPlayerActivity(),
                         is NetworkResult.Success -> {
                             Log.d(TAG, "onStart: ${navigateNetworkResult.data}")
                             navigateNetworkResult.data?.steps?.let {
-                                //Todo activate
                                 pathList.clear()
                                 pathList.addAll(it)
                                 launch(Dispatchers.Main) {
@@ -195,14 +196,19 @@ class UnityHolderActivity : UnityPlayerActivity(),
         )
         this.addContentView(ll, paramll)
 
-        val cameraRepositionButton: Button =
-            findViewById<Button?>(R.id.camera_reposition_button).apply {
+        val cameraRepositionButton: FloatingActionButton =
+            findViewById<FloatingActionButton?>(R.id.camera_angle_reposition_button).apply {
                 setOnClickListener {
                     cameraRepositionFlag = true
                 }
             }
-        val toggleMapButton: Button = findViewById<Button?>(R.id.toggle_map_button).apply {
+        val toggleMapButton: FloatingActionButton = findViewById<FloatingActionButton?>(R.id.toggle_map_button).apply {
             setOnClickListener {
+                unityViewModel.isMapDisplayed = !unityViewModel.isMapDisplayed
+                when (unityViewModel.isMapDisplayed) {
+                    true -> setImageDrawable(ContextCompat.getDrawable(this@UnityHolderActivity, R.drawable.wall_display_icon_visible))
+                    false -> setImageDrawable(ContextCompat.getDrawable(this@UnityHolderActivity, R.drawable.wall_display_icon_invisible))
+                }
                 UnityPlayer.UnitySendMessage(
                     "SystemController",
                     "ToggleMapVisibility",
