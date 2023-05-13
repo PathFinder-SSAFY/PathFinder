@@ -35,7 +35,7 @@ VALUES
 
 -- 시설
 INSERT INTO facility
-(facility_type, facility_name, facility_left_upx, facility_left_UpZ, facility_right_downx, facility_right_DownZ, density_max, hit_count, floors_id)
+(facility_type, facility_name, facility_left_upx, facility_left_upz, facility_right_downx, facility_right_downz, density_max, hit_count, floors_id)
 VALUES
     ("CLASSROOM401", "강의실 401", -1.0,-1.0,-1.0,-1.0, 200, 100, 1),
     ("CLASSROOM402", "강의실 402", -1.0,-1.0,-1.0,-1.0,200, 0, 1),

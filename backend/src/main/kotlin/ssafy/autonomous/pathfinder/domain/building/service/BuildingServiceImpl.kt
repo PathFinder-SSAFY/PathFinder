@@ -27,7 +27,7 @@ class BuildingServiceImpl(
         
         // (3) 빌딩 층 List로 담아서 반환
         val floorsNumberList = floors.map{
-            it.floorNumber + "f"
+            it.floorNumber + "F"
         }.toList()
 
         return BuildingNfcResponseDto(
