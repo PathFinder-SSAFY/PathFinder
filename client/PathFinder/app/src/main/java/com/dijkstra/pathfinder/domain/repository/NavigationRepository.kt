@@ -21,24 +21,24 @@ class NavigationRepository(private val navigationApi: NavigationApi) {
         return flow {
             try {
                 val response = navigationApi.navigationTest()
-                emit(NetworkResult.Loading())
+                emit(SubNetworkResult.Loading())
                 when {
                     response.isSuccessful -> {
-                        emit(NetworkResult.Success(response.body()!!))
+                        emit(SubNetworkResult.Success(response.body()!!))
                     }
                     response.errorBody() != null -> {
-                        emit(NetworkResult.Error(response.errorBody()!!.string()))
+                        emit(SubNetworkResult.Error(response.errorBody()!!.string()))
                     }
-                    else -> emit(NetworkResult.Error(response.errorBody()!!.string()))
+                    else -> emit(SubNetworkResult.Error(response.errorBody()!!.string()))
                 }
             } catch (e: java.lang.Exception) {
                 Log.e("ssafy", "getServerCallTest: ${e.message}")
-                emit(NetworkResult.Error(e.message))
+                emit(SubNetworkResult.Error(e.message))
            }
         }
     }
 
-    suspend fun navigate(start: Point, goal: Point): Flow<SubNetworkResult<List<Point>>> {
+    suspend fun navigate(start: Point, goal: Point): Flow<SubNetworkResult<NavigationResponse>> {
 
         val gson = Gson()
         val requestBody = JsonObject().apply {
@@ -49,19 +49,19 @@ class NavigationRepository(private val navigationApi: NavigationApi) {
         return flow {
             try {
                 val response = navigationApi.navigate(requestBody)
-                emit(NetworkResult.Loading())
+                emit(SubNetworkResult.Loading())
                 when {
                     response.isSuccessful -> {
-                        emit(NetworkResult.Success(response.body()!!))
+                        emit(SubNetworkResult.Success(response.body()!!))
                     }
                     response.errorBody() != null -> {
-                        emit(NetworkResult.Error(response.errorBody()!!.string()))
+                        emit(SubNetworkResult.Error(response.errorBody()!!.string()))
                     }
-                    else -> emit(NetworkResult.Error(response.errorBody()!!.string()))
+                    else -> emit(SubNetworkResult.Error(response.errorBody()!!.string()))
                 }
             } catch (e: java.lang.Exception) {
                 Log.e("ssafy", "navigate: ${e.message}")
-                emit(NetworkResult.Error(e.message))
+                emit(SubNetworkResult.Error(e.message))
             }
         }
     }

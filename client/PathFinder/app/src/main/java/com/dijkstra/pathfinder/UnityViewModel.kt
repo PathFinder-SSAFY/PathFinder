@@ -9,6 +9,7 @@ import com.dijkstra.pathfinder.data.dto.UserCameraInfo
 import com.dijkstra.pathfinder.domain.repository.NavigationRepository
 import com.dijkstra.pathfinder.util.Constant
 import com.dijkstra.pathfinder.util.NetworkResult
+import com.dijkstra.pathfinder.util.SubNetworkResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -32,16 +33,16 @@ class UnityViewModel(
         MutableStateFlow(SubNetworkResult.Success(Unit))
     val navigationTestNetworkResultStateFlow: StateFlow<SubNetworkResult<Unit>> get() = _navigationTestNetworkResultStateFlow
 
-    private val _navigationNetworkResultStateFlow: MutableStateFlow<NetworkResult<NavigationResponse>> =
+    private val _navigationNetworkResultStateFlow: MutableStateFlow<SubNetworkResult<NavigationResponse>> =
         MutableStateFlow(
-            NetworkResult.Success(
+            SubNetworkResult.Success(
                 NavigationResponse(
                     emptyList(),
                     emptyList()
                 )
             )
         )
-    val navigationNetworkResultStateFlow: StateFlow<NetworkResult<NavigationResponse>> get() = _navigationNetworkResultStateFlow
+    val navigationNetworkResultStateFlow: StateFlow<SubNetworkResult<NavigationResponse>> get() = _navigationNetworkResultStateFlow
 
     fun navigationTest() {
         viewModelScope.launch {
