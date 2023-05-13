@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import ssafy.autonomous.pathfinder.domain.building.dto.request.BuildingNfcRequestDto
+import ssafy.autonomous.pathfinder.domain.building.dto.response.BuildingNfcResponseDto
 import ssafy.autonomous.pathfinder.domain.building.service.BuildingService
 import ssafy.autonomous.pathfinder.global.common.response.ApiResponse
 
@@ -19,11 +20,7 @@ class BuildingController(
 
     @ApiOperation(value = "초기 값, nfc")
     @PostMapping("/building/nfc")
-    fun getBuildingNfc(@RequestBody buildingNfcRequestDto: BuildingNfcRequestDto): ResponseEntity<ApiResponse>{
-        return ResponseEntity.status(HttpStatus.OK).body(
-            ApiResponse(
-                data = buildingService.getBuildingNfc()
-            )
-        )
+    fun getBuildingNfc(@RequestBody buildingNfcRequestDto: BuildingNfcRequestDto): ResponseEntity<BuildingNfcResponseDto>{
+        return ResponseEntity.status(HttpStatus.OK).body(buildingService.getBuildingNfc())
     }
 }

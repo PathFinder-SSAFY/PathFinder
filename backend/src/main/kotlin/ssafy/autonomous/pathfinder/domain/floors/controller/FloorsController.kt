@@ -33,7 +33,7 @@ class FloorsController(
     fun getCurrentLocation(@RequestBody floorsCurrentLocationRequestDto: FloorsCurrentLocationRequestDto): ResponseEntity<ApiResponse> {
         return ResponseEntity.status(HttpStatus.OK).body(
             ApiResponse(
-                data = floorsService.getCurrentLocation(floorsCurrentLocationRequestDto)
+                resposneData =floorsService.getCurrentLocation(floorsCurrentLocationRequestDto)
             )
         )
     }
@@ -46,7 +46,7 @@ class FloorsController(
     fun getWallPosition() : ResponseEntity<ApiResponse> {
         return ResponseEntity.status(HttpStatus.OK).body(
             ApiResponse(
-                data = floorsService.getWallPositions()
+                resposneData =floorsService.getWallPositions()
             )
         )
     }
@@ -58,7 +58,7 @@ class FloorsController(
     fun getWallBlindSpots() : ResponseEntity<ApiResponse> {
         return ResponseEntity.status(HttpStatus.OK).body(
             ApiResponse(
-                data = floorsService.getWallBlindSpots()
+                resposneData =floorsService.getWallBlindSpots()
             )
         )
     }

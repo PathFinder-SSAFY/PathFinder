@@ -10,7 +10,7 @@ data class ErrorResponse(
     // 에러 발생시간, 상태, 메세지, 에러 로그
 //    val timestamp: LocalDateTime = LocalDateTime.now(),
 //    val status: Int,
-    val data: String
+    val resposneData: String
 ) {
 
     companion object {
@@ -27,11 +27,11 @@ data class ErrorResponse(
     // 생성자
     constructor(errorCode: ErrorCode) : this(
 //        status = errorCode.status.value(),
-        data = errorCode.message,
+        resposneData = errorCode.message,
     )
 
     constructor(result: BindingResult) : this(
 //        status = HttpStatus.BAD_REQUEST.value(),
-        data = result.fieldErrors.map { error -> error.defaultMessage}.joinToString { ", " } // 에러를 map 형식으로 저장
+        resposneData = result.fieldErrors.map { error -> error.defaultMessage}.joinToString { ", " } // 에러를 map 형식으로 저장
     )
 }
