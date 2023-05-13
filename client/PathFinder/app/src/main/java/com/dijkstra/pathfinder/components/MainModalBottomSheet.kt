@@ -25,7 +25,8 @@ fun MainModalBottomSheet(
     nowLocation: String,
     destination: String,
     countdownText: String,
-    scope: CoroutineScope
+    scope: CoroutineScope,
+    onClick: () -> Unit
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
@@ -81,6 +82,7 @@ fun MainModalBottomSheet(
                             openBottomSheet.value = false
                         }
                     }
+                    onClick.invoke()
                 }
             ) {
                 Text(

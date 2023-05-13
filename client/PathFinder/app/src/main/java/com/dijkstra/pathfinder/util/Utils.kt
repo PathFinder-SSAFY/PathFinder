@@ -39,7 +39,7 @@ fun trilateration(beacons: List<Beacon>): DoubleArray {
     val positions = mutableListOf<DoubleArray>()
     val distances = mutableListOf<Double>()
     Log.d(TAG, "trilateration: $beacons")
-
+    // 전체 비콘 리스트를 맵으로
     val beaconPositionMap = beaconPositionList.associateBy { it.id }
 
     beacons.forEach { beacon ->
