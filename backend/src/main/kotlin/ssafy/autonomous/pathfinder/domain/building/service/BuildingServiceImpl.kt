@@ -1,7 +1,9 @@
 package ssafy.autonomous.pathfinder.domain.building.service
 
 import org.springframework.stereotype.Service
+import ssafy.autonomous.pathfinder.domain.building.dto.request.BuildingNfcRequestDto
 import ssafy.autonomous.pathfinder.domain.building.dto.response.BuildingNfcResponseDto
+import ssafy.autonomous.pathfinder.domain.building.exception.IdNotFoundException
 import ssafy.autonomous.pathfinder.domain.building.repository.BuildingRepository
 import ssafy.autonomous.pathfinder.domain.floors.domain.Floors
 import ssafy.autonomous.pathfinder.domain.floors.domain.Beacon
@@ -15,7 +17,9 @@ class BuildingServiceImpl(
     private val beaconRepository: BeaconRepository
 ) : BuildingService{
 
-    override fun getBuildingNfc() : BuildingNfcResponseDto {
+    override fun getBuildingNfc(buildingNfcRequestDto: BuildingNfcRequestDto) : BuildingNfcResponseDto {
+        // 1이 아니면 exception
+        if(buildingNfcRequestDto.id != "1") throw IdNotFoundException()
         // (1) beacon 전체 조회
         val beaconList = getAllBeacons()
 

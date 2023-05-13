@@ -8,5 +8,5 @@ import ssafy.autonomous.pathfinder.domain.building.dto.response.BuildingNfcRespo
 interface BuildingService {
 
     // 2-1 초기 값, nfc
-    fun getBuildingNfc() : BuildingNfcResponseDto
+    fun getBuildingNfc(buildingNfcRequestDto: BuildingNfcRequestDto) : BuildingNfcResponseDto
 }

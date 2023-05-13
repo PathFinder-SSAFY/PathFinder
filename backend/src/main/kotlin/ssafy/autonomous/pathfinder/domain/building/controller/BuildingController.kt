@@ -21,6 +21,6 @@ class BuildingController(
     @ApiOperation(value = "초기 값, nfc")
     @PostMapping("/building/nfc")
     fun getBuildingNfc(@RequestBody buildingNfcRequestDto: BuildingNfcRequestDto): ResponseEntity<BuildingNfcResponseDto>{
-        return ResponseEntity.status(HttpStatus.OK).body(buildingService.getBuildingNfc())
+        return ResponseEntity.status(HttpStatus.OK).body(buildingService.getBuildingNfc(buildingNfcRequestDto))
     }
 }
