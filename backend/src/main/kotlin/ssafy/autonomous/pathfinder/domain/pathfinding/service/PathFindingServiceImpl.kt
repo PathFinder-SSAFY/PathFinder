@@ -2,7 +2,6 @@ package ssafy.autonomous.pathfinder.domain.pathfinding.service
 
 import org.springframework.stereotype.Service
 import ssafy.autonomous.pathfinder.domain.facility.dto.response.WallBlindSpotsResponseDto
-import ssafy.autonomous.pathfinder.domain.facility.service.FacilityService
 import ssafy.autonomous.pathfinder.domain.floors.service.FloorsService
 import ssafy.autonomous.pathfinder.domain.pathfinding.dto.Node
 import ssafy.autonomous.pathfinder.domain.pathfinding.dto.PathFindDTO
@@ -12,7 +11,6 @@ import ssafy.autonomous.pathfinder.domain.pathfinding.dto.Step
 class PathFindingServiceImpl(
     val floorsService: FloorsService
 ) : PathFindingService {
-    // 에러 코드 붹
 
     // 경로 제공
     override fun findPath(start: Node, goal: Node): List<Node>? {
@@ -55,7 +53,7 @@ class PathFindingServiceImpl(
         val parentNode = mutableMapOf<Node, Node>()
         val gScore = mutableMapOf<Node, Double>().withDefault { Double.POSITIVE_INFINITY }
         val fScore = mutableMapOf<Node, Double>().withDefault { Double.POSITIVE_INFINITY }
-        val o = floorsService.getWallBlindSpots()
+        val obstacles = floorsService.getWallBlindSpots()
         gScore[start] = 0.0
         fScore[start] = start.distance(goal)
 
@@ -68,7 +66,7 @@ class PathFindingServiceImpl(
             openSet.remove(current)
             closedSet.add(current)
 
-            val neighbors = getNeighbors(current, o)
+            val neighbors = getNeighbors(current, obstacles)
             for (neighbor in neighbors) {
                 if (neighbor in closedSet) continue
 
@@ -127,10 +125,10 @@ class PathFindingServiceImpl(
             val next = path[i + 1]
             val distance = current.distance(next)
             val direction = when {
-                current.x < next.x -> 2 // 동
-                current.x > next.x -> 4 // 서
                 current.z < next.z -> 1 // 북
+                current.x < next.x -> 2 // 동
                 current.z > next.z -> 3 // 남
+                current.x > next.x -> 4 // 서
                 else -> null!!
             }
 
@@ -150,9 +148,18 @@ class PathFindingServiceImpl(
                 prevDirection = direction
             }
         }
-
+        var lastNode = Node(0.0, 0.0, 0.0)
         if (prevDirection != -1) {
-            steps.add(Step(path.last(), prevDistance, prevDirection))
+            if (prevDirection == 1){
+                lastNode = Node(path.last().x, 0.0, path.last().z - prevDistance)
+            } else if (prevDirection == 2) {
+                lastNode = Node(path.last().x - prevDistance, 0.0, path.last().z)
+            } else if (prevDirection == 3) {
+                lastNode = Node(path.last().x, 0.0, path.last().z + prevDistance)
+            } else {
+                lastNode = Node(path.last().x + prevDistance, 0.0, path.last().z)
+            }
+            steps.add(Step(lastNode, prevDistance, prevDirection))
         }
         if (steps.size == 2){
             steps.removeAt(1)
