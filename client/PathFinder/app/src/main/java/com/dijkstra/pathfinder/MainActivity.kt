@@ -60,11 +60,11 @@ class MainActivity : ComponentActivity() {
             // val intent = Intent(this, UnityHolderActivity::class.java)
             PathFinderTheme {
 
-                navController = rememberNavController()
-                SetUpNavGraph(navController = navController)
+//                navController = rememberNavController()
+//                SetUpNavGraph(navController = navController)
 
 //                MainScreen(navController = navController)
-                // startUnityLayout()
+                 startUnityLayout()
             }
         }
 
@@ -203,8 +203,20 @@ class MainActivity : ComponentActivity() {
                             intent.putExtra("goal", Point(
                                 32.00,
                                 0.0,
-                                -1.00)
+                                -4.00)
                             )
+//                            intent.putExtra(
+//                                "startPosition", Point(
+//                                    17.0,
+//                                    0.0,
+//                                    -7.0
+//                                )
+//                            )
+//                            intent.putExtra("goal", Point(
+//                                17.00,
+//                                0.0,
+//                                -3.00)
+//                            )
                             startActivity(intent)
                         } else {
                             btPermissionsState.launchMultiplePermissionRequest()

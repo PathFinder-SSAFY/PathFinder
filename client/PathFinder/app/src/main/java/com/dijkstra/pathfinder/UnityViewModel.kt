@@ -87,30 +87,8 @@ class UnityViewModel(
 
     fun setNavigationPathAtUnity() {
         navigationNetworkResultStateFlow.value.data?: return
-        val pointList = navigationNetworkResultStateFlow.value.data!!.nodes
-        if (pointList.isEmpty()) return
-//        val tempPathList = mutableListOf<Point>()
-//        tempPathList.add(pathList.first().node)
-//        tempPathList.addAll(
-//            pathList.filter { it.distance > 0 }.map {
-//                when (it.direction) {
-//                    Constant.WEST -> {
-//                        it.node - Point(it.distance, 0.0, 0.0)
-//                    }
-//                    Constant.NORTH -> {
-//                        it.node + Point(0.0, 0.0, it.distance)
-//                    }
-//                    Constant.EAST -> {
-//                        Log.d(TAG, "setNavigationPathAtUnity: ${it}")
-//                        it.node + Point(it.distance, 0.0, 0.0)
-//                    }
-//                    Constant.SOUTH -> {
-//                        it.node - Point(0.0, 0.0, it.distance)
-//                    }
-//                    else -> it.node
-//                }
-//            })
-
+        val pointList = navigationNetworkResultStateFlow.value.data?.nodes
+        if (pointList == null || pointList.isEmpty()) return
         navigationRepository.setNavigationPathAtUnity(pointList)
     }
 }

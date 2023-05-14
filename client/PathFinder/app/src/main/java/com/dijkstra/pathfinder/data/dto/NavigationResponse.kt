@@ -4,7 +4,7 @@ import android.os.Parcel
 import android.os.Parcelable
 
 data class NavigationResponse(
-    val nodes: List<Point>,
+    val nodes: List<Point>?,
     val steps: List<Path>
 ): Parcelable {
     constructor(parcel: Parcel) : this(
