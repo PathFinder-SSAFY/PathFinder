@@ -9,7 +9,11 @@ import org.springframework.web.bind.annotation.RestController
 import ssafy.autonomous.pathfinder.domain.pathfinding.dto.*
 import ssafy.autonomous.pathfinder.domain.pathfinding.service.PathFindingService
 
-
+/*
+*
+* 6.
+*
+* */
 @RestController
 @RequestMapping("/findPath")
 class PathFindingController(private val pathFindingService: PathFindingService) {

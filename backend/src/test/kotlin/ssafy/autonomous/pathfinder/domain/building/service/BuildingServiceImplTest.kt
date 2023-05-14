@@ -1,40 +1,39 @@
 package ssafy.autonomous.pathfinder.domain.building.service
 
-import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.*
+import mu.KotlinLogging
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import ssafy.autonomous.pathfinder.domain.building.dto.request.BuildingNfcRequestDto
-import ssafy.autonomous.pathfinder.domain.building.dto.response.BuildingNfcResponseDto
-import ssafy.autonomous.pathfinder.domain.building.repository.BuildingRepository
-import java.util.*
+import ssafy.autonomous.pathfinder.domain.building.exception.IdNotFoundException
 
 @SpringBootTest
 class BuildingServiceImplTest @Autowired constructor(
-    private val buildingService : BuildingService,
-    private val buildingRepository: BuildingRepository
+    private var buildingService : BuildingService,
 ){
 
+    private val logger = KotlinLogging.logger{}
 
-    @AfterEach
-    fun clean(){
-        buildingRepository.deleteAll()
-    }
 
+    @Throws(IdNotFoundException::class)
     @Test
-    @DisplayName("초기 값, nfc 조회")
+    @DisplayName("getBuildingNfc는 BuildingNfcResponseDto를 반환해야 한다.")
     fun getBuildingNfc(){
         // given
-        val request = BuildingNfcRequestDto("4")
+        val requestDto = BuildingNfcRequestDto("1")
+
+        /*
+        * id 값을 입력한다. (1을 제외한 나머지는 막혀있다.)
+        * */
 
         // when
-        val buildingNfc:BuildingNfcResponseDto = buildingService.getBuildingNfc()
-        val floorsNumber: List<String> = listOf("1F", "2F", "3F", "4F")
+        val responseDto = buildingService.getBuildingNfc(requestDto)
+
 
         // then
-        Assertions.assertThat(buildingNfc.floorsNumber).containsExactlyElementsOf(floorsNumber)
+        Assertions.assertNotNull(responseDto)
+        Assertions.assertEquals(listOf("3F"), responseDto.floorsNumber)
     }
 }

@@ -10,12 +10,12 @@ class Properties(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(name ="properties_id")
-        val id: Long ?= null,
+        val id: Int,
 
         // 다대일, 다 : Building, 일 : Properties
         // 연관관계 주인 Building
         // 일대다 관계
-        @OneToMany(mappedBy = "properties")
+        @OneToMany(mappedBy = "properties", cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
         val buildings: List<Building> = mutableListOf()
 
 )

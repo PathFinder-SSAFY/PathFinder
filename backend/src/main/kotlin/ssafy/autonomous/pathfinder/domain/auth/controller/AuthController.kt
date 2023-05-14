@@ -29,7 +29,9 @@ class AuthController(
 
 
 
-
+    /*
+    * 1-1. 네이버 소셜 로그인 api
+    * */
     @ApiOperation(value = "네이버 소셜 로그인 후, 반환 받은 code를 넘겨주면 된다.")
     @ApiImplicitParam(name = "code", value = "소셜 로그인 후 받은 code(고유 식별 번호)", dataTypeClass = TokenRequestDto::class)
     @PostMapping("/naver/callback")

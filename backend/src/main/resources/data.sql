@@ -1,4 +1,11 @@
 
+-- 건물 관리하는 곳
+INSERT INTO properties(field)
+VALUES
+    (1);
+
+
+
 -- 건물
 INSERT INTO building
 (building_name)
