@@ -12,12 +12,21 @@ import ssafy.autonomous.pathfinder.domain.building.dto.response.BuildingNfcRespo
 import ssafy.autonomous.pathfinder.domain.building.service.BuildingService
 import ssafy.autonomous.pathfinder.global.common.response.ApiResponse
 
+/*
+*
+* 2.
+* */
 @Api(tags = ["건물 컨트롤러"])
 @RestController
 class BuildingController(
     private val buildingService: BuildingService
 ) {
 
+    /*
+    *
+    * 2-1. 건물
+    * - beacon 좌표, 층 이미지, 층
+    * */
     @ApiOperation(value = "초기 값, nfc")
     @PostMapping("/building/nfc")
     fun getBuildingNfc(@RequestBody buildingNfcRequestDto: BuildingNfcRequestDto): ResponseEntity<BuildingNfcResponseDto>{

@@ -14,7 +14,11 @@ import ssafy.autonomous.pathfinder.domain.floors.dto.request.FloorsCurrentLocati
 import ssafy.autonomous.pathfinder.domain.floors.service.FloorsService
 import ssafy.autonomous.pathfinder.global.common.response.ApiResponse
 
-// 4
+/*
+*
+* 4.
+*
+* */
 @Api(tags = ["층 컨트롤러"])
 @RestController
 class FloorsController(

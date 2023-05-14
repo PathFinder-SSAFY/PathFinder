@@ -4,6 +4,7 @@ import mu.KotlinLogging
 import net.minidev.json.JSONObject
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.*
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 import ssafy.autonomous.pathfinder.domain.administrator.dto.AdministratorInfoDto
@@ -80,7 +81,7 @@ class NaverOAuthImpl(
         val accessToken = tokenRequestDto.getAccessToken()
 
         val restTemplate = RestTemplate()
-//        restTemplate.requestFactory = HttpComponentsClientHttpRequestFactory()
+        restTemplate.requestFactory = HttpComponentsClientHttpRequestFactory()
 
         // HttpHeader 오브젝트 생성
         val httpHeaders = HttpHeaders()
