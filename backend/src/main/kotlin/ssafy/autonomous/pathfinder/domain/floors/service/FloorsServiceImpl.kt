@@ -3,6 +3,7 @@ package ssafy.autonomous.pathfinder.domain.floors.service
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import ssafy.autonomous.pathfinder.domain.facility.domain.BlockWall
+import ssafy.autonomous.pathfinder.domain.facility.domain.Facility
 import ssafy.autonomous.pathfinder.domain.facility.dto.response.WallBlindSpotsResponseDto
 import ssafy.autonomous.pathfinder.domain.facility.repository.BlockWallRepository
 import ssafy.autonomous.pathfinder.domain.facility.repository.RoomEntranceRepository
@@ -39,11 +40,13 @@ class FloorsServiceImpl(
             when {
                 findWithinRange(floorsCurrentLocationRequestDto, inRoomEntrance) -> return "$curFacilityName 입구"
                 isNearFacilityEntrance(floorsCurrentLocationRequestDto, inRoomEntrance) -> return "$curFacilityName 입구 앞"
-                isInsideFacility(floorsCurrentLocationRequestDto, inRoomEntrance) -> return "$curFacilityName 안"
+                isInsideFacility(floorsCurrentLocationRequestDto, inRoomEntrance.facility) -> return "$curFacilityName 안"
                 isBlockWall(floorsCurrentLocationRequestDto) -> throw HandleInWallBoundaryException()
-                isOutOfRange(floorsCurrentLocationRequestDto) -> throw HandleInvalidUserLocationOnCurrentFloorException()
             }
         }
+
+        // 시설 내에 있지 않고, 범위를 벗어났을 경우 (4층 모든 좌표 확인 후, 4층 복도인지 외부인지 판단하기 위한 함수)
+        if(isOutOfRange(floorsCurrentLocationRequestDto)) throw HandleInvalidUserLocationOnCurrentFloorException()
         return "4층 복도"
 
     }
@@ -148,11 +151,13 @@ class FloorsServiceImpl(
     }
 
     // 시설 안인지 확인한다.
-    private fun isInsideFacility(floorsCurrentLocationRequestDto: FloorsCurrentLocationRequestDto, roomEntrance: RoomEntrance): Boolean {
-        val (facilityUpX, facilityUpZ) = roomEntrance.facility.getFacilityLeftUpXZ()
-        val (facilityDownX, facilityDownZ) = roomEntrance.facility.getFacilityRightDownXZ()
+    private fun isInsideFacility(floorsCurrentLocationRequestDto: FloorsCurrentLocationRequestDto, facility: Facility): Boolean {
+        val (facilityUpX, facilityUpZ) = facility.getFacilityLeftUpXZ()
+        val (facilityDownX, facilityDownZ) = facility.getFacilityRightDownXZ()
 
-//        logger.info("시설인지 확인한다.")
+        logger.info("시설 입구 확인")
+        logger.info("시설 입구 범위 LX, LY : $facilityUpX , $facilityUpZ")
+        logger.info("시설 입구 범위 RX, RY : $facilityDownX, $facilityDownZ")
 
         // 시설 내부인지 확인한다.
         if (isWithinRangeX(floorsCurrentLocationRequestDto.x, facilityUpX, facilityDownX)
@@ -221,13 +226,17 @@ class FloorsServiceImpl(
         val curX = floorsCurrentLocationRequestDto.x
         val curZ = floorsCurrentLocationRequestDto.z
 
+
+
         // wall
         val isInsideBlockWall = blockWall.any { wall ->
             val leftUpX = wall.getBlockWallLeftUpXZ()[0]
             val leftUpZ = wall.getBlockWallLeftUpXZ()[1]
             val rightDownX = wall.getBlockWallRightDownXZ()[0]
             val rightDownZ = wall.getBlockWallRightDownXZ()[1]
-
+            logger.info("X : $curX , Z : $curZ")
+            logger.info("leftUpX : $leftUpX , leftUpZ : $leftUpZ ")
+            logger.info("rightDownX : $rightDownX , rightDownZ : $rightDownZ ")
             leftUpX!! <= curX && curX <= rightDownX!! && rightDownZ!! <= curZ &&curZ <= leftUpZ!!
         }
 
