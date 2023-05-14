@@ -2,7 +2,6 @@ package ssafy.autonomous.pathfinder.domain.pathfinding.service
 
 import org.springframework.stereotype.Service
 import ssafy.autonomous.pathfinder.domain.facility.dto.response.WallBlindSpotsResponseDto
-import ssafy.autonomous.pathfinder.domain.facility.service.FacilityService
 import ssafy.autonomous.pathfinder.domain.floors.service.FloorsService
 import ssafy.autonomous.pathfinder.domain.pathfinding.dto.Node
 import ssafy.autonomous.pathfinder.domain.pathfinding.dto.PathFindDTO
@@ -12,7 +11,6 @@ import ssafy.autonomous.pathfinder.domain.pathfinding.dto.Step
 class PathFindingServiceImpl(
     val floorsService: FloorsService
 ) : PathFindingService {
-    // 에러 코드 붹
 
     // 경로 제공
     override fun findPath(start: Node, goal: Node): List<Node>? {
@@ -150,9 +148,18 @@ class PathFindingServiceImpl(
                 prevDirection = direction
             }
         }
-
+        var lastNode = Node(0.0, 0.0, 0.0)
         if (prevDirection != -1) {
-            steps.add(Step(path.last(), prevDistance, prevDirection))
+            if (prevDirection == 1){
+                lastNode = Node(path.last().x, 0.0, path.last().z - prevDistance)
+            } else if (prevDirection == 2) {
+                lastNode = Node(path.last().x - prevDistance, 0.0, path.last().z)
+            } else if (prevDirection == 3) {
+                lastNode = Node(path.last().x, 0.0, path.last().z + prevDistance)
+            } else {
+                lastNode = Node(path.last().x + prevDistance, 0.0, path.last().z)
+            }
+            steps.add(Step(lastNode, prevDistance, prevDirection))
         }
         if (steps.size == 2){
             steps.removeAt(1)
