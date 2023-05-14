@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityTypesRequestDto
+import ssafy.autonomous.pathfinder.domain.facility.dto.response.FacilityIsValidResponseDto
 import ssafy.autonomous.pathfinder.domain.facility.service.FacilityService
 import ssafy.autonomous.pathfinder.global.common.response.ApiResponse
 
@@ -31,7 +32,7 @@ class FacilityController(
         // service에서 Repository 호출
         return ResponseEntity.status(HttpStatus.OK).body(
             ApiResponse(
-                data = facilityService.facilityDynamic(facilityTypesRequest)
+                responseData =facilityService.facilityDynamic(facilityTypesRequest)
             )
         )
     }
@@ -42,12 +43,23 @@ class FacilityController(
     @ApiOperation(value = "게시글 조회 클릭 (조회 횟수 1씩 증가 시키기)")
     @ApiImplicitParam(name = "filteringSearch", value = "시설 이름 맞춰서 입력", dataTypeClass = FacilityTypesRequestDto::class)
     @PostMapping("/facility/search")
-    fun getFacilityTypes(@RequestBody facilitySearchRequest: FacilityTypesRequestDto): ResponseEntity<ApiResponse> {
+    fun getFacilityTypes(@RequestBody facilityTypesRequest: FacilityTypesRequestDto): ResponseEntity<ApiResponse> {
 
         return ResponseEntity.status(HttpStatus.OK).body(
             ApiResponse(
-                data = facilityService.getFacilityTypes(facilitySearchRequest)
+                responseData =facilityService.getFacilityTypes(facilityTypesRequest)
             )
+        )
+    }
+
+
+    // 3-3 필터링 검색에서 검색어를 입력했을 때, 유효한 검색어(시설 이름)인지 판별하는 API
+    @ApiOperation(value = "필터링 검색에서 검색어를 입력했을 때, 유효한 검색어(시설 이름)인지 판별하는 API")
+    @ApiImplicitParam(name = "filteringSearch", value = "유효한 검색어인지 알고 싶은 값을 입력하세요.", dataTypeClass = FacilityTypesRequestDto::class)
+    @PostMapping("/facility/improvements")
+    fun isValidFacilityValue(@RequestBody facilityTypesRequest: FacilityTypesRequestDto): ResponseEntity<FacilityIsValidResponseDto>{
+        return ResponseEntity.status(HttpStatus.OK).body(
+            facilityService.isValidFacilityValue(facilityTypesRequest)
         )
     }
 

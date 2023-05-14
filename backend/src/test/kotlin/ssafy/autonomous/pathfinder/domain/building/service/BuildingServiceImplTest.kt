@@ -28,11 +28,11 @@ class BuildingServiceImplTest @Autowired constructor(
     @DisplayName("초기 값, nfc 조회")
     fun getBuildingNfc(){
         // given
-        val request = BuildingNfcRequestDto(4)
+        val request = BuildingNfcRequestDto("4")
 
         // when
-        val buildingNfc:BuildingNfcResponseDto = buildingService.getBuildingNfc(request)
-        val floorsNumber: List<String> = listOf("1 floor", "2 floor", "3 floor", "4 floor")
+        val buildingNfc:BuildingNfcResponseDto = buildingService.getBuildingNfc()
+        val floorsNumber: List<String> = listOf("1F", "2F", "3F", "4F")
 
         // then
         Assertions.assertThat(buildingNfc.floorsNumber).containsExactlyElementsOf(floorsNumber)

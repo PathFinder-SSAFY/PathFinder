@@ -1,7 +1,6 @@
-package ssafy.autonomous.pathfinder.facility.service
+package ssafy.autonomous.pathfinder.domain.facility.service
 
 import org.assertj.core.api.Assertions.*
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -10,15 +9,15 @@ import org.springframework.boot.test.context.SpringBootTest
 import ssafy.autonomous.pathfinder.domain.facility.domain.Facility
 import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityTypesRequestDto
 import ssafy.autonomous.pathfinder.domain.facility.exception.FacilityNotFoundException
-import ssafy.autonomous.pathfinder.domain.facility.repository.FacilityRepository
 import ssafy.autonomous.pathfinder.domain.facility.repository.FacilityQuerydslRepository
+import ssafy.autonomous.pathfinder.domain.facility.repository.FacilityRepository
 import ssafy.autonomous.pathfinder.domain.facility.service.FacilityService
 import ssafy.autonomous.pathfinder.domain.floors.dto.request.FloorsCurrentLocationRequestDto
 import ssafy.autonomous.pathfinder.domain.floors.service.FloorsService
 
 @SpringBootTest
 class FacilityServiceImplTest @Autowired constructor(
-    private val floorService: FloorsService,
+    private val floorsService: FloorsService,
     private val facilityService: FacilityService,
     private val facilityRepository: FacilityRepository,
     private val facilityQuerydslRepository: FacilityQuerydslRepository
@@ -35,7 +34,7 @@ class FacilityServiceImplTest @Autowired constructor(
     @DisplayName("시설 타입 조회")
     fun  facilityDynamic(){
         // given
-        
+
         val facilityList = mutableListOf<String>()
         facilityList.add(FacilityTypesRequestDto("CLASSROOM401").filteringSearch)
         facilityList.add(FacilityTypesRequestDto("CLASSROOM402").filteringSearch)
@@ -75,14 +74,15 @@ class FacilityServiceImplTest @Autowired constructor(
 
     }
 
-    
+
     @Test
     @DisplayName("현재 나의 위치를 통한 시설 조회")
     fun getCurrentLocation(){
         // given
         val currentLocation = FloorsCurrentLocationRequestDto(0.0, 0.0, -10.0)
+
         // when
-        val resultCurrentLocation = floorService.getCurrentLocation(currentLocation)
+        val resultCurrentLocation = floorsService.getCurrentLocation(currentLocation)
 
         // then
         assertThat(resultCurrentLocation).isEqualTo("4층 대강의실 안 입니다.")

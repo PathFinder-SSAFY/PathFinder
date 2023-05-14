@@ -36,12 +36,12 @@ class TokenAuthenticationFilter(
             - 이렇게 저장된 인증 정보는 다른 곳에서 필요할 때 언제든지 사용할 수 있다.
         */
         if(jwtToken != null && jwtTokenProvider.validateToken(jwtToken)){
-            logger.info("token을 삽입합니다.")
+//            logger.info("token을 삽입합니다.")
             val authentication: Authentication = jwtTokenProvider.getAuthentication(jwtToken)
             SecurityContextHolder.getContext().authentication = authentication
         }
         
-        logger.info("swagger 실행")
+//        logger.info("swagger 실행")
         filterChain.doFilter(request, response)
 
 
