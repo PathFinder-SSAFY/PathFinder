@@ -5,6 +5,7 @@ import android.os.Build
 import android.speech.SpeechRecognizer
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -39,6 +40,7 @@ import androidx.navigation.NavController
 import com.chargemap.compose.numberpicker.ListItemPicker
 import com.dijkstra.pathfinder.R
 import com.dijkstra.pathfinder.components.*
+import com.dijkstra.pathfinder.screen.nfc_start.NFCViewModel
 import com.dijkstra.pathfinder.ui.theme.IconColor
 import com.dijkstra.pathfinder.ui.theme.nanumSquareNeo
 import com.dijkstra.pathfinder.util.NetworkResult
@@ -59,6 +61,7 @@ private const val TAG = "MainScreen_싸피"
 @Composable
 fun MainScreen(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
+    nfcViewModel: NFCViewModel = hiltViewModel(LocalContext.current as ComponentActivity),
     navController: NavController,
     mainViewModel: MainViewModel = hiltViewModel()
 ) {

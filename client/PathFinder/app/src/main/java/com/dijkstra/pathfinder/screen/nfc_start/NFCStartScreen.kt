@@ -1,5 +1,6 @@
 package com.dijkstra.pathfinder.screen.nfc_start
 
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -20,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
+import com.dijkstra.pathfinder.data.dto.NFC
 import com.dijkstra.pathfinder.navigation.Screen
 import com.dijkstra.pathfinder.util.NetworkResult
 
@@ -43,7 +45,9 @@ fun NFCStartScreen(
     LaunchedEffect(key1 = postNFCIdResponseSharedFlowState.value) {
         when (postNFCIdResponseSharedFlowState.value) {
             is NetworkResult.Success -> {
-                if (postNFCIdResponseSharedFlowState.value!!.data == 200) {
+                val data = postNFCIdResponseSharedFlowState.value!!.data
+                if (postNFCIdResponseSharedFlowState.value!!.data != null) {
+                    nfcViewModel.setNFCData(data as NFC)
                     navController.navigate(route = Screen.Main.route)
                 }
             }
