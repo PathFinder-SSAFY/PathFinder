@@ -79,7 +79,6 @@ class MainViewModel @Inject constructor(
 
     fun getMyLocation(beacons: List<Beacon>, allBeaconList: List<BeaconPosition>) {
         if (beacons.size < 3) {
-            Log.d(TAG, "getMyLocation: nope")
             return
         } else {
             var sortedList = beacons.sortedBy { it.distance }

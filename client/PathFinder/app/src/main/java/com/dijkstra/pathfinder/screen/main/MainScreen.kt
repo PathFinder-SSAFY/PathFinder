@@ -37,6 +37,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.navigation.NavController
 import com.chargemap.compose.numberpicker.ListItemPicker
 import com.dijkstra.pathfinder.R
@@ -186,14 +187,18 @@ fun MainScreen(
         }
     }
 
-    LaunchedEffect(key1 = openBottomSheet.value) {
+    LaunchedEffect(
+        key1 = openBottomSheet.value,
+        key2 = currentLocationName.value,
+        key3 = destinationLocationName.value
+    ) {
+
         if (openBottomSheet.value && currentLocationName.value.isNotEmpty() && destinationLocationName.value.isNotEmpty()) {
             for (i in 2 downTo 0) {
                 delay(1000)
                 countdownText.value = i.toString()
             }
             coroutineScope.launch { bottomSheetState.hide() }.invokeOnCompletion {
-                // TODO : GO TO UNITY ACTIVITY
                 if (!bottomSheetState.isVisible) {
                     openBottomSheet.value = false
                     val intent = Intent(context, UnityHolderActivity::class.java).apply {
@@ -216,9 +221,18 @@ fun MainScreen(
         }
     } // End of LaunchedEffect
 
+    LaunchedEffect(key1 = lifecycleOwner.lifecycle.currentState) {
+        Log.d(
+            TAG, "sdr lifecycle: ${
+                lifecycleOwner.lifecycle.currentState
+            }"
+        )
+    }
+
     DisposableEffect(lifecycleOwner) {
         // Destroy speechRecognizer on dispose
         onDispose {
+            Log.d(TAG, "DisposableEffect: 여기?")
             speechRecognizer.destroy()
         }
     } // End of DisposableEffect
@@ -346,7 +360,7 @@ fun MainScreen(
             verticalAlignment = Alignment.Bottom
         ) {
             Box(
-                modifier = Modifier,
+                modifier = Modifier.padding(),
                 contentAlignment = Alignment.BottomStart
             ) {
                 MainScreenBottomIconButton(onClick = { openEmergencyDialog.value = true }) {
@@ -530,6 +544,15 @@ fun MainScreen(
                                             mainViewModel.tempLocationPoint
                                         mainViewModel.currentLocationName.value =
                                             mainViewModel.tempLocationName
+
+                                        Log.d(
+                                            TAG,
+                                            "ok VM: ${mainViewModel.currentLocationPoint} ${mainViewModel.currentLocationName.value}"
+                                        )
+                                        Log.d(
+                                            TAG,
+                                            "ok: ${openBottomSheet.value} ${currentLocationName.value}"
+                                        )
                                     },
                                     text = stringResource(id = R.string.ok),
                                 )

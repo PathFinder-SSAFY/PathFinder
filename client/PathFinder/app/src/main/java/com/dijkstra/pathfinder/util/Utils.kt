@@ -45,7 +45,6 @@ fun myDistance(txPower: Int, rssi: Double): Double {
 fun trilateration(beacons: List<Beacon>, allBeaconList: List<BeaconPosition>): DoubleArray {
     val positions = mutableListOf<DoubleArray>()
     val distances = mutableListOf<Double>()
-    Log.d(TAG, "trilateration: $beacons")
     // 전체 비콘 리스트를 맵으로
     val beaconPositionMap = allBeaconList.associateBy { it.id }
 

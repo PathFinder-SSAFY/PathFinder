@@ -23,6 +23,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.dijkstra.pathfinder.data.dto.Path
 import com.dijkstra.pathfinder.data.dto.Point
 import com.dijkstra.pathfinder.util.*
+import com.dijkstra.pathfinder.util.Constant.INTENT_GOAL_NAME
+import com.dijkstra.pathfinder.util.Constant.INTENT_GOAL_POSITION
+import com.dijkstra.pathfinder.util.Constant.INTENT_START_POSITION
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
@@ -76,7 +79,6 @@ class UnityHolderActivity : UnityPlayerActivity(),
             )
             else intent.getParcelableExtra(INTENT_GOAL_POSITION)
         goalName = intent.getStringExtra(INTENT_GOAL_NAME) ?: ""
-
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         roationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
 
@@ -469,11 +471,5 @@ class UnityHolderActivity : UnityPlayerActivity(),
 //            unityViewModel.goal
 //        )
     } // End of researchNavigationPath
-
-    companion object {
-        const val INTENT_START_POSITION = "INTENT_START_POSITION"
-        const val INTENT_GOAL_POSITION = "INTENT_GOAL_POSITION"
-        const val INTENT_GOAL_NAME = "INTENT_GOAL_NAME"
-    }
 
 } // End of UnityHolderActivity
