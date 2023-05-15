@@ -25,9 +25,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
+import com.dijkstra.pathfinder.UnityHolderActivity.Companion.INTENT_GOAL_NAME
 import com.dijkstra.pathfinder.data.dto.Point
-import com.dijkstra.pathfinder.navigation.SetUpNavGraph
 import com.dijkstra.pathfinder.screen.login.LoginViewModel
 import com.dijkstra.pathfinder.screen.nfc_start.NFCViewModel
 import com.dijkstra.pathfinder.ui.theme.PathFinderTheme
@@ -60,11 +59,11 @@ class MainActivity : ComponentActivity() {
             // val intent = Intent(this, UnityHolderActivity::class.java)
             PathFinderTheme {
 
-                navController = rememberNavController()
-                SetUpNavGraph(navController = navController)
+//                navController = rememberNavController()
+//                SetUpNavGraph(navController = navController)
 
 //                MainScreen(navController = navController)
-                // startUnityLayout()
+                 startUnityLayout()
             }
         }
 
@@ -194,17 +193,30 @@ class MainActivity : ComponentActivity() {
                         if (btPermissionsState.allPermissionsGranted) {
                             val intent = Intent(this@MainActivity, UnityHolderActivity::class.java)
                             intent.putExtra(
-                                "startPosition", Point(
+                                UnityHolderActivity.INTENT_START_POSITION, Point(
                                     16.0,
                                     0.0,
                                     -7.0
                                 )
                             )
-                            intent.putExtra("goal", Point(
+                            intent.putExtra(UnityHolderActivity.INTENT_GOAL_POSITION, Point(
                                 32.00,
                                 0.0,
-                                -1.00)
+                                -4.00)
                             )
+                            intent.putExtra(INTENT_GOAL_NAME, "남자화장실")
+//                            intent.putExtra(
+//                                "startPosition", Point(
+//                                    17.0,
+//                                    0.0,
+//                                    -7.0
+//                                )
+//                            )
+//                            intent.putExtra("goal", Point(
+//                                17.00,
+//                                0.0,
+//                                -3.00)
+//                            )
                             startActivity(intent)
                         } else {
                             btPermissionsState.launchMultiplePermissionRequest()

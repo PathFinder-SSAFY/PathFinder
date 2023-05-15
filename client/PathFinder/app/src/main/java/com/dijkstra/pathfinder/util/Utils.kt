@@ -1,6 +1,7 @@
 package com.dijkstra.pathfinder.util
 
 import android.util.Log
+import com.dijkstra.pathfinder.data.dto.Point
 import com.lemmingapex.trilateration.NonLinearLeastSquaresSolver
 import com.lemmingapex.trilateration.TrilaterationFunction
 import org.altbeacon.beacon.Beacon
@@ -9,11 +10,16 @@ import org.apache.commons.math3.fitting.leastsquares.LevenbergMarquardtOptimizer
 import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.round
+import kotlin.math.sqrt
 
 
 private const val TAG = "Util_SSAFY"
 fun roundToTwoDecimalPlace(number: Double): Double {
     return round(number * 100) / 100
+}
+
+fun getDistance(p1: Point, p2: Point): Double {
+    return sqrt((p1.x - p2.x).pow(2) + (p1.y - p2.y).pow(2) + (p1.z - p2.z).pow(2))
 }
 
 fun myDistance(txPower: Int, rssi: Double): Double {
