@@ -18,12 +18,15 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
 import kotlinx.coroutines.delay
 import com.dijkstra.pathfinder.R
+import com.dijkstra.pathfinder.navigation.Screen
 
-@Preview(showBackground = true)
 @Composable
-fun SplashScreen() {
+fun SplashScreen(
+    navController: NavController
+) {
     var startAnimation by remember { mutableStateOf(false) }
     val alphaAnimation = animateFloatAsState(
         targetValue = if (startAnimation) 1f else 0f,
@@ -36,9 +39,10 @@ fun SplashScreen() {
     LaunchedEffect(key1 = true) {
         startAnimation = true
         delay(3000)
-        // TODO : Navigate To Home Screen
-//        navController.popBackStack()
-//        navController.navigate(Screen.Home.route)
+        // Navigate To NFC Screen
+        navController.navigate(Screen.NFCStart.route) {
+            popUpTo(Screen.Splash.route) { inclusive = true }
+        }
     }
 
     Surface(

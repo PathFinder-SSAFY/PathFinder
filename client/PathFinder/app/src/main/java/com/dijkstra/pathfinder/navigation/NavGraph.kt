@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import com.dijkstra.pathfinder.screen.TestScreen
 import com.dijkstra.pathfinder.screen.main.MainScreen
 import com.dijkstra.pathfinder.screen.nfc_start.NFCStartScreen
+import com.dijkstra.pathfinder.screen.splash.SplashScreen
 import com.dijkstra.pathfinder.screen.test.TestScreen2
 
 
@@ -16,8 +17,13 @@ fun SetUpNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Screen.NFCStart.route
+        startDestination = Screen.Splash.route
     ) {
+        composable(
+            route = Screen.Splash.route
+        ) {
+            SplashScreen(navController = navController)
+        }
         composable(
             route = Screen.NFCStart.route
         ) {

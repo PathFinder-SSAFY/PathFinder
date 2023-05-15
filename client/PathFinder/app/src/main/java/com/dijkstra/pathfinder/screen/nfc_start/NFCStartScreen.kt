@@ -53,7 +53,12 @@ fun NFCStartScreen(
                 val data = postNFCIdResponseSharedFlowState.value!!.data
                 if (postNFCIdResponseSharedFlowState.value!!.data != null) {
                     nfcViewModel.setNFCData(data as NFC)
-                    navController.navigate(route = Screen.Main.route)
+                    navController.navigate(route = Screen.Main.route) {
+                        popUpTo(Screen.NFCStart.route) {
+                            inclusive = true
+                        }
+                    }
+
                 }
             }
 
