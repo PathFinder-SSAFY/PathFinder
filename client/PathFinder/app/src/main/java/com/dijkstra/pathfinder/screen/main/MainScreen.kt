@@ -40,10 +40,9 @@ import androidx.navigation.NavController
 import com.chargemap.compose.numberpicker.ListItemPicker
 import com.dijkstra.pathfinder.R
 import com.dijkstra.pathfinder.components.*
-import com.dijkstra.pathfinder.screen.nfc_start.NFCViewModel
-import com.dijkstra.pathfinder.data.dto.CurrentLocationResponse
 import com.dijkstra.pathfinder.data.dto.Point
 import com.dijkstra.pathfinder.data.dto.SearchValidResponse
+import com.dijkstra.pathfinder.screen.nfc_start.NFCViewModel
 import com.dijkstra.pathfinder.ui.theme.IconColor
 import com.dijkstra.pathfinder.ui.theme.nanumSquareNeo
 import com.dijkstra.pathfinder.util.Constant
@@ -53,8 +52,6 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 
@@ -130,6 +127,13 @@ fun MainScreen(
     val floorValues = listOf("1F", "2F", "3F", "4F", "5F", "6F", "7F")
     var tempFloorState by remember { mutableStateOf(floorValues[0]) }
     var floorState by remember { mutableStateOf(floorValues[0]) }
+
+    var tempFloorIndex = 0
+
+    var floorIndex by remember {
+        mutableStateOf(0)
+    }
+
 
     // MainViewModel Response State
 //    val postFacilityDynamicResponseStateFlow =

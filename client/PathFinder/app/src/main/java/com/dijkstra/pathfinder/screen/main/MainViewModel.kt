@@ -4,7 +4,6 @@ import android.app.Application
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dijkstra.pathfinder.R
@@ -141,7 +140,7 @@ class MainViewModel @Inject constructor(
                     result.isSuccessful && result.body() != null -> {
                         Log.d(TAG, "postFacilityDynamic: ${result.body()}")
                         _postFacilityDynamicResponseSharedFlow.emit(
-                            NetworkResult.Success(result.body()!!.resposneData)
+                            NetworkResult.Success(result.body()!!.responseData)
                         )
                     }
 
