@@ -16,6 +16,7 @@ VALUES
 INSERT INTO floors
 (floor_number, map_image_url, building_id)
 VALUES
+    (3, "https://i.pinimg.com/564x/c9/31/c3/c931c38ae147b7ffbeed8fa659e333e2.jpg", 1),
     (4, "https://d206-buket.s3.ap-northeast-2.amazonaws.com/3floor_map.png", 1);
 
 
