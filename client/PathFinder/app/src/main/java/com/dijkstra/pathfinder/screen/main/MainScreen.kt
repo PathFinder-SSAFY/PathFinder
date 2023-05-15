@@ -5,6 +5,7 @@ import android.os.Build
 import android.speech.SpeechRecognizer
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -39,6 +40,8 @@ import androidx.navigation.NavController
 import com.chargemap.compose.numberpicker.ListItemPicker
 import com.dijkstra.pathfinder.R
 import com.dijkstra.pathfinder.components.*
+import com.dijkstra.pathfinder.screen.nfc_start.NFCViewModel
+import com.dijkstra.pathfinder.data.dto.CurrentLocationResponse
 import com.dijkstra.pathfinder.data.dto.Point
 import com.dijkstra.pathfinder.data.dto.SearchValidResponse
 import com.dijkstra.pathfinder.ui.theme.IconColor
@@ -64,6 +67,7 @@ private const val TAG = "MainScreen_SSAFY"
 @Composable
 fun MainScreen(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
+    nfcViewModel: NFCViewModel = hiltViewModel(LocalContext.current as ComponentActivity),
     navController: NavController,
     mainViewModel: MainViewModel = hiltViewModel()
 ) {
@@ -219,9 +223,7 @@ fun MainScreen(
             value = searchQueryState.value,
             onValueChange = { value ->
                 searchQueryState.value = value
-                Log.d(TAG, "MainScreen: ${searchQueryState.value}")
                 mainViewModel.postFacilityDynamic(searchQueryState.value)
-
             },
             active = searchBarActiveState.value,
             onActiveChange = { searchBarActiveState.value = it },
@@ -282,11 +284,8 @@ fun MainScreen(
             ) {
                 postFacilityDynamicResponseSharedFlow.let {
                     if (it.value?.data != null) {
-                        Log.d(TAG, "postFacilityDynamicResponseStateFlow.let : ")
-                        Log.d(TAG, "postFacilityDynamicResponseStateFlow.let : ${it.value?.data}")
                         when (it.value!!) {
                             is NetworkResult.Success -> {
-                                Log.d(TAG, "TestNetworkResult.Success : 성공하긴함?")
                                 searchingList = it.value!!.data as MutableList<String>
                             }
 

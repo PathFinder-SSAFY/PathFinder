@@ -7,7 +7,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,7 +21,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
+import com.dijkstra.pathfinder.data.dto.NFC
 import com.dijkstra.pathfinder.navigation.Screen
+import com.dijkstra.pathfinder.util.NetworkResult
 
 private const val TAG = "NFCStartScreen_싸피"
 
@@ -26,21 +31,49 @@ private const val TAG = "NFCStartScreen_싸피"
 fun NFCStartScreen(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     navController: NavController,
-    nfcViewModel: NFCViewModel = hiltViewModel<NFCViewModel>(LocalContext.current as ComponentActivity)
+    nfcViewModel: NFCViewModel = hiltViewModel(LocalContext.current as ComponentActivity),
+    nfcResponseViewModel: NFCResponseViewModel = hiltViewModel()
 ) {
-    val nfcState by nfcViewModel.nfcState.collectAsState()
-    val nfcSharedState by nfcViewModel.sharedNFCStateFlow.collectAsState("")
+    val nfcState = nfcViewModel.nfcState.collectAsState()
+    val nfcScreenState = remember { nfcState }
 
-    nfcState.let {
-        NFCStartContent(nfcData = nfcState)
-        LaunchedEffect(key1 = nfcState) {
-            if (nfcState == "NEW NFC DATA") {
-                navController.navigate(route = Screen.Test.route)
-            } else if (nfcState == "SECOND") {
-                navController.navigate(route = Screen.Test2.route)
+//    val nfcSharedState by nfcViewModel.sharedNFCStateFlow.collectAsState("")
+
+    val postNFCIdResponseSharedFlowState =
+        nfcResponseViewModel.postNFCIdResponseSharedFlow.collectAsState(null)
+
+    LaunchedEffect(key1 = postNFCIdResponseSharedFlowState.value) {
+        when (postNFCIdResponseSharedFlowState.value) {
+            is NetworkResult.Success -> {
+                val data = postNFCIdResponseSharedFlowState.value!!.data
+                if (postNFCIdResponseSharedFlowState.value!!.data != null) {
+                    nfcViewModel.setNFCData(data as NFC)
+                    navController.navigate(route = Screen.Main.route)
+                }
+            }
+
+            is NetworkResult.Loading -> {
+
+            }
+
+            is NetworkResult.Error -> {
+
+            }
+            else -> {
+
             }
         }
     }
+
+    LaunchedEffect(key1 = nfcScreenState.value) {
+        if (nfcScreenState.value == "1") {
+            nfcResponseViewModel.postNFCId(nfcScreenState.value.toInt())
+        } else if (nfcScreenState.value == "SECOND") {
+            navController.navigate(route = Screen.Test.route)
+        }
+    }
+
+    NFCStartContent(nfcData = nfcScreenState.value)
 } // End of NFCStartScreen
 
 // StateHoisting

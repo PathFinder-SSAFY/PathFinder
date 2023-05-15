@@ -11,7 +11,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.dijkstra.pathfinder.screen.test.TestViewModel
-import com.dijkstra.pathfinder.util.NetworkResult
 import com.dijkstra.pathfinder.util.SubNetworkResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
