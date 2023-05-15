@@ -568,7 +568,7 @@ fun MainScreen(
                             tint = Color.Red
                         )
                         Text(
-                            text = "경고",
+                            text = stringResource(id = R.string.warning),
                             modifier = Modifier.padding(),
                             fontFamily = nanumSquareNeo,
                             fontWeight = FontWeight.Bold,
@@ -681,7 +681,7 @@ fun MainScreen(
                             tint = IconColor
                         )
                         Text(
-                            text = "층 선택",
+                            text = stringResource(id = R.string.select_floor),
                             modifier = Modifier.padding(),
                             fontFamily = nanumSquareNeo,
                             fontWeight = FontWeight.Bold,

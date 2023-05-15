@@ -4,6 +4,9 @@
     <!--  Unity String  -->
     <string name="game_view_content_description">Game view</string>
 
+    <!-- NFC Screen -->
+    <string name="nfc_tag_plz">NFC 태그를 해주세요</string>
+
     <!-- Main Screen -->
     <string name="input_destination">목적지를 입력하세요</string>
     <string name="now_location">현재 위치</string>
@@ -28,8 +31,9 @@
     <string name="retry_after_current_location">잠시 후 재시도해보세요</string>
     <string name="mic_permission_plz">음성 검색을 위해 권한을 허가해주세요</string>
     <string name="bt_permission_plz">위치 계산을 위해 권한을 허가해주세요</string>
-
     <string name="set_now_location">현재 위치를 먼저 설정해주세요</string>
+    <string name="warning">경고</string>
+    <string name="select_floor">층 선택</string>
 
     <!-- Beacon -->
     <string name="beacon_unique_id">estimote</string>
