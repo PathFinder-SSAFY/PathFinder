@@ -1,6 +1,5 @@
 package ssafy.autonomous.pathfinder.domain.facility.service
 
-import junit.framework.TestCase.assertEquals
 import mu.KotlinLogging
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.*
@@ -12,7 +11,6 @@ import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityTypesRequ
 import ssafy.autonomous.pathfinder.domain.facility.exception.FacilityNotFoundException
 import ssafy.autonomous.pathfinder.domain.facility.repository.FacilityQuerydslRepository
 import ssafy.autonomous.pathfinder.domain.facility.repository.FacilityRepository
-import ssafy.autonomous.pathfinder.domain.facility.service.FacilityService
 import ssafy.autonomous.pathfinder.domain.floors.dto.request.FloorsCurrentLocationRequestDto
 import ssafy.autonomous.pathfinder.domain.floors.service.FloorsService
 import javax.transaction.Transactional

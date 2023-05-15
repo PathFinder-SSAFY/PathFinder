@@ -1,23 +1,36 @@
 package ssafy.autonomous.pathfinder.domain.pathfinding.service
 
+import mu.KotlinLogging
 import org.springframework.stereotype.Service
+import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityNameRequestDto
+import ssafy.autonomous.pathfinder.domain.facility.dto.response.FacilityMidPointResponseDto
 import ssafy.autonomous.pathfinder.domain.facility.dto.response.WallBlindSpotsResponseDto
 import ssafy.autonomous.pathfinder.domain.facility.repository.EmergencyEquipmentRepository
+import ssafy.autonomous.pathfinder.domain.facility.service.FacilityService
 import ssafy.autonomous.pathfinder.domain.floors.service.FloorsService
-import ssafy.autonomous.pathfinder.domain.pathfinding.dto.Node
-import ssafy.autonomous.pathfinder.domain.pathfinding.dto.PathFindDTO
-import ssafy.autonomous.pathfinder.domain.pathfinding.dto.Step
+import ssafy.autonomous.pathfinder.domain.pathfinding.dto.*
 import java.lang.Math.abs
 
 @Service
 class PathFindingServiceImpl(
     val floorsService: FloorsService,
-    val equipmentRepository: EmergencyEquipmentRepository
+    val equipmentRepository: EmergencyEquipmentRepository,
+    val facilityService: FacilityService
 ) : PathFindingService {
+
+    private val logger = KotlinLogging.logger{}
+
 
     // 경로 제공
     override fun findPath(start: Node, goal: Node): List<Node>? {
         return aStarAlgorithm(start, goal)
+    }
+
+    override fun findPathFacility(request: PathFindingFacility): PathFindDTO? {
+        val goal1 : FacilityMidPointResponseDto = facilityService.getEntrancePointFacility(FacilityNameRequestDto(request.goal))
+        logger.info("x : ${goal1.aStarX} y : ${goal1.aStarY} z : ${goal1.aStarZ}")
+        val goal : Node = Node(goal1.aStarX!!, goal1.aStarY!!, goal1.aStarZ!!)
+        return PathFindDTO(findPath2(request.start, goal), findPath(request.start, goal))
     }
 
     override fun findPath2(start: Node, goal: Node): List<Step>? {

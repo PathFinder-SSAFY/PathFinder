@@ -15,7 +15,7 @@ import ssafy.autonomous.pathfinder.domain.pathfinding.service.PathFindingService
 *
 * */
 @RestController
-@RequestMapping("/findPath")
+//@RequestMapping("/findPath")
 class PathFindingController(private val pathFindingService: PathFindingService) {
 
     @PostMapping("/protoType")
@@ -24,7 +24,7 @@ class PathFindingController(private val pathFindingService: PathFindingService) 
         return path
     }
 
-    @PostMapping("/findHelp")
+    @PostMapping("/pathfinding/findHelp")
     fun findHelp(@RequestBody request: PathFindingHelp): Node? {
         val path = pathFindingService.findHelp(request.start, request.help)
         return path
@@ -40,9 +40,15 @@ class PathFindingController(private val pathFindingService: PathFindingService) 
         return ResponseEntity.ok().build()
     }
 
-    @PostMapping
+    @PostMapping("/pathfinding/help")
     fun pathFind(@RequestBody request: PathFindingRequest): PathFindDTO? {
         val path = pathFindingService.pathFind(request.start, request.goal)
+        return path
+    }
+
+    @PostMapping("/pathfinding/facility")
+    fun pathFindFacility(@RequestBody request: PathFindingFacility): PathFindDTO? {
+        val path = pathFindingService.findPathFacility(request)
         return path
     }
 }
