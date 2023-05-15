@@ -21,11 +21,10 @@ import kotlinx.coroutines.launch
 fun MainModalBottomSheet(
     onDismissRequest: () -> Unit,
     sheetState: SheetState,
-    openBottomSheet: MutableState<Boolean>,
     nowLocation: String,
     destination: String,
     countdownText: String,
-    scope: CoroutineScope
+    onClick: () -> Unit
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
@@ -75,13 +74,7 @@ fun MainModalBottomSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 20.dp),
-                onClick = {
-                    scope.launch { sheetState.hide() }.invokeOnCompletion {
-                        if (!sheetState.isVisible) {
-                            openBottomSheet.value = false
-                        }
-                    }
-                }
+                onClick = { onClick.invoke() }
             ) {
                 Text(
                     text = stringResource(id = R.string.start_nav),

@@ -1,8 +1,6 @@
 package com.dijkstra.pathfinder.domain.api
 
-import com.dijkstra.pathfinder.data.dto.CurrentLocationResponse
-import com.dijkstra.pathfinder.data.dto.Search
-import com.dijkstra.pathfinder.data.dto.SearchResponse
+import com.dijkstra.pathfinder.data.dto.*
 import com.dijkstra.pathfinder.util.NetworkResult
 import com.google.gson.JsonObject
 import retrofit2.Response
@@ -13,10 +11,21 @@ import javax.inject.Singleton
 @Singleton
 interface MainApi {
     //    http://k8d206.p.ssafy.io/api/
-    @POST("facility/curloc")
+
+    @POST("findPath/findHelp")
+    suspend fun postFindHelp(
+        @Body requestBody: JsonObject
+    ): Response<Point>
+
+    @POST("floors/curloc")
     suspend fun postCurrnetLocation(
         @Body requestBody: JsonObject
     ): Response<CurrentLocationResponse>
+
+    @POST("facility/improvements")
+    suspend fun postFacilityValid(
+        @Body filteringSearch: JsonObject
+    ): Response<SearchValidResponse>
 
     @POST("facility/dynamic")
     suspend fun postFacilityDynamic(

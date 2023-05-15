@@ -10,7 +10,9 @@ import androidx.lifecycle.viewModelScope
 import com.dijkstra.pathfinder.R
 import com.dijkstra.pathfinder.data.dto.CurrentLocationResponse
 import com.dijkstra.pathfinder.data.dto.Point
+import com.dijkstra.pathfinder.data.dto.SearchValidResponse
 import com.dijkstra.pathfinder.domain.repository.MainRepository
+import com.dijkstra.pathfinder.util.Constant
 import com.dijkstra.pathfinder.util.KalmanFilter3D
 import com.dijkstra.pathfinder.util.NetworkResult
 import com.dijkstra.pathfinder.util.trilateration
@@ -30,12 +32,14 @@ class MainViewModel @Inject constructor(
     private val application: Application,
     private val mainRepo: MainRepository
 ) : ViewModel() {
-    var beaconList: MutableState<List<Beacon>> = mutableStateOf(emptyList())
-    var kalmanLocation = mutableStateOf(listOf(0.0, 0.0, 0.0))
+    var beaconList: MutableState<List<Beacon>> = mutableStateOf(emptyList()) // bluetooth로 찾은 beacon
+    var kalmanLocation = mutableStateOf(listOf(-9999.0, -9999.0, -9999.0))
     var tempLocationPoint = Point(-9999.0, -9999.0, -9999.0)
-    var currentLocationPoint = mutableStateOf(Point(-9999.0, -9999.0, -9999.0))
+    var currentLocationPoint = Point(-9999.0, -9999.0, -9999.0)
     var tempLocationName = ""
     var currentLocationName = mutableStateOf("")
+    var destinationLocationPoint: Point? = null
+    var destinationLocationName = mutableStateOf("")
     private val beaconManager = BeaconManager.getInstanceForApplication(application)
 
     private val region = Region(
@@ -66,10 +70,10 @@ class MainViewModel @Inject constructor(
 
     fun getMyLocation(beacons: List<Beacon>) {
         if (beacons.size < 3) {
-            Log.d(TAG, "getMyLocation: nope")
             return
         } else {
             var sortedList = beacons.sortedBy { it.distance }
+            // 전체 비콘 리스트가 필요
             var centroid = trilateration(sortedList).toList()
 
             if (centroid == listOf(-9999.9, -9999.9, -9999.9)) {
@@ -89,7 +93,6 @@ class MainViewModel @Inject constructor(
     } // End of getMyLocation
 
     fun startRangingBeacons() {
-        Log.d(TAG, "startRangingBeacons: ")
         beaconManager.startRangingBeacons(region)
     }
 
@@ -138,7 +141,7 @@ class MainViewModel @Inject constructor(
                     result.isSuccessful && result.body() != null -> {
                         Log.d(TAG, "postFacilityDynamic: ${result.body()}")
                         _postFacilityDynamicResponseSharedFlow.emit(
-                            NetworkResult.Success(result.body()!!.responseData)
+                            NetworkResult.Success(result.body()!!.resposneData)
                         )
                     }
 
@@ -155,13 +158,13 @@ class MainViewModel @Inject constructor(
         }
     } // End of postFacilityDynamic
 
-    // ========================================== getCurrentLocation ==========================================
+    // ========================================== postCurrentLocation ==========================================
     private val _postCurrentLocationResponseSharedFlow =
         MutableSharedFlow<NetworkResult<CurrentLocationResponse>>(0)
     var postCurrentLocationResponseSharedFlow = _postCurrentLocationResponseSharedFlow
         private set
+
     fun postCurrentLocation(point: Point) {
-        Log.d(TAG, "postCurrentLocation: $point")
         viewModelScope.launch {
             mainRepo.postCurrentLocation(point)
                 .onStart {
@@ -178,12 +181,10 @@ class MainViewModel @Inject constructor(
                     )
                 }
                 .collectLatest { response ->
-                    Log.d(TAG, "collectLatest: $response")
                     when {
                         response.isSuccessful && response.body() != null -> {
-                            Log.d(TAG, "postCurrentLocation: Success")
                             tempLocationPoint = point
-                            tempLocationName = response.body()!!.data
+                            tempLocationName = response.body()!!.responseData
                             _postCurrentLocationResponseSharedFlow.emit(
                                 NetworkResult.Success(response.body()!!)
                             )
@@ -200,4 +201,93 @@ class MainViewModel @Inject constructor(
                 }
         }
     } // End of postCurrentLocation
+    
+    // ========================================== postFindHelp ==========================================
+
+    private val _postFindHelpResponseSharedFlow = MutableSharedFlow<NetworkResult<Point>>(0)
+    var postFindHelpResponseSharedFlow = _postFindHelpResponseSharedFlow
+        private set
+
+    fun postFindHelp(help: Int, point: Point) {
+        viewModelScope.launch {
+            mainRepo.postFindHelp(help, point)
+                .onStart {
+                    _postFindHelpResponseSharedFlow.emit(NetworkResult.Loading())
+                }
+                .catch { response ->
+                    _postFindHelpResponseSharedFlow.emit(
+                        NetworkResult.Error(
+                            null,
+                            response.message,
+                            response.cause
+                        )
+                    )
+                }
+                .collectLatest { response ->
+                    when {
+                        response.isSuccessful && response.body() != null -> {
+                            if (help == Constant.AED) {
+                                destinationLocationName.value = application.getString(R.string.aed)
+                            } else if (help == Constant.FIRE) {
+                                destinationLocationName.value = application.getString(R.string.fire_extinguisher)
+                            }
+                            destinationLocationPoint = response.body()
+                            _postFindHelpResponseSharedFlow.emit(
+                                NetworkResult.Success(response.body()!!)
+                            )
+                        }
+                        response.errorBody() != null -> {
+                            _postFindHelpResponseSharedFlow.emit(
+                                NetworkResult.Error(
+                                    response.code(),
+                                    response.message(),
+                                )
+                            )
+                        }
+                    }
+                } // End of collectLatest
+        } // End of postFindHelp
+    } // End of postFindHelp
+
+    // ========================================== postFacilityValid ==========================================
+
+    private val _postSearchValidResponseSharedFlow = MutableSharedFlow<NetworkResult<SearchValidResponse>>(0)
+    var postSearchValidResponseSharedFlow = _postSearchValidResponseSharedFlow
+        private set
+
+    fun postFacilityValid(destination: String) {
+        viewModelScope.launch {
+            mainRepo.postFacilityValid(destination)
+                .onStart {
+                    _postSearchValidResponseSharedFlow.emit(NetworkResult.Loading())
+                }
+                .catch { response ->
+                    _postSearchValidResponseSharedFlow.emit(
+                        NetworkResult.Error(
+                            null,
+                            response.message,
+                            response.cause
+                        )
+                    )
+                }
+                .collectLatest { response ->
+                    when {
+                        response.isSuccessful && response.body() != null -> {
+                            _postSearchValidResponseSharedFlow.emit(
+                                NetworkResult.Success(response.body()!!)
+                            )
+                        }
+                        response.errorBody() != null -> {
+                            _postSearchValidResponseSharedFlow.emit(
+                                NetworkResult.Error(
+                                    response.code(),
+                                    response.message(),
+                                )
+                            )
+                        }
+                    }
+                } // End of collectLatest
+        } // End of viewModelScope
+    } // End of postFacilityValid
+
 } // End of MainViewModel class
