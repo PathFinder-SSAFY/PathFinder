@@ -58,23 +58,24 @@ class UnityHolderActivity : UnityPlayerActivity(),
     private var cameraRepositionFlag = false
     private var cameraPositionValidateState = false
     private val pathList: MutableList<Path> = mutableListOf<Path>()
-
+    private lateinit var goalName: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val startPosition =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) intent.getParcelableExtra(
-                "startPosition",
+                INTENT_START_POSITION,
                 Point::class.java
             )
-            else intent.getParcelableExtra("startPosition")
+            else intent.getParcelableExtra(INTENT_START_POSITION)
         val goal =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) intent.getParcelableExtra(
-                "goal",
+                INTENT_GOAL_POSITION,
                 Point::class.java
             )
-            else intent.getParcelableExtra("goal")
+            else intent.getParcelableExtra(INTENT_GOAL_POSITION)
+        goalName = intent.getStringExtra(INTENT_GOAL_NAME) ?: ""
 
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         roationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
@@ -289,7 +290,7 @@ class UnityHolderActivity : UnityPlayerActivity(),
                 goal = unityViewModel.goal
             )
         }
-
+        findViewById<TextView>(R.id.goal_name_textview).text = goalName
     } // End of initUiLayout
 
     override fun onResume() {
@@ -418,8 +419,19 @@ class UnityHolderActivity : UnityPlayerActivity(),
                             }
                         } // End of when(unityViewModel.isVolumeMuted)
                         pathList.removeFirst()
-                        Log.d(TAG, "next: cP : ${currentPosition}, nP: ${pathList.first().getNextPoint()}")
-                        Log.d(TAG, "nextDistance: ${getDistance(currentPosition, pathList.first().getNextPoint())}")
+                        Log.d(
+                            TAG,
+                            "next: cP : ${currentPosition}, nP: ${pathList.first().getNextPoint()}"
+                        )
+                        Log.d(
+                            TAG,
+                            "nextDistance: ${
+                                getDistance(
+                                    currentPosition,
+                                    pathList.first().getNextPoint()
+                                )
+                            }"
+                        )
                     } // End of else
                 } // End of when(pathList.size)
 
@@ -457,5 +469,11 @@ class UnityHolderActivity : UnityPlayerActivity(),
 //            unityViewModel.goal
 //        )
     } // End of researchNavigationPath
+
+    companion object {
+        const val INTENT_START_POSITION = "INTENT_START_POSITION"
+        const val INTENT_GOAL_POSITION = "INTENT_GOAL_POSITION"
+        const val INTENT_GOAL_NAME = "INTENT_GOAL_NAME"
+    }
 
 } // End of UnityHolderActivity

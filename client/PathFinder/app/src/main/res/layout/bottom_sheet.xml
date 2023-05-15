@@ -50,7 +50,7 @@
                     android:src="@drawable/volume_on" />
 
                 <TextView
-                    android:id="@+id/destination_textview"
+                    android:id="@+id/goal_name_textview"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="8"
