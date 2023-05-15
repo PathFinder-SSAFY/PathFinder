@@ -1,8 +1,10 @@
 package ssafy.autonomous.pathfinder.domain.floors.domain
 
 import ssafy.autonomous.pathfinder.domain.building.domain.Building
+import ssafy.autonomous.pathfinder.domain.facility.domain.EmergencyEquipment
 import ssafy.autonomous.pathfinder.domain.facility.domain.Facility
 import ssafy.autonomous.pathfinder.domain.facility.domain.Weight
+
 import javax.persistence.*
 
 @Entity
@@ -28,6 +30,10 @@ class Floors(
     // 층과 Beacon : 1 : N
     @OneToMany(mappedBy = "floors")
     var beacons: List<Beacon> = mutableListOf(),
+
+    // 층과 비상 장비 : 1 : N
+    @OneToMany(mappedBy = "floors", fetch = FetchType.LAZY)
+    var emergencyEquipments: List<EmergencyEquipment> = mutableListOf(),
 
 
 
