@@ -2,6 +2,7 @@ package ssafy.autonomous.pathfinder.domain.floors.service
 
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
+import ssafy.autonomous.pathfinder.domain.building.repository.CustomerRepository
 import ssafy.autonomous.pathfinder.domain.facility.domain.BlockWall
 import ssafy.autonomous.pathfinder.domain.facility.domain.Facility
 import ssafy.autonomous.pathfinder.domain.facility.dto.response.WallBlindSpotsResponseDto
@@ -20,7 +21,8 @@ import kotlin.math.pow
 class FloorsServiceImpl(
     private val beaconRepository: BeaconRepository,
     private val roomEntranceRepository: RoomEntranceRepository,
-    private val blockWallRepository: BlockWallRepository
+    private val blockWallRepository: BlockWallRepository,
+    private val customerRepository: CustomerRepository
 ) : FloorsService {
 
     private val logger = KotlinLogging.logger{}
@@ -162,7 +164,13 @@ class FloorsServiceImpl(
         // 시설 내부인지 확인한다.
         if (isWithinRangeX(floorsCurrentLocationRequestDto.x, facilityUpX, facilityDownX)
             && isWithinRangeZ(floorsCurrentLocationRequestDto.z, facilityDownZ, facilityUpZ)
-        ) return true
+        ){
+
+            // 시설 내부 조회 후, 밀집도 + 1
+            facility.plusDensityMax()
+            customerRepository.save()
+            return true
+        }
         return false
     }
 
