@@ -4,14 +4,17 @@ import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import ssafy.autonomous.pathfinder.domain.facility.domain.Facility
 import ssafy.autonomous.pathfinder.domain.facility.domain.FacilityCoordinate
+import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityNameRequestDto
 import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityTypesRequestDto
 import ssafy.autonomous.pathfinder.domain.facility.dto.response.FacilityIsValidResponseDto
+import ssafy.autonomous.pathfinder.domain.facility.dto.response.FacilityMidPointResponseDto
 import ssafy.autonomous.pathfinder.domain.facility.dto.response.FacilitySearchNeedCoordinateDto
 import ssafy.autonomous.pathfinder.domain.facility.exception.FacilityNotFoundException
 import ssafy.autonomous.pathfinder.domain.facility.repository.FacilityRepository
 import ssafy.autonomous.pathfinder.domain.facility.repository.FacilityQuerydslRepository
 import java.util.*
 import javax.transaction.Transactional
+import kotlin.math.roundToLong
 
 @Service
 class FacilityServiceImpl(
@@ -61,6 +64,26 @@ class FacilityServiceImpl(
             fetchFacilityCoordinates(searchResultFacility.get())
         )
     }
+
+
+    override fun getMidpointFacility(facilityNameRequestDto: FacilityNameRequestDto): FacilityMidPointResponseDto {
+        val facility:Facility = processValidFacilityName(facilityNameRequestDto.facilityName).get()
+        return FacilityMidPointResponseDto(getMidpoint(facility))
+    }
+
+
+    fun getMidpoint(facility: Facility) : Pair<Double,Double> {
+        val (facilityUpX, facilityUpZ) = facility.getFacilityLeftUpXZ()
+        val (facilityDownX, facilityDownZ) = facility.getFacilityRightDownXZ()
+        val midX = ((facilityUpX?.toInt()!! + facilityDownX?.toInt()!!) / 2).toDouble()
+        val midZ = ((facilityUpZ?.toInt()!! + facilityDownZ?.toInt()!!) / 2).toDouble()
+
+//        logger.info("X : $midX Y : $midZ")
+
+
+        return Pair(midX, midZ)
+    }
+
     fun fetchFacilityCoordinates(facility: Facility) : FacilitySearchNeedCoordinateDto{
         // x, y, z 좌표 조회
         val facilityType = FacilityCoordinate.valueOf(facility.getFacilityType())

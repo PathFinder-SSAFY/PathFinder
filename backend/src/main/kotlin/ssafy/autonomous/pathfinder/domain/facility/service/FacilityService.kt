@@ -1,8 +1,10 @@
 package ssafy.autonomous.pathfinder.domain.facility.service
 
 import ssafy.autonomous.pathfinder.domain.facility.domain.Facility
+import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityNameRequestDto
 import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityTypesRequestDto
 import ssafy.autonomous.pathfinder.domain.facility.dto.response.FacilityIsValidResponseDto
+import ssafy.autonomous.pathfinder.domain.facility.dto.response.FacilityMidPointResponseDto
 
 interface FacilityService {
 
@@ -17,4 +19,6 @@ interface FacilityService {
     // 3-3 필터링 검색에서 검색어를 입력했을 때, 유효한 검색어(시설 이름)인지 판별하는 API
     fun isValidFacilityValue(facilityTypesRequest: FacilityTypesRequestDto): FacilityIsValidResponseDto
 
+    // 3-4 시설 중앙 좌표
+    fun getMidpointFacility(facilityNameRequestDto: FacilityNameRequestDto): FacilityMidPointResponseDto
 }
