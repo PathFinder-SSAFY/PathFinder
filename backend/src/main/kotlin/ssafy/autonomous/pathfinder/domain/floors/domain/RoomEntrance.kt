@@ -24,7 +24,7 @@ class RoomEntrance(
     val id: Int,
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "facility_id")
     var facility: Facility
 

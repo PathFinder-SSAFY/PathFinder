@@ -12,15 +12,19 @@ import ssafy.autonomous.pathfinder.domain.facility.dto.response.FacilitySearchNe
 import ssafy.autonomous.pathfinder.domain.facility.exception.FacilityNotFoundException
 import ssafy.autonomous.pathfinder.domain.facility.repository.FacilityRepository
 import ssafy.autonomous.pathfinder.domain.facility.repository.FacilityQuerydslRepository
+import ssafy.autonomous.pathfinder.domain.facility.repository.RoomEntranceRepository
+import ssafy.autonomous.pathfinder.domain.floors.domain.RoomEntrance
+import java.math.BigDecimal
 import java.util.*
 import javax.transaction.Transactional
+import kotlin.math.pow
 import kotlin.math.roundToLong
 
 @Service
 class FacilityServiceImpl(
     private val facilityRepository: FacilityRepository,
     private val facilityQuerydslRepository: FacilityQuerydslRepository,
-
+    private val roomEntranceRepository: RoomEntranceRepository
 ) : FacilityService {
 
     private val logger = KotlinLogging.logger {}
@@ -66,20 +70,27 @@ class FacilityServiceImpl(
     }
 
 
-    override fun getMidpointFacility(facilityNameRequestDto: FacilityNameRequestDto): FacilityMidPointResponseDto {
-        val facility:Facility = processValidFacilityName(facilityNameRequestDto.facilityName).get()
-        return FacilityMidPointResponseDto(getMidpoint(facility))
+    override fun getEntrancePointFacility(facilityNameRequestDto: FacilityNameRequestDto): FacilityMidPointResponseDto {
+        val roomEntrance: RoomEntrance? = processValidFacilityName(facilityNameRequestDto.facilityName).get().getEntrance()
+        return FacilityMidPointResponseDto(getMidpoint(roomEntrance))
     }
 
 
-    fun getMidpoint(facility: Facility) : Pair<Double,Double> {
-        val (facilityUpX, facilityUpZ) = facility.getFacilityLeftUpXZ()
-        val (facilityDownX, facilityDownZ) = facility.getFacilityRightDownXZ()
-        val midX = ((facilityUpX?.toInt()!! + facilityDownX?.toInt()!!) / 2).toDouble()
-        val midZ = ((facilityUpZ?.toInt()!! + facilityDownZ?.toInt()!!) / 2).toDouble()
+    fun getMidpoint(roomEntrance: RoomEntrance?) : Pair<Double,Double> {
+        val (facilityEntranceUpX, facilityEntranceUpZ) = roomEntrance!!.getEntranceLeftUpXZ()
+        val (facilityEntranceDownX, facilityEntranceDownZ) = roomEntrance.getEntranceRightDownXZ()
 
-//        logger.info("X : $midX Y : $midZ")
 
+        val scale = 1
+        val facilityEntranceUpXToInt = (facilityEntranceUpX!! * 10.0.pow(scale)).toInt()
+        val facilityEntranceDownXToInt = (facilityEntranceDownX!! * 10.0.pow(scale)).toInt()
+        val facilityEntranceUpZToInt = (facilityEntranceUpZ!! * 10.0.pow(scale)).toInt()
+        val facilityEntranceDownZToInt = (facilityEntranceDownZ!! * 10.0.pow(scale)).toInt()
+
+        val midX = ((((facilityEntranceUpXToInt +facilityEntranceDownXToInt) / 2).toDouble()) / 10.0.pow(scale)).toDouble()
+        val midZ = ((((facilityEntranceUpZToInt + facilityEntranceDownZToInt) / 2).toDouble()) / 10.0.pow(scale)).toDouble()
+
+        logger.info("X : $midX Y : $midZ")
 
         return Pair(midX, midZ)
     }
@@ -106,5 +117,7 @@ class FacilityServiceImpl(
     fun processValidFacilityName(inputFacilityType: String): Optional<Facility> {
         return facilityRepository.findByFacilityName(inputFacilityType)
     }
+
+
 }
 

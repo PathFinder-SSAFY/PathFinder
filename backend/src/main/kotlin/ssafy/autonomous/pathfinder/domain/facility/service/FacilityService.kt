@@ -20,5 +20,5 @@ interface FacilityService {
     fun isValidFacilityValue(facilityTypesRequest: FacilityTypesRequestDto): FacilityIsValidResponseDto
 
     // 3-4 시설 중앙 좌표
-    fun getMidpointFacility(facilityNameRequestDto: FacilityNameRequestDto): FacilityMidPointResponseDto
+    fun getEntrancePointFacility(facilityNameRequestDto: FacilityNameRequestDto): FacilityMidPointResponseDto
 }
