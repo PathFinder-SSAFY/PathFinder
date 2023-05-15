@@ -23,6 +23,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.dijkstra.pathfinder.data.dto.Path
 import com.dijkstra.pathfinder.data.dto.Point
 import com.dijkstra.pathfinder.util.*
+import com.dijkstra.pathfinder.util.Constant.INTENT_GOAL_NAME
+import com.dijkstra.pathfinder.util.Constant.INTENT_GOAL_POSITION
+import com.dijkstra.pathfinder.util.Constant.INTENT_START_POSITION
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
