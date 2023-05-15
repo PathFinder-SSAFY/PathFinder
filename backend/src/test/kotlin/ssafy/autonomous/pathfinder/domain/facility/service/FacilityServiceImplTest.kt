@@ -7,6 +7,7 @@ import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import ssafy.autonomous.pathfinder.domain.facility.domain.Facility
+import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityNameRequestDto
 import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityTypesRequestDto
 import ssafy.autonomous.pathfinder.domain.facility.exception.FacilityNotFoundException
 import ssafy.autonomous.pathfinder.domain.facility.repository.FacilityQuerydslRepository
@@ -98,5 +99,21 @@ class FacilityServiceImplTest @Autowired constructor(
 
         // then
         assertThat(resultCurrentLocation).isEqualTo("4층 대강의실 안")
+    }
+
+    @Test
+    @DisplayName("시설 전달 시, 중앙 좌표 반환해주는 API")
+    fun getMidpointFacility() {
+
+        // given
+        val facilityName = FacilityNameRequestDto("휴게실 401")
+        val mayBeResult = Pair(19.0, -2.0)
+
+
+        // when
+        val facilityMidPoint = facilityService.getMidpointFacility(facilityName)
+
+        // then
+        Assertions.assertEquals(mayBeResult, facilityMidPoint.pair)
     }
 }
