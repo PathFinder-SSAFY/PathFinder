@@ -69,17 +69,23 @@ class FacilityServiceImpl(
         )
     }
 
-
+    // aStart 알고리즘에 필요한 입구 좌표 구하기
     override fun getEntrancePointFacility(facilityNameRequestDto: FacilityNameRequestDto): FacilityMidPointResponseDto {
-        val roomEntrance: RoomEntrance? = processValidFacilityName(facilityNameRequestDto.facilityName).get().getEntrance()
-        return FacilityMidPointResponseDto(getMidpoint(roomEntrance))
+        val roomEntrance: RoomEntrance? =
+            processValidFacilityName(facilityNameRequestDto.facilityName).get().getEntrance()
+
+        // 사용자가 요청한 입구 좌표 한 점을 android에게 던져준다.
+        return FacilityMidPointResponseDto(
+            aStarX = roomEntrance?.getAStarXYZ()?.get(0),
+            aStarY = roomEntrance?.getAStarXYZ()?.get(1),
+            aStarZ = roomEntrance?.getAStarXYZ()?.get(2)
+        )
     }
 
-
+    // 입구 좌표를 기반, 중점 좌표 얻기
     fun getMidpoint(roomEntrance: RoomEntrance?) : Pair<Double,Double> {
         val (facilityEntranceUpX, facilityEntranceUpZ) = roomEntrance!!.getEntranceLeftUpXZ()
         val (facilityEntranceDownX, facilityEntranceDownZ) = roomEntrance.getEntranceRightDownXZ()
-
 
         val scale = 1
         val facilityEntranceUpXToInt = (facilityEntranceUpX!! * 10.0.pow(scale)).toInt()

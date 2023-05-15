@@ -106,14 +106,14 @@ class FacilityServiceImplTest @Autowired constructor(
     fun getMidpointFacility() {
 
         // given
-        val facilityName = FacilityNameRequestDto("휴게실 401")
-        val mayBeResult = Pair(19.0, -2.0)
+        val facilityName = FacilityNameRequestDto("엘리베이터")
+        val mayBeResult = listOf(32.0, 0.0, -9.0)
 
 
         // when
-        val facilityMidPoint = facilityService.getMidpointFacility(facilityName)
+        val facilityMidPoint = facilityService.getEntrancePointFacility(facilityName)
 
         // then
-        Assertions.assertEquals(mayBeResult, facilityMidPoint.pair)
+        Assertions.assertEquals(mayBeResult, facilityMidPoint)
     }
 }
