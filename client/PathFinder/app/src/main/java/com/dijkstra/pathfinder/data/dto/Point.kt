@@ -2,6 +2,7 @@ package com.dijkstra.pathfinder.data.dto
 
 import android.os.Parcel
 import android.os.Parcelable
+import kotlin.math.roundToInt
 
 data class Point(
     val x: Double,
@@ -31,6 +32,12 @@ data class Point(
             this.z - b.z
         )
     }
+
+    fun round(): Point = Point(
+        x.roundToInt().toDouble(),
+        y.roundToInt().toDouble(),
+        z.roundToInt().toDouble()
+    )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeDouble(x)

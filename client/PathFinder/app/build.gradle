@@ -67,7 +67,7 @@ dependencies {
     implementation files('libs/ARPresto.aar')
     implementation files('libs/UnityARCore.aar')
     implementation files('libs/unityandroidpermissions.aar')
-    implementation files('libs/path_finder2.aar')
+    implementation files('libs/path_finder.aar')
 
     implementation 'androidx.core:core-ktx:1.10.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'

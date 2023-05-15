@@ -55,7 +55,7 @@ class UnityViewModel(
 
     fun navigate(start: Point, goal: Point) {
         viewModelScope.launch {
-            navigationRepository.navigate(start, goal).collect() { navigateNetworkResult ->
+            navigationRepository.navigate(start.round(), goal.round()).collect() { navigateNetworkResult ->
                 _navigationNetworkResultStateFlow.value = navigateNetworkResult
             }
         }

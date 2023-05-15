@@ -68,20 +68,21 @@ class UnityHolderActivity : UnityPlayerActivity(),
 
         val startPosition =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) intent.getParcelableExtra(
-                INTENT_START_POSITION,
+                Constant.INTENT_START_POSITION,
                 Point::class.java
             )
-            else intent.getParcelableExtra(INTENT_START_POSITION)
+            else intent.getParcelableExtra(Constant.INTENT_START_POSITION)
         val goal =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) intent.getParcelableExtra(
-                INTENT_GOAL_POSITION,
+                Constant.INTENT_GOAL_POSITION,
                 Point::class.java
             )
-            else intent.getParcelableExtra(INTENT_GOAL_POSITION)
-        goalName = intent.getStringExtra(INTENT_GOAL_NAME) ?: ""
+            else intent.getParcelableExtra(Constant.INTENT_GOAL_POSITION)
+        goalName = intent.getStringExtra(Constant.INTENT_GOAL_NAME) ?: ""
+
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         roationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
-
+        
         initTTS()
         initUiLayout()
         viewModelProvider = ViewModelFactory()
@@ -285,9 +286,9 @@ class UnityHolderActivity : UnityPlayerActivity(),
         findViewById<ImageView>(R.id.path_refresh_image_view).setOnClickListener {
             unityViewModel.navigate(
                 start = Point(
-                    x = unityViewModel.userCameraInfo.x.roundToInt().toDouble(),
-                    y = unityViewModel.userCameraInfo.y.roundToInt().toDouble(),
-                    z = unityViewModel.userCameraInfo.z.roundToInt().toDouble()
+                    x = unityViewModel.userCameraInfo.x.toDouble(),
+                    y = unityViewModel.userCameraInfo.y.toDouble(),
+                    z = unityViewModel.userCameraInfo.z.toDouble()
                 ),
                 goal = unityViewModel.goal
             )
