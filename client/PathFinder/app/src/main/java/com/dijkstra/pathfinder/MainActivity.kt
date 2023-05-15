@@ -25,11 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-<<<<<<< client/PathFinder/app/src/main/java/com/dijkstra/pathfinder/MainActivity.kt
-=======
 import androidx.navigation.compose.rememberNavController
-import com.dijkstra.pathfinder.UnityHolderActivity.Companion.INTENT_GOAL_NAME
->>>>>>> client/PathFinder/app/src/main/java/com/dijkstra/pathfinder/MainActivity.kt
 import com.dijkstra.pathfinder.data.dto.Point
 import com.dijkstra.pathfinder.navigation.SetUpNavGraph
 import com.dijkstra.pathfinder.screen.login.LoginViewModel
