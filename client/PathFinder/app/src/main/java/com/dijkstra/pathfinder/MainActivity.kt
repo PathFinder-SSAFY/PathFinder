@@ -207,18 +207,6 @@ class MainActivity : ComponentActivity() {
                                 -4.00)
                             )
                             intent.putExtra(INTENT_GOAL_NAME, "남자화장실")
-//                            intent.putExtra(
-//                                "startPosition", Point(
-//                                    17.0,
-//                                    0.0,
-//                                    -7.0
-//                                )
-//                            )
-//                            intent.putExtra("goal", Point(
-//                                17.00,
-//                                0.0,
-//                                -3.00)
-//                            )
                             startActivity(intent)
                         } else {
                             btPermissionsState.launchMultiplePermissionRequest()

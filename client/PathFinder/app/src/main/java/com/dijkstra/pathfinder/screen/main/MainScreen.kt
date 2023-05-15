@@ -1,6 +1,7 @@
 package com.dijkstra.pathfinder.screen.main
 
 import android.Manifest
+import android.content.Intent
 import android.os.Build
 import android.speech.SpeechRecognizer
 import android.util.Log
@@ -39,6 +40,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import com.chargemap.compose.numberpicker.ListItemPicker
 import com.dijkstra.pathfinder.R
+import com.dijkstra.pathfinder.UnityHolderActivity
 import com.dijkstra.pathfinder.components.*
 import com.dijkstra.pathfinder.data.dto.Point
 import com.dijkstra.pathfinder.data.dto.SearchValidResponse
@@ -124,7 +126,7 @@ fun MainScreen(
     val floorValues = nfcViewModel.getNFCData.value!!.floorsNumber!!
     val mapImageUrls = nfcViewModel.getNFCData.value!!.mapImageUrl!!
 
-    var tempFloorIndex = remember { mutableStateOf(0)}
+    var tempFloorIndex = remember { mutableStateOf(0) }
     var floorIndex = remember { mutableStateOf(0) }
 
     mainViewModel.setAllBeaconList(nfcViewModel.getNFCData.value!!.beaconList!!)
@@ -194,6 +196,18 @@ fun MainScreen(
                 // TODO : GO TO UNITY ACTIVITY
                 if (!bottomSheetState.isVisible) {
                     openBottomSheet.value = false
+                    val intent = Intent(context, UnityHolderActivity::class.java).apply {
+                        putExtra(Constant.INTENT_START_POSITION, mainViewModel.currentLocationPoint)
+                        putExtra(
+                            Constant.INTENT_GOAL_POSITION,
+                            mainViewModel.destinationLocationPoint
+                        )
+                        putExtra(
+                            Constant.INTENT_GOAL_NAME,
+                            mainViewModel.destinationLocationName.value
+                        )
+                    }
+                    context.startActivity(intent)
                 }
                 countdownText.value = "3"
             }
@@ -374,10 +388,6 @@ fun MainScreen(
                                     )
                                 )
                             } else {
-                                for (i in btPermissionsState.permissions) {
-                                    Log.d(TAG, "${i.permission}: ${i.status}")
-                                }
-
                                 btPermissionsState.launchMultiplePermissionRequest()
                             }
                         }
@@ -494,52 +504,35 @@ fun MainScreen(
                                 modifier = Modifier,
                                 horizontalArrangement = Arrangement.Center
                             ) {
-                                TextButton(
+                                MainScreenTextButton(
                                     onClick = {
                                         openCurrentLocationDialog.value = false
                                         openBottomSheet.value = false
                                     },
-                                ) {
-                                    Text(
-                                        text = stringResource(id = R.string.cancel),
-                                        fontFamily = nanumSquareNeo,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 16.sp,
-                                        color = IconColor
-                                    )
-                                }
-                                TextButton(onClick = {
-                                    mainViewModel.postCurrentLocation(
-                                        Point(
-                                            mainViewModel.kalmanLocation.value[0],
-                                            0.0,
-                                            mainViewModel.kalmanLocation.value[2]
+                                    text = stringResource(id = R.string.cancel)
+                                )
+                                MainScreenTextButton(
+                                    onClick = {
+                                        mainViewModel.postCurrentLocation(
+                                            Point(
+                                                mainViewModel.kalmanLocation.value[0],
+                                                0.0,
+                                                mainViewModel.kalmanLocation.value[2]
+                                            )
                                         )
-                                    )
-                                }) {
-                                    Text(
-                                        text = stringResource(id = R.string.retry),
-                                        fontFamily = nanumSquareNeo,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 16.sp,
-                                        color = IconColor
-                                    )
-                                }
-                                TextButton(onClick = {
-                                    openCurrentLocationDialog.value = false
-                                    mainViewModel.currentLocationPoint =
-                                        mainViewModel.tempLocationPoint
-                                    mainViewModel.currentLocationName.value =
-                                        mainViewModel.tempLocationName
-                                }) {
-                                    Text(
-                                        text = stringResource(id = R.string.ok),
-                                        fontFamily = nanumSquareNeo,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 16.sp,
-                                        color = IconColor
-                                    )
-                                }
+                                    },
+                                    text = stringResource(id = R.string.retry),
+                                )
+                                MainScreenTextButton(
+                                    onClick = {
+                                        openCurrentLocationDialog.value = false
+                                        mainViewModel.currentLocationPoint =
+                                            mainViewModel.tempLocationPoint
+                                        mainViewModel.currentLocationName.value =
+                                            mainViewModel.tempLocationName
+                                    },
+                                    text = stringResource(id = R.string.ok),
+                                )
                             } // End of TextButtons Row
                         }
                     }
@@ -647,15 +640,12 @@ fun MainScreen(
                             modifier = Modifier.fillMaxWidth(),
                             contentAlignment = Alignment.BottomEnd
                         ) {
-                            TextButton(onClick = { openEmergencyDialog.value = false }) {
-                                Text(
-                                    text = stringResource(id = R.string.cancel),
-                                    fontFamily = nanumSquareNeo,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp,
-                                    color = IconColor
-                                )
-                            }
+                            MainScreenTextButton(
+                                onClick = {
+                                    openEmergencyDialog.value = false
+                                },
+                                text = stringResource(id = R.string.cancel),
+                            )
                         } // End of Cancel Button Box
                     } // End of Column
                 } // End of Surface
@@ -703,7 +693,7 @@ fun MainScreen(
                             value = floorValues[tempFloorIndex.value],
                             onValueChange = { value ->
                                 tempFloorIndex.value = floorValues.indexOf(value)
-                                            },
+                            },
                             list = floorValues
                         )
                         Spacer(modifier = Modifier.height(24.dp))
@@ -711,30 +701,20 @@ fun MainScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.End
                         ) {
-                            TextButton(onClick = {
-                                openFloorDialog.value = false
-                                tempFloorIndex.value = floorIndex.value
-                            }) {
-                                Text(
-                                    text = stringResource(id = R.string.cancel),
-                                    fontFamily = nanumSquareNeo,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp,
-                                    color = IconColor
-                                )
-                            }
-                            TextButton(onClick = {
-                                openFloorDialog.value = false
-                                floorIndex.value = tempFloorIndex.value
-                            }) {
-                                Text(
-                                    text = stringResource(id = R.string.ok),
-                                    fontFamily = nanumSquareNeo,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp,
-                                    color = IconColor
-                                )
-                            }
+                            MainScreenTextButton(
+                                onClick = {
+                                    openFloorDialog.value = false
+                                    tempFloorIndex.value = floorIndex.value
+                                },
+                                text = stringResource(id = R.string.cancel)
+                            )
+                            MainScreenTextButton(
+                                onClick = {
+                                    openFloorDialog.value = false
+                                    floorIndex.value = tempFloorIndex.value
+                                },
+                                text = stringResource(id = R.string.ok),
+                            )
                         } // End of Cancel Button Box
                     } // End of Column
                 } // End of Surface
@@ -766,6 +746,21 @@ fun MainScreen(
                     onClick = {
                         // TODO : GO TO UNITY ACTIVITY
                         openBottomSheet.value = false
+                        val intent = Intent(context, UnityHolderActivity::class.java).apply {
+                            putExtra(
+                                Constant.INTENT_START_POSITION,
+                                mainViewModel.currentLocationPoint
+                            )
+                            putExtra(
+                                Constant.INTENT_GOAL_POSITION,
+                                mainViewModel.destinationLocationPoint
+                            )
+                            putExtra(
+                                Constant.INTENT_GOAL_NAME,
+                                mainViewModel.destinationLocationName.value
+                            )
+                        }
+                        context.startActivity(intent)
                         Log.d(TAG, "start: ${mainViewModel.currentLocationPoint}")
                         Log.d(TAG, "goal: ${mainViewModel.destinationLocationPoint}")
                     }
