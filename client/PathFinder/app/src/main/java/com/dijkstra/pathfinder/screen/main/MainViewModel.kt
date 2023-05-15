@@ -7,10 +7,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dijkstra.pathfinder.R
+import com.dijkstra.pathfinder.data.dto.BeaconPosition
 import com.dijkstra.pathfinder.data.dto.CurrentLocationResponse
 import com.dijkstra.pathfinder.data.dto.Point
 import com.dijkstra.pathfinder.data.dto.SearchValidResponse
 import com.dijkstra.pathfinder.domain.repository.MainRepository
+import com.dijkstra.pathfinder.screen.nfc_start.NFCViewModel
 import com.dijkstra.pathfinder.util.Constant
 import com.dijkstra.pathfinder.util.KalmanFilter3D
 import com.dijkstra.pathfinder.util.NetworkResult
@@ -29,7 +31,7 @@ private const val TAG = "MainViewModel_SSAFY"
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val application: Application,
-    private val mainRepo: MainRepository
+    private val mainRepo: MainRepository,
 ) : ViewModel() {
     var beaconList: MutableState<List<Beacon>> = mutableStateOf(emptyList()) // bluetooth로 찾은 beacon
     var kalmanLocation = mutableStateOf(listOf(-9999.0, -9999.0, -9999.0))
@@ -39,6 +41,14 @@ class MainViewModel @Inject constructor(
     var currentLocationName = mutableStateOf("")
     var destinationLocationPoint: Point? = null
     var destinationLocationName = mutableStateOf("")
+
+    var allBeaconList: List<BeaconPosition> = emptyList()
+
+    @JvmName("set")
+    fun setAllBeaconList(newBeaconList: List<BeaconPosition>) {
+        allBeaconList = newBeaconList
+    }
+
     private val beaconManager = BeaconManager.getInstanceForApplication(application)
 
     private val region = Region(
@@ -53,7 +63,7 @@ class MainViewModel @Inject constructor(
         override fun didRangeBeaconsInRegion(beacons: MutableCollection<Beacon>?, region: Region?) {
             beacons?.run {
                 beaconList.value = beacons.toList()
-                getMyLocation(beacons.toList())
+                getMyLocation(beacons.toList(), allBeaconList)
             }
         }
     } // End of rangeNotifier
@@ -67,13 +77,14 @@ class MainViewModel @Inject constructor(
         )
     )
 
-    fun getMyLocation(beacons: List<Beacon>) {
+    fun getMyLocation(beacons: List<Beacon>, allBeaconList: List<BeaconPosition>) {
         if (beacons.size < 3) {
+            Log.d(TAG, "getMyLocation: nope")
             return
         } else {
             var sortedList = beacons.sortedBy { it.distance }
             // 전체 비콘 리스트가 필요
-            var centroid = trilateration(sortedList).toList()
+            var centroid = trilateration(sortedList, allBeaconList).toList()
 
             if (centroid == listOf(-9999.9, -9999.9, -9999.9)) {
                 return

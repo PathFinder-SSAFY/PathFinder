@@ -100,9 +100,6 @@ fun MainScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
 
-    val pictureUrl =
-        remember { mutableStateOf("https://d206-buket.s3.ap-northeast-2.amazonaws.com/3floor_map.png") }
-
     // BottomSheet State
     val openBottomSheet = remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
@@ -124,17 +121,13 @@ fun MainScreen(
 
     // Floor State
     val openFloorDialog = remember { mutableStateOf(false) }
-    val floorValues = listOf("1F", "2F", "3F", "4F", "5F", "6F", "7F")
-    var tempFloorState by remember { mutableStateOf(floorValues[0]) }
-    var floorState by remember { mutableStateOf(floorValues[0]) }
+    val floorValues = nfcViewModel.getNFCData.value!!.floorsNumber!!
+    val mapImageUrls = nfcViewModel.getNFCData.value!!.mapImageUrl!!
 
-    var tempFloorIndex = 0
+    var tempFloorIndex = remember { mutableStateOf(0)}
+    var floorIndex = remember { mutableStateOf(0) }
 
-    var floorIndex by remember {
-        mutableStateOf(0)
-    }
-
-
+    mainViewModel.setAllBeaconList(nfcViewModel.getNFCData.value!!.beaconList!!)
     // MainViewModel Response State
 //    val postFacilityDynamicResponseStateFlow =
 //        mainViewModel.postFacilityDynamicResponseStateFlow.collectAsState()
@@ -153,8 +146,6 @@ fun MainScreen(
             listOf(
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.BLUETOOTH,
-                Manifest.permission.BLUETOOTH_ADMIN,
                 Manifest.permission.BLUETOOTH_SCAN,
                 Manifest.permission.BLUETOOTH_ADVERTISE,
             )
@@ -328,7 +319,7 @@ fun MainScreen(
             modifier = Modifier.zIndex(1.0f),
             contentAlignment = Alignment.Center
         ) {
-            ZoomableImage(model = pictureUrl.value)
+            ZoomableImage(model = mapImageUrls[floorIndex.value])
         } // End of Picture Box
 
         // Bottom Floating Button
@@ -383,6 +374,10 @@ fun MainScreen(
                                     )
                                 )
                             } else {
+                                for (i in btPermissionsState.permissions) {
+                                    Log.d(TAG, "${i.permission}: ${i.status}")
+                                }
+
                                 btPermissionsState.launchMultiplePermissionRequest()
                             }
                         }
@@ -672,7 +667,7 @@ fun MainScreen(
             Dialog(
                 onDismissRequest = {
                     openFloorDialog.value = false
-                    tempFloorState = floorState
+                    tempFloorIndex = floorIndex
                 }
             ) {
                 Surface(
@@ -705,8 +700,10 @@ fun MainScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                         ListItemPicker(
                             label = { it },
-                            value = tempFloorState,
-                            onValueChange = { tempFloorState = it },
+                            value = floorValues[tempFloorIndex.value],
+                            onValueChange = { value ->
+                                tempFloorIndex.value = floorValues.indexOf(value)
+                                            },
                             list = floorValues
                         )
                         Spacer(modifier = Modifier.height(24.dp))
@@ -716,7 +713,7 @@ fun MainScreen(
                         ) {
                             TextButton(onClick = {
                                 openFloorDialog.value = false
-                                tempFloorState = floorState
+                                tempFloorIndex.value = floorIndex.value
                             }) {
                                 Text(
                                     text = stringResource(id = R.string.cancel),
@@ -728,7 +725,7 @@ fun MainScreen(
                             }
                             TextButton(onClick = {
                                 openFloorDialog.value = false
-                                floorState = tempFloorState
+                                floorIndex.value = tempFloorIndex.value
                             }) {
                                 Text(
                                     text = stringResource(id = R.string.ok),

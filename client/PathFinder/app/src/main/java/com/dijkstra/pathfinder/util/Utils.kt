@@ -1,6 +1,7 @@
 package com.dijkstra.pathfinder.util
 
 import android.util.Log
+import com.dijkstra.pathfinder.data.dto.BeaconPosition
 import com.dijkstra.pathfinder.data.dto.Point
 import com.lemmingapex.trilateration.NonLinearLeastSquaresSolver
 import com.lemmingapex.trilateration.TrilaterationFunction
@@ -41,12 +42,12 @@ fun myDistance(txPower: Int, rssi: Double): Double {
     return result
 }
 
-fun trilateration(beacons: List<Beacon>): DoubleArray {
+fun trilateration(beacons: List<Beacon>, allBeaconList: List<BeaconPosition>): DoubleArray {
     val positions = mutableListOf<DoubleArray>()
     val distances = mutableListOf<Double>()
     Log.d(TAG, "trilateration: $beacons")
     // 전체 비콘 리스트를 맵으로
-    val beaconPositionMap = beaconPositionList.associateBy { it.id }
+    val beaconPositionMap = allBeaconList.associateBy { it.id }
 
     beacons.forEach { beacon ->
         // Use the map to get the corresponding Coordinate for the beacon ID
@@ -64,7 +65,6 @@ fun trilateration(beacons: List<Beacon>): DoubleArray {
             distances.toDoubleArray()
         ), LevenbergMarquardtOptimizer()
     )
-
 
     return try {
         solver.solve().point.toArray()
