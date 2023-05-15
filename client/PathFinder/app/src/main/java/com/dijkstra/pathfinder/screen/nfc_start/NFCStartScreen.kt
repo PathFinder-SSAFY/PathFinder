@@ -16,14 +16,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import com.dijkstra.pathfinder.data.dto.NFC
 import com.dijkstra.pathfinder.navigation.Screen
+import com.dijkstra.pathfinder.ui.theme.nanumSquareNeo
 import com.dijkstra.pathfinder.util.NetworkResult
+import com.dijkstra.pathfinder.R
 
 private const val TAG = "NFCStartScreen_싸피"
 
@@ -88,7 +93,13 @@ fun NFCStartContent(nfcData: String = "") {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = "NFC 태그를 해주세요")
+                Text(
+                    text = stringResource(id = R.string.nfc_tag_plz),
+                    modifier = Modifier.padding(),
+                    fontFamily = nanumSquareNeo,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp,
+                )
                 Spacer(modifier = Modifier.padding(40.dp))
                 CircularProgressIndicator()
             }
