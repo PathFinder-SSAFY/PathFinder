@@ -31,9 +31,7 @@ import com.dijkstra.pathfinder.navigation.SetUpNavGraph
 import com.dijkstra.pathfinder.screen.login.LoginViewModel
 import com.dijkstra.pathfinder.screen.nfc_start.NFCViewModel
 import com.dijkstra.pathfinder.ui.theme.PathFinderTheme
-import com.dijkstra.pathfinder.util.Constant.INTENT_GOAL_NAME
-import com.dijkstra.pathfinder.util.Constant.INTENT_GOAL_POSITION
-import com.dijkstra.pathfinder.util.Constant.INTENT_START_POSITION
+import com.dijkstra.pathfinder.util.Constant
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import dagger.hilt.android.AndroidEntryPoint
@@ -67,7 +65,7 @@ class MainActivity : ComponentActivity() {
                 SetUpNavGraph(navController = navController)
 
 //                MainScreen(navController = navController)
-//                startUnityLayout()
+                 // startUnityLayout()
             }
         }
 
@@ -197,20 +195,18 @@ class MainActivity : ComponentActivity() {
                         if (btPermissionsState.allPermissionsGranted) {
                             val intent = Intent(this@MainActivity, UnityHolderActivity::class.java)
                             intent.putExtra(
-                                INTENT_START_POSITION, Point(
+                                Constant.INTENT_START_POSITION, Point(
                                     16.0,
                                     0.0,
                                     -7.0
                                 )
                             )
-                            intent.putExtra(
-                                INTENT_GOAL_POSITION, Point(
-                                    32.00,
-                                    0.0,
-                                    -4.00
-                                )
+                            intent.putExtra(Constant.INTENT_GOAL_POSITION, Point(
+                                32.00,
+                                0.0,
+                                -4.00)
                             )
-                            intent.putExtra(INTENT_GOAL_NAME, "남자화장실")
+                            intent.putExtra(Constant.INTENT_GOAL_NAME, "남자화장실")
                             startActivity(intent)
                         } else {
                             btPermissionsState.launchMultiplePermissionRequest()

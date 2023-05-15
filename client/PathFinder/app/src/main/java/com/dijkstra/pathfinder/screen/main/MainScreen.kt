@@ -1,10 +1,12 @@
 package com.dijkstra.pathfinder.screen.main
 
 import android.Manifest
+import android.content.Intent
 import android.os.Build
 import android.speech.SpeechRecognizer
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -35,14 +37,18 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.navigation.NavController
 import com.chargemap.compose.numberpicker.ListItemPicker
 import com.dijkstra.pathfinder.R
+import com.dijkstra.pathfinder.UnityHolderActivity
 import com.dijkstra.pathfinder.components.*
-import com.dijkstra.pathfinder.data.dto.CurrentLocationResponse
 import com.dijkstra.pathfinder.data.dto.Point
+import com.dijkstra.pathfinder.data.dto.SearchValidResponse
+import com.dijkstra.pathfinder.screen.nfc_start.NFCViewModel
 import com.dijkstra.pathfinder.ui.theme.IconColor
 import com.dijkstra.pathfinder.ui.theme.nanumSquareNeo
+import com.dijkstra.pathfinder.util.Constant
 import com.dijkstra.pathfinder.util.NetworkResult
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -61,13 +67,14 @@ private const val TAG = "MainScreen_SSAFY"
 @Composable
 fun MainScreen(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
+    nfcViewModel: NFCViewModel = hiltViewModel(LocalContext.current as ComponentActivity),
     navController: NavController,
     mainViewModel: MainViewModel = hiltViewModel()
 ) {
     // Search State
     val searchQueryState = remember { mutableStateOf("") }
     val speechDialogQueryState = remember { mutableStateOf("") }
-    val destinationQueryState = remember { mutableStateOf("") }
+    val destinationLocationName = remember { mainViewModel.destinationLocationName }
     val searchBarActiveState = remember { mutableStateOf(false) }
     val isRecording = remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -78,7 +85,6 @@ fun MainScreen(
             if (permission) {
                 if (!isRecording.value) {
                     isRecording.value = true
-                    Log.d(TAG, "MainScreen: speech")
                     startListening(speechRecognizer, searchQueryState, isRecording)
                 }
             } else {
@@ -90,11 +96,12 @@ fun MainScreen(
             }
         }
     )
+    val postSearchValidResponseSharedFlow =
+        mainViewModel.postSearchValidResponseSharedFlow.collectAsState(
+            initial = null
+        )
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
-
-    val pictureUrl =
-        remember { mutableStateOf("https://d206-buket.s3.ap-northeast-2.amazonaws.com/3floor_map.png") }
 
     // BottomSheet State
     val openBottomSheet = remember { mutableStateOf(false) }
@@ -110,7 +117,6 @@ fun MainScreen(
         mainViewModel.postCurrentLocationResponseSharedFlow.collectAsState(
             initial = null
         )
-    val currentLocationPoint = remember { mainViewModel.currentLocationPoint }
     val currentLocationName = remember { mainViewModel.currentLocationName }
 
     // Emergency State
@@ -118,10 +124,13 @@ fun MainScreen(
 
     // Floor State
     val openFloorDialog = remember { mutableStateOf(false) }
-    val floorValues = listOf("1F", "2F", "3F", "4F", "5F", "6F", "7F")
-    var tempFloorState by remember { mutableStateOf(floorValues[0]) }
-    var floorState by remember { mutableStateOf(floorValues[0]) }
+    val floorValues = nfcViewModel.getNFCData.value!!.floorsNumber!!
+    val mapImageUrls = nfcViewModel.getNFCData.value!!.mapImageUrl!!
 
+    var tempFloorIndex = remember { mutableStateOf(0) }
+    var floorIndex = remember { mutableStateOf(0) }
+
+    mainViewModel.setAllBeaconList(nfcViewModel.getNFCData.value!!.beaconList!!)
     // MainViewModel Response State
 //    val postFacilityDynamicResponseStateFlow =
 //        mainViewModel.postFacilityDynamicResponseStateFlow.collectAsState()
@@ -140,8 +149,6 @@ fun MainScreen(
             listOf(
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.BLUETOOTH,
-                Manifest.permission.BLUETOOTH_ADMIN,
                 Manifest.permission.BLUETOOTH_SCAN,
                 Manifest.permission.BLUETOOTH_ADVERTISE,
             )
@@ -180,8 +187,13 @@ fun MainScreen(
         }
     }
 
-    LaunchedEffect(key1 = openBottomSheet.value) {
-        if (openBottomSheet.value) {
+    LaunchedEffect(
+        key1 = openBottomSheet.value,
+        key2 = currentLocationName.value,
+        key3 = destinationLocationName.value
+    ) {
+
+        if (openBottomSheet.value && currentLocationName.value.isNotEmpty() && destinationLocationName.value.isNotEmpty()) {
             for (i in 2 downTo 0) {
                 delay(1000)
                 countdownText.value = i.toString()
@@ -189,6 +201,18 @@ fun MainScreen(
             coroutineScope.launch { bottomSheetState.hide() }.invokeOnCompletion {
                 if (!bottomSheetState.isVisible) {
                     openBottomSheet.value = false
+                    val intent = Intent(context, UnityHolderActivity::class.java).apply {
+                        putExtra(Constant.INTENT_START_POSITION, mainViewModel.currentLocationPoint)
+                        putExtra(
+                            Constant.INTENT_GOAL_POSITION,
+                            mainViewModel.destinationLocationPoint
+                        )
+                        putExtra(
+                            Constant.INTENT_GOAL_NAME,
+                            mainViewModel.destinationLocationName.value
+                        )
+                    }
+                    context.startActivity(intent)
                 }
                 countdownText.value = "3"
             }
@@ -197,9 +221,18 @@ fun MainScreen(
         }
     } // End of LaunchedEffect
 
+    LaunchedEffect(key1 = lifecycleOwner.lifecycle.currentState) {
+        Log.d(
+            TAG, "sdr lifecycle: ${
+                lifecycleOwner.lifecycle.currentState
+            }"
+        )
+    }
+
     DisposableEffect(lifecycleOwner) {
         // Destroy speechRecognizer on dispose
         onDispose {
+            Log.d(TAG, "DisposableEffect: 여기?")
             speechRecognizer.destroy()
         }
     } // End of DisposableEffect
@@ -213,9 +246,7 @@ fun MainScreen(
             value = searchQueryState.value,
             onValueChange = { value ->
                 searchQueryState.value = value
-                Log.d(TAG, "MainScreen: ${searchQueryState.value}")
                 mainViewModel.postFacilityDynamic(searchQueryState.value)
-
             },
             active = searchBarActiveState.value,
             onActiveChange = { searchBarActiveState.value = it },
@@ -225,9 +256,7 @@ fun MainScreen(
             placeholder = stringResource(id = R.string.input_destination),
             keyboardActions = KeyboardActions(
                 onSearch = {
-                    // TODO: logic onSearch
-                    destinationQueryState.value = searchQueryState.value.trim()
-                    Log.d(TAG, "MainScreen: ${destinationQueryState.value}")
+                    mainViewModel.postFacilityValid(searchQueryState.value.trim())
                     focusManager.clearFocus()
                     keyboardController?.hide()
                 }
@@ -256,14 +285,9 @@ fun MainScreen(
             trailingIcon = {
                 IconButton(
                     onClick = {
-                        destinationQueryState.value = searchQueryState.value.trim()
+                        mainViewModel.postFacilityValid(searchQueryState.value.trim())
                         focusManager.clearFocus()
                         keyboardController?.hide()
-
-                        if (destinationQueryState.value.isNotBlank()) {
-                            openBottomSheet.value = true
-                        }
-
                     },
                     modifier = Modifier.size(28.dp)
                 ) {
@@ -283,11 +307,8 @@ fun MainScreen(
             ) {
                 postFacilityDynamicResponseSharedFlow.let {
                     if (it.value?.data != null) {
-                        Log.d(TAG, "postFacilityDynamicResponseStateFlow.let : ")
-                        Log.d(TAG, "postFacilityDynamicResponseStateFlow.let : ${it.value?.data}")
                         when (it.value!!) {
                             is NetworkResult.Success -> {
-                                Log.d(TAG, "TestNetworkResult.Success : 성공하긴함?")
                                 searchingList = it.value!!.data as MutableList<String>
                             }
 
@@ -326,7 +347,7 @@ fun MainScreen(
             modifier = Modifier.zIndex(1.0f),
             contentAlignment = Alignment.Center
         ) {
-            ZoomableImage(model = pictureUrl.value)
+            ZoomableImage(model = mapImageUrls[floorIndex.value])
         } // End of Picture Box
 
         // Bottom Floating Button
@@ -339,7 +360,7 @@ fun MainScreen(
             verticalAlignment = Alignment.Bottom
         ) {
             Box(
-                modifier = Modifier,
+                modifier = Modifier.padding(),
                 contentAlignment = Alignment.BottomStart
             ) {
                 MainScreenBottomIconButton(onClick = { openEmergencyDialog.value = true }) {
@@ -458,7 +479,6 @@ fun MainScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             postCurrentLocationResponseSharedFlow.let { networkResult ->
-                                Log.d(TAG, "MainScreen: ${networkResult.value}")
                                 when (networkResult.value!!) {
                                     is NetworkResult.Success -> {
                                         Text(
@@ -482,20 +502,8 @@ fun MainScreen(
                                     }
                                     is NetworkResult.Error -> {
                                         // Error message Showing
-                                        Text(
-                                            text = stringResource(id = R.string.error_current_location),
-                                            modifier = Modifier.padding(bottom = 4.dp),
-                                            fontFamily = nanumSquareNeo,
-                                            fontWeight = FontWeight.Medium,
-                                            fontSize = 20.sp,
-                                        )
-                                        Text(
-                                            text = stringResource(id = R.string.retry_after_current_location),
-                                            modifier = Modifier.padding(),
-                                            fontFamily = nanumSquareNeo,
-                                            fontWeight = FontWeight.Medium,
-                                            fontSize = 20.sp,
-                                        )
+                                        val response = networkResult.value as NetworkResult.Error
+                                        ErrorBody(response.code)
                                     }
                                 }
                             }
@@ -510,52 +518,44 @@ fun MainScreen(
                                 modifier = Modifier,
                                 horizontalArrangement = Arrangement.Center
                             ) {
-                                TextButton(
+                                MainScreenTextButton(
                                     onClick = {
                                         openCurrentLocationDialog.value = false
+                                        openBottomSheet.value = false
                                     },
-                                ) {
-                                    Text(
-                                        text = stringResource(id = R.string.cancel),
-                                        fontFamily = nanumSquareNeo,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 16.sp,
-                                        color = IconColor
-                                    )
-                                }
-                                TextButton(onClick = {
-                                    Log.d(TAG, "Retry: ")
-                                    mainViewModel.postCurrentLocation(
-                                        Point(
-                                            mainViewModel.kalmanLocation.value[0],
-                                            0.0,
-                                            mainViewModel.kalmanLocation.value[2]
+                                    text = stringResource(id = R.string.cancel)
+                                )
+                                MainScreenTextButton(
+                                    onClick = {
+                                        mainViewModel.postCurrentLocation(
+                                            Point(
+                                                mainViewModel.kalmanLocation.value[0],
+                                                0.0,
+                                                mainViewModel.kalmanLocation.value[2]
+                                            )
                                         )
-                                    )
-                                }) {
-                                    Text(
-                                        text = stringResource(id = R.string.retry),
-                                        fontFamily = nanumSquareNeo,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 16.sp,
-                                        color = IconColor
-                                    )
-                                }
-                                TextButton(onClick = {
-                                    openCurrentLocationDialog.value = false
-                                    mainViewModel.currentLocationPoint.value =
-                                        mainViewModel.tempLocationPoint
-                                    mainViewModel.currentLocationName.value =
-                                        mainViewModel.tempLocationName
-                                }) {
-                                    Text(
-                                        text = stringResource(id = R.string.ok),
-                                        fontFamily = nanumSquareNeo,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 16.sp,
-                                        color = IconColor
-                                    )
-                                }
+                                    },
+                                    text = stringResource(id = R.string.retry),
+                                )
+                                MainScreenTextButton(
+                                    onClick = {
+                                        openCurrentLocationDialog.value = false
+                                        mainViewModel.currentLocationPoint =
+                                            mainViewModel.tempLocationPoint
+                                        mainViewModel.currentLocationName.value =
+                                            mainViewModel.tempLocationName
+
+                                        Log.d(
+                                            TAG,
+                                            "ok VM: ${mainViewModel.currentLocationPoint} ${mainViewModel.currentLocationName.value}"
+                                        )
+                                        Log.d(
+                                            TAG,
+                                            "ok: ${openBottomSheet.value} ${currentLocationName.value}"
+                                        )
+                                    },
+                                    text = stringResource(id = R.string.ok),
+                                )
                             } // End of TextButtons Row
                         }
                     }
@@ -591,7 +591,7 @@ fun MainScreen(
                             tint = Color.Red
                         )
                         Text(
-                            text = "경고",
+                            text = stringResource(id = R.string.warning),
                             modifier = Modifier.padding(),
                             fontFamily = nanumSquareNeo,
                             fontWeight = FontWeight.Bold,
@@ -600,10 +600,18 @@ fun MainScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(
                             onClick = {
-                                // TODO : AED로 이동
-                                destinationQueryState.value = "심장제세동기"
-                                openEmergencyDialog.value = false
-                                openBottomSheet.value = true
+                                if (mainViewModel.currentLocationName.value == "") {
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.set_now_location),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                } else {
+                                    mainViewModel.postFindHelp(
+                                        Constant.AED,
+                                        mainViewModel.currentLocationPoint
+                                    )
+                                }
                             },
                             modifier = Modifier
                                 .fillMaxWidth(0.9f)
@@ -622,10 +630,18 @@ fun MainScreen(
                         } // End of AED Button
                         Button(
                             onClick = {
-                                // TODO : 소화기로 이동
-                                destinationQueryState.value = "소화기"
-                                openEmergencyDialog.value = false
-                                openBottomSheet.value = true
+                                if (mainViewModel.currentLocationName.value == "") {
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.set_now_location),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                } else {
+                                    mainViewModel.postFindHelp(
+                                        Constant.FIRE,
+                                        mainViewModel.currentLocationPoint
+                                    )
+                                }
                             },
                             modifier = Modifier
                                 .fillMaxWidth(0.9f)
@@ -647,15 +663,12 @@ fun MainScreen(
                             modifier = Modifier.fillMaxWidth(),
                             contentAlignment = Alignment.BottomEnd
                         ) {
-                            TextButton(onClick = { openEmergencyDialog.value = false }) {
-                                Text(
-                                    text = stringResource(id = R.string.cancel),
-                                    fontFamily = nanumSquareNeo,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp,
-                                    color = IconColor
-                                )
-                            }
+                            MainScreenTextButton(
+                                onClick = {
+                                    openEmergencyDialog.value = false
+                                },
+                                text = stringResource(id = R.string.cancel),
+                            )
                         } // End of Cancel Button Box
                     } // End of Column
                 } // End of Surface
@@ -667,7 +680,7 @@ fun MainScreen(
             Dialog(
                 onDismissRequest = {
                     openFloorDialog.value = false
-                    tempFloorState = floorState
+                    tempFloorIndex = floorIndex
                 }
             ) {
                 Surface(
@@ -691,7 +704,7 @@ fun MainScreen(
                             tint = IconColor
                         )
                         Text(
-                            text = "층 선택",
+                            text = stringResource(id = R.string.select_floor),
                             modifier = Modifier.padding(),
                             fontFamily = nanumSquareNeo,
                             fontWeight = FontWeight.Bold,
@@ -700,8 +713,10 @@ fun MainScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                         ListItemPicker(
                             label = { it },
-                            value = tempFloorState,
-                            onValueChange = { tempFloorState = it },
+                            value = floorValues[tempFloorIndex.value],
+                            onValueChange = { value ->
+                                tempFloorIndex.value = floorValues.indexOf(value)
+                            },
                             list = floorValues
                         )
                         Spacer(modifier = Modifier.height(24.dp))
@@ -709,31 +724,20 @@ fun MainScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.End
                         ) {
-                            TextButton(onClick = {
-                                openFloorDialog.value = false
-                                tempFloorState = floorState
-                            }) {
-                                Text(
-                                    text = stringResource(id = R.string.cancel),
-                                    fontFamily = nanumSquareNeo,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp,
-                                    color = IconColor
-                                )
-                            }
-                            TextButton(onClick = {
-                                // TODO : Floor Change Logic
-                                openFloorDialog.value = false
-                                floorState = tempFloorState
-                            }) {
-                                Text(
-                                    text = stringResource(id = R.string.ok),
-                                    fontFamily = nanumSquareNeo,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp,
-                                    color = IconColor
-                                )
-                            }
+                            MainScreenTextButton(
+                                onClick = {
+                                    openFloorDialog.value = false
+                                    tempFloorIndex.value = floorIndex.value
+                                },
+                                text = stringResource(id = R.string.cancel)
+                            )
+                            MainScreenTextButton(
+                                onClick = {
+                                    openFloorDialog.value = false
+                                    floorIndex.value = tempFloorIndex.value
+                                },
+                                text = stringResource(id = R.string.ok),
+                            )
                         } // End of Cancel Button Box
                     } // End of Column
                 } // End of Surface
@@ -743,9 +747,7 @@ fun MainScreen(
         // ModalBottomSheet
         if (openBottomSheet.value) {
             if (currentLocationName.value == "") {
-                Log.d(TAG, "BottomSheet: 위치가 없다")
                 if (btPermissionsState.allPermissionsGranted) {
-                    Log.d(TAG, "BottomSheet: 권한이 있다")
                     mainViewModel.postCurrentLocation(
                         Point(
                             mainViewModel.kalmanLocation.value[0],
@@ -755,21 +757,142 @@ fun MainScreen(
                     )
                     openCurrentLocationDialog.value = true
                 } else {
-                    Log.d(TAG, "BottomSheet: 권한이 없다")
                     btPermissionsState.launchMultiplePermissionRequest()
                 }
             } else {
-                Log.d(TAG, "BottomSheet: 바텀시트 열기")
                 MainModalBottomSheet(
                     onDismissRequest = { openBottomSheet.value = false },
                     sheetState = bottomSheetState,
-                    openBottomSheet = openBottomSheet,
                     nowLocation = currentLocationName.value,
-                    destination = destinationQueryState.value,
+                    destination = destinationLocationName.value,
                     countdownText = countdownText.value,
-                    scope = coroutineScope
+                    onClick = {
+                        // TODO : GO TO UNITY ACTIVITY
+                        openBottomSheet.value = false
+                        val intent = Intent(context, UnityHolderActivity::class.java).apply {
+                            putExtra(
+                                Constant.INTENT_START_POSITION,
+                                mainViewModel.currentLocationPoint
+                            )
+                            putExtra(
+                                Constant.INTENT_GOAL_POSITION,
+                                mainViewModel.destinationLocationPoint
+                            )
+                            putExtra(
+                                Constant.INTENT_GOAL_NAME,
+                                mainViewModel.destinationLocationName.value
+                            )
+                        }
+                        context.startActivity(intent)
+                        Log.d(TAG, "start: ${mainViewModel.currentLocationPoint}")
+                        Log.d(TAG, "goal: ${mainViewModel.destinationLocationPoint}")
+                    }
                 )
             }
         } // End of BottomSheet Modal
     } // End of MainScreen Surface
+
+    val postFindHelpResponseSharedFlow =
+        mainViewModel.postFindHelpResponseSharedFlow.collectAsState(initial = null)
+
+    postFindHelpResponseSharedFlow.let { networkResult ->
+        LaunchedEffect(key1 = networkResult.value) {
+            if (networkResult.value != null) {
+                when (networkResult.value!!) {
+                    is NetworkResult.Success -> {
+                        openEmergencyDialog.value = false
+                        openBottomSheet.value = true
+                    }
+                    is NetworkResult.Error -> {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.error_current_location),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    is NetworkResult.Loading -> {}
+                    else -> {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.error_current_location),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+        }
+    } // End of postFindHelpResponseSharedFlow
+
+    postSearchValidResponseSharedFlow.let { networkResult ->
+        LaunchedEffect(key1 = networkResult.value) {
+            if (networkResult.value != null) {
+                when (networkResult.value!!) {
+                    is NetworkResult.Success -> {
+                        val searchValidResponse = networkResult.value!!.data as SearchValidResponse
+                        if (searchValidResponse.isValid) {
+                            mainViewModel.destinationLocationName.value =
+                                searchQueryState.value.trim()
+                            mainViewModel.destinationLocationPoint = searchValidResponse.points
+                            openBottomSheet.value = true
+                        } else {
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.invalid_destination),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                    is NetworkResult.Error -> {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.error_current_location),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    is NetworkResult.Loading -> {}
+                    else -> {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.error_current_location),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+        } // End of LaunchedEffect
+    } // End of postSearchValidResponseSharedFlow.let
+
 } // End of MainScreen
+
+@Composable
+fun ErrorBody(errorCode: Int?) {
+    // 422 층의 범위를 벗어남
+    // 418 벽의 유효하지 않은 좌표입니다
+    val errorText =
+        when (errorCode) {
+            418 -> {
+                stringResource(id = R.string.invalid_current_location)
+            }
+            422 -> {
+                stringResource(id = R.string.out_of_range_current_location)
+            }
+            else -> {
+                stringResource(id = R.string.error_current_location)
+            }
+        }
+
+    Text(
+        text = errorText,
+        modifier = Modifier.padding(bottom = 4.dp),
+        fontFamily = nanumSquareNeo,
+        fontWeight = FontWeight.Medium,
+        fontSize = 20.sp,
+    )
+    Text(
+        text = stringResource(id = R.string.retry_after_current_location),
+        modifier = Modifier.padding(),
+        fontFamily = nanumSquareNeo,
+        fontWeight = FontWeight.Medium,
+        fontSize = 20.sp,
+    )
+}

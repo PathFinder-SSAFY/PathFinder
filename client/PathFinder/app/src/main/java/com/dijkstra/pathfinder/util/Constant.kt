@@ -16,5 +16,4 @@ object Constant {
     const val INTENT_START_POSITION = "INTENT_START_POSITION"
     const val INTENT_GOAL_POSITION = "INTENT_GOAL_POSITION"
     const val INTENT_GOAL_NAME = "INTENT_GOAL_NAME"
-
 } // End of Constant

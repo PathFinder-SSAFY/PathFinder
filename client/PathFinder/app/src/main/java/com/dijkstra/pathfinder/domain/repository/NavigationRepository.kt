@@ -1,20 +1,22 @@
 package com.dijkstra.pathfinder.domain.repository
 
 import android.util.Log
-import com.dijkstra.pathfinder.data.dto.*
+import com.dijkstra.pathfinder.data.dto.NavigationResponse
+import com.dijkstra.pathfinder.data.dto.Point
+import com.dijkstra.pathfinder.data.dto.UserCameraInfo
 import com.dijkstra.pathfinder.domain.api.NavigationApi
-import com.dijkstra.pathfinder.util.NetworkResult
 import com.dijkstra.pathfinder.util.SubNetworkResult
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
-import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.unity3d.player.UnityPlayer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
+
 private const val TAG = "NavigationRepository_ssafy"
+
 class NavigationRepository(private val navigationApi: NavigationApi) {
 
     suspend fun navigationTest(): Flow<SubNetworkResult<Unit>> {
@@ -34,11 +36,14 @@ class NavigationRepository(private val navigationApi: NavigationApi) {
             } catch (e: java.lang.Exception) {
                 Log.e("ssafy", "getServerCallTest: ${e.message}")
                 emit(SubNetworkResult.Error(e.message))
-           }
+            }
         }
     }
 
-    suspend fun navigate(start: Point, goal: Point): Flow<SubNetworkResult<NavigationResponse>> {
+    suspend fun navigate(
+        start: Point,
+        goal: Point
+    ): Flow<SubNetworkResult<NavigationResponse>> {
 
         val gson = Gson()
         val requestBody = JsonObject().apply {

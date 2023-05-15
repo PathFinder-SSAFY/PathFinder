@@ -15,4 +15,8 @@ interface NavigationApi {
     @POST("findPath")
     suspend fun navigate(@Body requestBody: JsonObject): Response<NavigationResponse>
 
+    //todo change URL
+    @POST("findPath/string")
+    suspend fun navigateByString(@Body requestBody: JsonObject): Response<NavigationResponse>
+
 }
