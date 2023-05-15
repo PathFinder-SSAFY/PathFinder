@@ -9,7 +9,7 @@
     android:orientation="vertical"
     android:paddingTop="50dp"
     app:behavior_hideable="false"
-    app:behavior_peekHeight="130dp"
+    app:behavior_peekHeight="180dp"
     app:layout_behavior="@string/bottom_sheet_behavior"
     tools:background="@color/cardview_dark_background">
 
@@ -91,14 +91,17 @@
             <Button
                 android:id="@+id/navigation_finish_button"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/button_background_shape"
                 android:backgroundTint="@color/bottom_sheet_highlight_color"
-                android:fontFamily="@font/nanum_square_neo_extra_bold"
+                android:fontFamily="@font/nanum_square_neo_bold"
                 android:text="@string/end_nav"
                 android:textColor="@color/white"
-                android:textSize="20sp" />
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:paddingVertical="8dp"
+                android:textSize="18sp" />
 
         </LinearLayout>
 

@@ -23,9 +23,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.dijkstra.pathfinder.data.dto.Path
 import com.dijkstra.pathfinder.data.dto.Point
 import com.dijkstra.pathfinder.util.*
+import com.dijkstra.pathfinder.util.Constant.INTENT_GOAL_NAME
+import com.dijkstra.pathfinder.util.Constant.INTENT_GOAL_POSITION
+import com.dijkstra.pathfinder.util.Constant.INTENT_START_POSITION
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.unity3d.player.UnityPlayer
 import com.unity3d.player.UnityPlayerActivity
 import kotlinx.coroutines.*
@@ -47,8 +51,6 @@ class UnityHolderActivity : UnityPlayerActivity(),
 
     private lateinit var navigationPathAdapter: NavigationPathAdapter
     private lateinit var navigationPathRecyclerView: RecyclerView
-
-    private lateinit var myBluetoothHandler: MyBluetoothHandler
     private lateinit var viewModelProvider: ViewModelFactory
     private lateinit var unityViewModel: UnityViewModel
 
@@ -123,7 +125,7 @@ class UnityHolderActivity : UnityPlayerActivity(),
                             Log.d(TAG, "onStart: ${navigateNetworkResult.data}")
                             navigateNetworkResult.data?.steps?.let {
                                 pathList.clear()
-                                pathList.addAll(it)
+                                pathList.addAll(it.reversed())
                                 launch(Dispatchers.Main) {
                                     navigationPathAdapter.notifyDataSetChanged()
                                 }
@@ -227,7 +229,7 @@ class UnityHolderActivity : UnityPlayerActivity(),
         navigationPathRecyclerView =
             findViewById<RecyclerView>(R.id.navigation_path_recyclerview).apply {
                 layoutManager =
-                    LinearLayoutManager(this@UnityHolderActivity, RecyclerView.VERTICAL, true)
+                    LinearLayoutManager(this@UnityHolderActivity, RecyclerView.VERTICAL, false)
                 adapter = navigationPathAdapter
                 addItemDecoration(
                     DividerItemDecoration(
@@ -325,13 +327,8 @@ class UnityHolderActivity : UnityPlayerActivity(),
             orientationDeg[index] = (Math.toDegrees(element.toDouble()).toFloat() + 360 - 198) % 360
         }
 
-//        unityViewModel.setUserCameraInfoAngle(
-//            azimuth = orientationDeg[0],
-//            pitch = orientationDeg[1],
-//            roll = orientationDeg[2]
-//        )
         unityViewModel.setUserCameraInfoAngle(
-            azimuth = 90.toFloat(),
+            azimuth = orientationDeg[0],
             pitch = orientationDeg[1],
             roll = orientationDeg[2]
         )
@@ -354,7 +351,7 @@ class UnityHolderActivity : UnityPlayerActivity(),
                 unityViewModel.setCameraAngle()
             }
             false -> {
-                Toast.makeText(this, "화면을 앞으로 살짝 기울여주세요!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.tilt_screen_forward), Toast.LENGTH_SHORT).show()
             }
         }
     } // End of repositionCamera
@@ -367,22 +364,22 @@ class UnityHolderActivity : UnityPlayerActivity(),
 
         if (pathList.isEmpty()) return
 
-        val nextPoint = pathList.first().getNextPoint()
+        val nextPoint = pathList.last().getNextPoint()
 
 
         val distanceToNextPoint = getDistance(currentPosition, nextPoint);
         when (distanceToNextPoint) {
             in 0.0..1.0 -> {// 다음 위치에 도달한 경우
-                pathList.removeFirst()
+                pathList.removeLast()
                 when (pathList.size) {
                     0 -> { // 탐색 끝
                         textToSpeech.speak(
-                            "목표 위치에 도달했습니다.",
+                            getString(R.string.arrival_destination),
                             TextToSpeech.QUEUE_FLUSH,
                             null,
                             null
                         )
-                        Toast.makeText(this, "목표 위치에 도달하였습니다. 잠시 후 종료됩니다.", Toast.LENGTH_SHORT)
+                        Toast.makeText(this, getString(R.string.arrival_destination_toast_message), Toast.LENGTH_SHORT)
                             .show()
                         CoroutineScope(Dispatchers.Main).launch {
                             delay(800)
@@ -395,10 +392,10 @@ class UnityHolderActivity : UnityPlayerActivity(),
                     else -> {
                         when (unityViewModel.isVolumeMuted) {
                             false -> {
-                                when (pathList.first().direction) {
+                                when (pathList.last().direction) {
                                     Constant.RIGHT_TURN -> {
                                         textToSpeech.speak(
-                                            "우회전 후 직진해주세요",
+                                            getString(R.string.straight_after_turn_right),
                                             TextToSpeech.QUEUE_FLUSH,
                                             null,
                                             null
@@ -406,7 +403,7 @@ class UnityHolderActivity : UnityPlayerActivity(),
                                     }
                                     Constant.LEFT_TURN -> {
                                         textToSpeech.speak(
-                                            "좌회전 후 직진해주세요",
+                                            getString(R.string.straight_after_turn_left),
                                             TextToSpeech.QUEUE_FLUSH,
                                             null,
                                             null
@@ -418,17 +415,17 @@ class UnityHolderActivity : UnityPlayerActivity(),
                             true -> {
                             }
                         } // End of when(unityViewModel.isVolumeMuted)
-                        pathList.removeFirst()
+                        pathList.removeLast()
                         Log.d(
                             TAG,
-                            "next: cP : ${currentPosition}, nP: ${pathList.first().getNextPoint()}"
+                            "next: cP : ${currentPosition}, nP: ${pathList.last().getNextPoint()}"
                         )
                         Log.d(
                             TAG,
                             "nextDistance: ${
                                 getDistance(
                                     currentPosition,
-                                    pathList.first().getNextPoint()
+                                    pathList.last().getNextPoint()
                                 )
                             }"
                         )
@@ -440,7 +437,7 @@ class UnityHolderActivity : UnityPlayerActivity(),
                     if (pathList.isEmpty()) {
                         Toast.makeText(
                             this@UnityHolderActivity,
-                            "목표 위치에 도달하였습니다. 잠시 후 종료됩니다.",
+                            getString(R.string.arrival_destination_toast_message),
                             Toast.LENGTH_SHORT
                         ).show()
                         delay(800)
@@ -469,11 +466,4 @@ class UnityHolderActivity : UnityPlayerActivity(),
 //            unityViewModel.goal
 //        )
     } // End of researchNavigationPath
-
-    companion object {
-        const val INTENT_START_POSITION = "INTENT_START_POSITION"
-        const val INTENT_GOAL_POSITION = "INTENT_GOAL_POSITION"
-        const val INTENT_GOAL_NAME = "INTENT_GOAL_NAME"
-    }
-
 } // End of UnityHolderActivity

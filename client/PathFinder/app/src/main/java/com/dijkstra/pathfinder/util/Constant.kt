@@ -9,4 +9,12 @@ object Constant {
     const val WEST = 4
     const val RIGHT_TURN = 5
     const val LEFT_TURN = 6
+
+    const val AED = 0
+    const val FIRE = 1
+
+    const val INTENT_START_POSITION = "INTENT_START_POSITION"
+    const val INTENT_GOAL_POSITION = "INTENT_GOAL_POSITION"
+    const val INTENT_GOAL_NAME = "INTENT_GOAL_NAME"
+
 } // End of Constant

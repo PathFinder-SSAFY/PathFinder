@@ -31,5 +31,12 @@
 
     <!--  UnityHolderActivity  -->
     <string name="end_nav">안내 종료</string>
-
+    <string name="straight_after_turn_left">좌회전 후 직진해주세요</string>
+    <string name="straight_after_turn_right">우회전 후 직진해주세요</string>
+    <string name="arrival_destination_toast_message">목표 위치에 도달하였습니다. 잠시 후 종료됩니다.</string>
+    <string name="arrival_destination">목표 위치에 도달하였습니다</string>
+    <string name="tilt_screen_forward" >화면을 앞으로 살짝 기울여주세요!</string>
+    <string name="turn_left">좌회전</string>
+    <string name="turn_right">우회전</string>
+    <string name="straight">직진</string>
 </resources>
