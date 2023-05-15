@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityNameRequestDto
 import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityTypesRequestDto
 import ssafy.autonomous.pathfinder.domain.facility.dto.response.FacilityIsValidResponseDto
 import ssafy.autonomous.pathfinder.domain.facility.service.FacilityService
@@ -72,5 +73,15 @@ class FacilityController(
     }
 
 
-
+    // 3-4 시설 중앙 좌표
+    @ApiOperation(value = "시설 전달 시, 중앙 좌표 반환해주는 API")
+    @ApiImplicitParam(name= "filteringName", value = "시설을 입력해주세요.", dataTypeClass = String::class)
+    @PostMapping("/facility/midpoint")
+    fun getMidpointFacility(@RequestBody facilityNameRequestDto: FacilityNameRequestDto) : ResponseEntity<ApiResponse>{
+        return ResponseEntity.status(HttpStatus.OK).body(
+            ApiResponse(
+                responseData  = facilityService.getMidpointFacility(facilityNameRequestDto)
+            )
+        )
+    }
 }
