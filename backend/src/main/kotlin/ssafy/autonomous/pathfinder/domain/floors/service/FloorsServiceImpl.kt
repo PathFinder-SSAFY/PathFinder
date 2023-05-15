@@ -30,7 +30,7 @@ class FloorsServiceImpl(
         return beaconRepository.findAll()
     }
 
-    // 3-3. 현재 위치 입력 후, 해당 범위 내인지 확인한다.
+    // 4-1. 현재 위치 입력 후, 해당 범위 내인지 확인한다.
     override fun getCurrentLocation(floorsCurrentLocationRequestDto: FloorsCurrentLocationRequestDto): String {
         val roomEntrance: MutableList<RoomEntrance> = getAllRoomEntrance()
 
@@ -51,7 +51,7 @@ class FloorsServiceImpl(
 
     }
 
-    // 3-4 벽 0.1m 간력 점들을 반환하는 함수
+    // 4-2 벽 0.1m 간력 점들을 반환하는 함수
     /*
     * x, y축 List로 전달
     * 좌표는 반올림
@@ -64,7 +64,7 @@ class FloorsServiceImpl(
     }
 
 
-    // 3-4-1 벽(장애물) 사각지대 위치 전달
+    // 4-2-1 벽(장애물) 사각지대 위치 전달
     override fun getWallBlindSpots(): List<WallBlindSpotsResponseDto> {
         val blockWallList : List<BlockWall> = getAllBlockWall()
 

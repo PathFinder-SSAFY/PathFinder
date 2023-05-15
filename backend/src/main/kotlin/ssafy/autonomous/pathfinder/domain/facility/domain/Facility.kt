@@ -42,8 +42,8 @@ class Facility(
         private var floatingPopularity: List<FloatingPopularity> = mutableListOf(),
 
         // 방 하나에는 여러개의 입구가 있을 수 있다.
-        @OneToMany(mappedBy = "facility")
-        private val entrance: List<RoomEntrance> = mutableListOf()
+        @OneToOne(mappedBy = "facility")
+        private val entrance: RoomEntrance ?= null
 
 ){
         fun plusHitCount(){
@@ -71,7 +71,7 @@ class Facility(
                 return this.hitCount
         }
 
-        fun getEntrance(): List<RoomEntrance>{
+        fun getEntrance(): RoomEntrance?{
                 return this.entrance
         }
 }

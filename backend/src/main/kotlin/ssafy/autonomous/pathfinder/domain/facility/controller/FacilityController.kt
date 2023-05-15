@@ -74,13 +74,13 @@ class FacilityController(
 
 
     // 3-4 시설 중앙 좌표
-    @ApiOperation(value = "시설 전달 시, 중앙 좌표 반환해주는 API")
+    @ApiOperation(value = "시설 전달 시, 시설 입구 좌표 반환해주는 API")
     @ApiImplicitParam(name= "filteringName", value = "시설을 입력해주세요.", dataTypeClass = String::class)
-    @PostMapping("/facility/midpoint")
-    fun getMidpointFacility(@RequestBody facilityNameRequestDto: FacilityNameRequestDto) : ResponseEntity<ApiResponse>{
+    @PostMapping("/facility/room/entrance")
+    fun getEntrancePointFacility(@RequestBody facilityNameRequestDto: FacilityNameRequestDto) : ResponseEntity<ApiResponse>{
         return ResponseEntity.status(HttpStatus.OK).body(
             ApiResponse(
-                responseData  = facilityService.getMidpointFacility(facilityNameRequestDto)
+                responseData  = facilityService.getEntrancePointFacility(facilityNameRequestDto)
             )
         )
     }
