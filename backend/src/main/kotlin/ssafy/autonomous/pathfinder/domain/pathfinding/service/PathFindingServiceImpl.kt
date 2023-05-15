@@ -2,19 +2,21 @@ package ssafy.autonomous.pathfinder.domain.pathfinding.service
 
 import org.springframework.stereotype.Service
 import ssafy.autonomous.pathfinder.domain.facility.dto.response.WallBlindSpotsResponseDto
+import ssafy.autonomous.pathfinder.domain.facility.repository.EmergencyEquipmentRepository
 import ssafy.autonomous.pathfinder.domain.floors.service.FloorsService
 import ssafy.autonomous.pathfinder.domain.pathfinding.dto.Node
 import ssafy.autonomous.pathfinder.domain.pathfinding.dto.PathFindDTO
 import ssafy.autonomous.pathfinder.domain.pathfinding.dto.Step
+import java.lang.Math.abs
 
 @Service
 class PathFindingServiceImpl(
-    val floorsService: FloorsService
+    val floorsService: FloorsService,
+    val equipmentRepository: EmergencyEquipmentRepository
 ) : PathFindingService {
 
     // 경로 제공
     override fun findPath(start: Node, goal: Node): List<Node>? {
-//        val path = reconstructPath(aStarAlgorithm(start, goal, obstacles))
         return aStarAlgorithm(start, goal)
     }
 
@@ -23,14 +25,28 @@ class PathFindingServiceImpl(
     }
 
     override fun findHelp(start: Node, help: Int): Node? {
-        return Node(-7.0, 0.0, 40.0)
+        val helps = equipmentRepository.findByEmergencyType(help)
+        var tmp_distance = Double.MAX_VALUE
+        var helpNode: Node? = null
+        var helpName: String? = null
+        for (h in helps) {
+            val tmpNode = Node(h.getEmergencyX(), h.getEmergencyY(), h.getEmergencyZ())
+            val tmp_dis = abs(start.x - tmpNode.x) + abs(start.z - tmpNode.z)
+            if (tmp_dis < tmp_distance) {
+                tmp_distance = tmp_dis
+                helpNode = tmpNode
+                helpName = h.getEmergencyName()
+            }
+        }
+        return helpNode
     }
+
+
 
     // 합친 Api (findPath, findPath2)
     override fun pathFind(start: Node, goal: Node): PathFindDTO? {
         return PathFindDTO(findPath2(start, goal), findPath(start, goal))
     }
-    // 합친 Api (findHelp, findPath2)
 
 
     // 왼쪽 오른쪽 판별
@@ -86,10 +102,10 @@ class PathFindingServiceImpl(
     // 인접 노드 생성
     fun getNeighbors(node: Node, o: List<WallBlindSpotsResponseDto?>): List<Node> {
         return listOf(
-            Node(node.x + 1.0, node.y, node.z),
-            Node(node.x - 1.0, node.y, node.z),
-            Node(node.x, node.y, node.z + 1.0),
-            Node(node.x, node.y, node.z - 1.0)
+            Node(node.x + 0.25, node.y, node.z),
+            Node(node.x - 0.25, node.y, node.z),
+            Node(node.x, node.y, node.z + 0.25),
+            Node(node.x, node.y, node.z - 0.25)
         ).filter { neighbor ->
             o.none {
                 it?.leftUpX?.let { leftUpX -> leftUpX <= neighbor.x } ?: false &&
@@ -148,19 +164,19 @@ class PathFindingServiceImpl(
                 prevDirection = direction
             }
         }
-        var lastNode = Node(0.0, 0.0, 0.0)
+
         if (prevDirection != -1) {
-            if (prevDirection == 1){
-                lastNode = Node(path.last().x, 0.0, path.last().z - prevDistance)
-            } else if (prevDirection == 2) {
-                lastNode = Node(path.last().x - prevDistance, 0.0, path.last().z)
-            } else if (prevDirection == 3) {
-                lastNode = Node(path.last().x, 0.0, path.last().z + prevDistance)
-            } else {
-                lastNode = Node(path.last().x + prevDistance, 0.0, path.last().z)
+            val last = path.last()
+            val (x, z) = when (prevDirection) {
+                1 -> Pair(last.x, last.z - prevDistance)
+                2 -> Pair(last.x - prevDistance, last.z)
+                3 -> Pair(last.x, last.z + prevDistance)
+                else -> Pair(last.x + prevDistance, last.z)
             }
+            val lastNode = Node(x, 0.0, z)
             steps.add(Step(lastNode, prevDistance, prevDirection))
         }
+
         if (steps.size == 2){
             steps.removeAt(1)
         }
