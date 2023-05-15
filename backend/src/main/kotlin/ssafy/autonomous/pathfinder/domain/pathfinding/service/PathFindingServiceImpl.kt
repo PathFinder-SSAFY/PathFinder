@@ -17,9 +17,6 @@ class PathFindingServiceImpl(
 
     // 경로 제공
     override fun findPath(start: Node, goal: Node): List<Node>? {
-        val goalc = goal
-
-//        val path = reconstructPath(aStarAlgorithm(start, goal, obstacles))
         return aStarAlgorithm(start, goal)
     }
 
@@ -105,10 +102,10 @@ class PathFindingServiceImpl(
     // 인접 노드 생성
     fun getNeighbors(node: Node, o: List<WallBlindSpotsResponseDto?>): List<Node> {
         return listOf(
-            Node(node.x + 1.0, node.y, node.z),
-            Node(node.x - 1.0, node.y, node.z),
-            Node(node.x, node.y, node.z + 1.0),
-            Node(node.x, node.y, node.z - 1.0)
+            Node(node.x + 0.25, node.y, node.z),
+            Node(node.x - 0.25, node.y, node.z),
+            Node(node.x, node.y, node.z + 0.25),
+            Node(node.x, node.y, node.z - 0.25)
         ).filter { neighbor ->
             o.none {
                 it?.leftUpX?.let { leftUpX -> leftUpX <= neighbor.x } ?: false &&
