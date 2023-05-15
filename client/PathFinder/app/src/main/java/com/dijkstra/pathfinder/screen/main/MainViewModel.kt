@@ -129,8 +129,9 @@ class MainViewModel @Inject constructor(
             }.collectLatest { result ->
                 when {
                     result.isSuccessful && result.body() != null -> {
+                        Log.d(TAG, "postFacilityDynamic: ${result.body()}")
                         _postFacilityDynamicResponseSharedFlow.emit(
-                            NetworkResult.Success(result.body()!!.data)
+                            NetworkResult.Success(result.body()!!.responseData)
                         )
                     }
 
