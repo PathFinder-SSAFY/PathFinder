@@ -15,6 +15,23 @@ data class Point(
     ) {
     }
 
+    operator fun plus(b: Point): Point {
+        return Point(
+            this.x + b.x,
+            this.y + b.y,
+            this.z + b.z
+
+        )
+    }
+
+    operator fun minus(b: Point): Point {
+        return Point(
+            this.x - b.x,
+            this.y - b.y,
+            this.z - b.z
+        )
+    }
+
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeDouble(x)
         parcel.writeDouble(y)

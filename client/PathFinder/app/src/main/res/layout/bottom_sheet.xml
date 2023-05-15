@@ -55,10 +55,11 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="8"
                     android:ellipsize="end"
-                    android:fontFamily="@font/kimjungchul_gothic_bold"
+                    android:fontFamily="@font/nanum_square_neo_bold"
                     android:gravity="center"
                     android:paddingHorizontal="8dp"
                     android:singleLine="true"
+                    android:textColor="@color/black"
                     android:text="1층 남자화장실"
                     android:textSize="20sp"
                     tools:text="1층 남자화장실" />
@@ -86,11 +87,13 @@
                 android:layout_weight="8" />
 
             <Button
+                android:id="@+id/navigation_finish_button"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_marginTop="8dp"
+                android:background="@drawable/button_background_shape"
                 android:backgroundTint="@color/bottom_sheet_highlight_color"
-                android:fontFamily="@font/kimjungchul_gothic_bold"
+                android:fontFamily="@font/nanum_square_neo_extra_bold"
                 android:text="안내 종료"
                 android:textColor="@color/white"
                 android:textSize="20sp" />

@@ -1,5 +1,7 @@
 package com.dijkstra.pathfinder.domain.repository
 
+import com.dijkstra.pathfinder.data.dto.CurrentLocationResponse
+import com.dijkstra.pathfinder.data.dto.Point
 import com.dijkstra.pathfinder.data.dto.SearchResponse
 import com.dijkstra.pathfinder.di.AppModule
 import com.dijkstra.pathfinder.domain.api.MainApi
@@ -22,4 +24,15 @@ class MainRepository @Inject constructor(
             }
             emit(mainApi.postFacilityDynamic(json))
         }.flowOn(Dispatchers.IO) // End of postFacilityDynamic2
+
+    suspend fun postCurrentLocation(point: Point): Flow<Response<CurrentLocationResponse>> =
+        flow {
+            val json = JsonObject().apply {
+                addProperty("x", point.x)
+                addProperty("y", point.y)
+                addProperty("z", point.z)
+            }
+            emit(mainApi.postCurrnetLocation(json))
+        }.flowOn(Dispatchers.IO) // End of getCurrentLocation
+
 } // End of MainRepository class
