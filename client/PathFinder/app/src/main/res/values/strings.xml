@@ -50,4 +50,5 @@
     <string name="turn_left">좌회전</string>
     <string name="turn_right">우회전</string>
     <string name="straight">직진</string>
+    <string name="alert_data_load_failed">정보를 불러오는데 실패했습니다. 다시 시도해주세요.</string>
 </resources>
