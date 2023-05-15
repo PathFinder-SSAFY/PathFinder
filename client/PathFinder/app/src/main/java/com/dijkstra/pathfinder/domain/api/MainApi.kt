@@ -12,7 +12,7 @@ import javax.inject.Singleton
 interface MainApi {
     //    http://k8d206.p.ssafy.io/api/
 
-    @POST("findPath/findHelp")
+    @POST("pathfinding/findHelp")
     suspend fun postFindHelp(
         @Body requestBody: JsonObject
     ): Response<Point>
