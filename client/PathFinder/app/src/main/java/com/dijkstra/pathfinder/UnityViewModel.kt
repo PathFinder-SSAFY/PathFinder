@@ -25,6 +25,7 @@ class UnityViewModel(
     var userCameraInfo: UserCameraInfo = UserCameraInfo()
     var startPosition = Point(0.0, 0.0, 0.0)
     var goal = Point(0.0, 0.0, 0.0)
+    var goalName = ""
 
     private val _nowLocation: MutableLiveData<DoubleArray> =
         MutableLiveData(doubleArrayOf(0.0, 0.0, 0.0))
@@ -55,7 +56,15 @@ class UnityViewModel(
 
     fun navigate(start: Point, goal: Point) {
         viewModelScope.launch {
-            navigationRepository.navigate(start.round(), goal.round()).collect() { navigateNetworkResult ->
+            navigationRepository.navigate(start.roundDownUnityPointTwoFive(), goal.roundDownUnityPointTwoFive()).collect() { navigateNetworkResult ->
+                _navigationNetworkResultStateFlow.value = navigateNetworkResult
+            }
+        }
+    }
+
+    fun navigateUsingGoalName(start: Point, goalName: String) {
+        viewModelScope.launch {
+            navigationRepository.navigateUsingGoalName(start.roundDownUnityPointTwoFive(), goalName).collect() { navigateNetworkResult ->
                 _navigationNetworkResultStateFlow.value = navigateNetworkResult
             }
         }

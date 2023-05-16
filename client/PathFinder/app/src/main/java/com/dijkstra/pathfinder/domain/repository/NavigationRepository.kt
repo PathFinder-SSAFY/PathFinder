@@ -71,6 +71,37 @@ class NavigationRepository(private val navigationApi: NavigationApi) {
         }
     }
 
+
+    suspend fun navigateUsingGoalName(
+        start: Point,
+        goalName: String
+    ): Flow<SubNetworkResult<NavigationResponse>> {
+
+        val gson = Gson()
+        val requestBody = JsonObject().apply {
+            add("start", gson.toJsonTree(start))
+            add("goal", gson.toJsonTree(goalName))
+        }
+        return flow {
+            try {
+                val response = navigationApi.navigateUsingGoalName(requestBody)
+                emit(SubNetworkResult.Loading())
+                when {
+                    response.isSuccessful -> {
+                        emit(SubNetworkResult.Success(response.body()!!))
+                    }
+                    response.errorBody() != null -> {
+                        emit(SubNetworkResult.Error(response.errorBody()!!.string()))
+                    }
+                    else -> emit(SubNetworkResult.Error(response.errorBody()!!.string()))
+                }
+            } catch (e: java.lang.Exception) {
+                Log.e("ssafy", "navigate: ${e.message}")
+                emit(SubNetworkResult.Error(e.message))
+            }
+        }
+    }
+
     fun initCameraAtUnity(userCameraInfo: UserCameraInfo) {
         UnityPlayer.UnitySendMessage(
             "SystemController",
@@ -105,11 +136,6 @@ class NavigationRepository(private val navigationApi: NavigationApi) {
                 pathList.reversed()
             )
         )
-//        UnityPlayer.UnitySendMessage(
-//            "Indicator",
-//            "SetNavigationPath",
-//            tempPointList
-//        )
     }
 
     companion object {
