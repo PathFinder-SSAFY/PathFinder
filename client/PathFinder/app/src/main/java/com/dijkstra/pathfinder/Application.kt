@@ -2,10 +2,12 @@ package com.dijkstra.pathfinder
 
 import android.app.Application
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.dijkstra.pathfinder.util.Constant
+import com.dijkstra.pathfinder.util.SharedPreferencesUtil
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.hilt.android.HiltAndroidApp
@@ -25,6 +27,7 @@ class Application : Application() {
     override fun onCreate() {
         super.onCreate()
         initRetrofit(AppInterceptor())
+        sharedPreferenceUtil = SharedPreferencesUtil(applicationContext)
     }
 
     private fun initRetrofit(interceptor: AppInterceptor) {
@@ -82,6 +85,7 @@ class Application : Application() {
     companion object {
         lateinit var retrofit: Retrofit
         lateinit var headerRetrofit: Retrofit
+        lateinit var sharedPreferenceUtil: SharedPreferencesUtil
     }
 
 } // End of Application class

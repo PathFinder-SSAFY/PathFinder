@@ -43,4 +43,8 @@
     <!--  UnityHolderActivity  -->
     <string name="end_nav">안내 종료</string>
 
+    <!-- SharedPreferencesUtil -->
+    <string name="shared_preferences_util_name">path_finder_pref</string>
+    <string name="user_uuid">user_uuid</string>
+
 </resources>
