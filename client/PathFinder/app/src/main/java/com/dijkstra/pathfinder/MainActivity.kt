@@ -65,7 +65,6 @@ class MainActivity : ComponentActivity() {
                 SetUpNavGraph(navController = navController)
 
 //                MainScreen(navController = navController)
-                //startUnityLayout()
             }
         }
 
@@ -143,79 +142,4 @@ class MainActivity : ComponentActivity() {
             }
         }
     } // End of readNFCData
-
-    @OptIn(ExperimentalPermissionsApi::class)
-    @Composable
-    fun startUnityLayout() {
-
-        val btPermissionsState = rememberMultiplePermissionsState(
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                listOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.BLUETOOTH_SCAN,
-                    Manifest.permission.BLUETOOTH_ADVERTISE,
-                    Manifest.permission.CAMERA,
-                    Manifest.permission.RECORD_AUDIO,
-                    Manifest.permission.NFC
-                )
-            } else {
-                listOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.BLUETOOTH,
-                    Manifest.permission.BLUETOOTH_ADMIN,
-                    Manifest.permission.CAMERA,
-                    Manifest.permission.RECORD_AUDIO,
-                    Manifest.permission.NFC
-                )
-            }
-        ) // End of btPermissionsState
-
-        // A surface container using the 'background' color from the theme
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colors.background
-        ) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Button(
-                    modifier = Modifier
-                        .width(100.dp)
-                        .height(50.dp),
-                    onClick = {
-                        for (i in btPermissionsState.permissions.indices) {
-                            Log.d(
-                                "SSAFY_PERMISSION",
-                                "${btPermissionsState.permissions[i].permission}: ${btPermissionsState.permissions[i].status}"
-                            )
-                        }
-                        if (btPermissionsState.allPermissionsGranted) {
-                            val intent = Intent(this@MainActivity, UnityHolderActivity::class.java)
-                            intent.putExtra(
-                                Constant.INTENT_START_POSITION, Point(
-                                    16.0,
-                                    0.0,
-                                    -7.0
-                                )
-                            )
-                            intent.putExtra(Constant.INTENT_GOAL_POSITION, Point(
-                                32.00,
-                                0.0,
-                                -4.00)
-                            )
-                            intent.putExtra(Constant.INTENT_GOAL_NAME, "4층 남자 화장실")
-                            startActivity(intent)
-                        } else {
-                            btPermissionsState.launchMultiplePermissionRequest()
-                        }
-                    }) {
-
-                }
-            }
-        }
-    }
-
 } // End of MainActivity class

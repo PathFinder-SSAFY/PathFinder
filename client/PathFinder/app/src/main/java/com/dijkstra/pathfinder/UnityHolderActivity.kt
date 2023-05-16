@@ -67,7 +67,7 @@ class UnityHolderActivity : UnityPlayerActivity(),
 
         CoroutineScope(Dispatchers.IO).launch {
             delay(3000)
-            unityViewModel.navigateUsingGoalName(unityViewModel.startPosition, unityViewModel.goalName)
+            navigate()
         }
 
     } // End of onCreate
@@ -293,14 +293,7 @@ class UnityHolderActivity : UnityPlayerActivity(),
             }
         } // End of findViewById<ImageView>(R.id.sound_toggle_image_view).apply
         findViewById<ImageView>(R.id.path_refresh_image_view).setOnClickListener {
-            unityViewModel.navigateUsingGoalName(
-                start = Point(
-                    x = unityViewModel.userCameraInfo.x.toDouble(),
-                    y = unityViewModel.userCameraInfo.y.toDouble(),
-                    z = unityViewModel.userCameraInfo.z.toDouble()
-                ),
-                goalName = unityViewModel.goalName
-            )
+            navigate()
         } // End of findViewById<ImageView>(R.id.path_refresh_image_view).setOnClickListener
         findViewById<TextView>(R.id.goal_name_textview).text = goalName
     } // End of initUiLayout
@@ -452,4 +445,29 @@ class UnityHolderActivity : UnityPlayerActivity(),
             }
         } // End of when(distanceToNextPoint)
     } // End of getCameraPositionFromUnity
+
+    private fun navigate() {
+        when (unityViewModel.goalName) {
+            "소화기", "심장 제세동기" -> {
+                unityViewModel.navigate(
+                    start = Point(
+                        x = unityViewModel.userCameraInfo.x.toDouble(),
+                        y = unityViewModel.userCameraInfo.y.toDouble(),
+                        z = unityViewModel.userCameraInfo.z.toDouble()
+                    ),
+                    goal = unityViewModel.goal
+                )
+            }
+            else -> {
+                unityViewModel.navigateUsingGoalName(
+                    start = Point(
+                        x = unityViewModel.userCameraInfo.x.toDouble(),
+                        y = unityViewModel.userCameraInfo.y.toDouble(),
+                        z = unityViewModel.userCameraInfo.z.toDouble()
+                    ),
+                    goalName = unityViewModel.goalName
+                )
+            }
+        }
+    }
 } // End of UnityHolderActivity
