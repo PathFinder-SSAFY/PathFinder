@@ -56,7 +56,7 @@ class FloorsServiceImpl(
             when {
                 facilityService.findWithinRange(floorsCurrentLocationRequestDto, inRoomEntrance) -> return "$curFacilityName 입구"
                 facilityService.isNearFacilityEntrance(floorsCurrentLocationRequestDto, inRoomEntrance) -> return "$curFacilityName 입구 앞"
-                facilityService.isInsideFacility(floorsCurrentLocationRequestDto, inRoomEntrance.facility) -> return "$curFacilityName 안"
+                facilityService.isInsideFacility(floorsCurrentLocationRequestDto, inRoomEntrance.facility) -> return curFacilityName
                 isBlockWall(floorsCurrentLocationRequestDto) -> throw HandleInWallBoundaryException()
             }
         }
