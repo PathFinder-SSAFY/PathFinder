@@ -22,7 +22,6 @@ class FloorsServiceImpl(
     private val beaconRepository: BeaconRepository,
     private val roomEntranceRepository: RoomEntranceRepository,
     private val blockWallRepository: BlockWallRepository,
-    private val customerRepository: CustomerRepository
 ) : FloorsService {
 
     private val logger = KotlinLogging.logger{}
@@ -165,10 +164,6 @@ class FloorsServiceImpl(
         if (isWithinRangeX(floorsCurrentLocationRequestDto.x, facilityUpX, facilityDownX)
             && isWithinRangeZ(floorsCurrentLocationRequestDto.z, facilityDownZ, facilityUpZ)
         ){
-
-            // 시설 내부 조회 후, 밀집도 + 1
-            facility.plusDensityMax()
-            customerRepository.save()
             return true
         }
         return false
