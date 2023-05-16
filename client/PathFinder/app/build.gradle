@@ -151,5 +151,4 @@ dependencies {
     // NumberPicker
     implementation "com.chargemap.compose:numberpicker:1.0.3"
 
-
 }

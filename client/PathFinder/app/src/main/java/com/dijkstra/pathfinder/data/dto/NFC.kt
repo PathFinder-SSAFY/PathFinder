@@ -7,5 +7,6 @@ import kotlinx.parcelize.Parcelize
 data class NFC @JvmOverloads constructor(
     var beaconList: List<BeaconPosition>?,
     var floorsNumber: List<String>?,
-    var mapImageUrl: List<String>?
+    var mapImageUrl: List<String>?,
+    var customerId: Int
 ) : Parcelable
