@@ -41,14 +41,12 @@ class PathFindingServiceImpl(
         val helps = equipmentRepository.findByEmergencyType(help)
         var tmp_distance = Double.MAX_VALUE
         var helpNode: Node? = null
-        var helpName: String? = null
         for (h in helps) {
             val tmpNode = Node(h.getEmergencyX(), h.getEmergencyY(), h.getEmergencyZ())
             val tmp_dis = abs(start.x - tmpNode.x) + abs(start.z - tmpNode.z)
             if (tmp_dis < tmp_distance) {
                 tmp_distance = tmp_dis
                 helpNode = tmpNode
-                helpName = h.getEmergencyName()
             }
         }
         return helpNode
