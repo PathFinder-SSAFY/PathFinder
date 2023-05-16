@@ -33,6 +33,28 @@ NFC와 비콘을 통해서 건물 내부의 유동인구 파악, 시간별 인�
 
 ![NFC & Beacon.jpg](./NFC & Beacon.jpg)
 
+<br>
+
+---
+## 기술 스택
+
+**Front End**
+- Android Studio : Electric eel
+- Android Jetpack Compose
+- Kotlin Flow
+- Dagger-Hilt
+- Retrofit
+
+
+**Back End**
+
+
+**CI/CD**
+
+
+**AR**
+- Unity
+
 
 <br>
 
