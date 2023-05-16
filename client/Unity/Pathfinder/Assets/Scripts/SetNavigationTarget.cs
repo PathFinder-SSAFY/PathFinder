@@ -37,7 +37,6 @@ public class SetNavigationTarget : MonoBehaviour
     {
         path = new NavMeshPath();
         line = transform.GetComponent<LineRenderer>();
-        //line.material.SetTextureScale("_MainTex", new Vector2(1f, 1f));
     }
 
     // Update is called once per frame
