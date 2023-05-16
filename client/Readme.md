@@ -47,9 +47,11 @@ NFC와 비콘을 통해서 건물 내부의 유동인구 파악, 시간별 인�
 
 <br>
 ---
-## API 문서
+## API 개발
 
+![notion_api.png](./notion_api.png)
 
+![notion_api2.png](./notion_api2.png)
 
 <br>
 ---
