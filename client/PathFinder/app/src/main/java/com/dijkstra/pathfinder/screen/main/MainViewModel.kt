@@ -41,13 +41,7 @@ class MainViewModel @Inject constructor(
     var currentLocationName = mutableStateOf("")
     var destinationLocationPoint: Point? = null
     var destinationLocationName = mutableStateOf("")
-
     var allBeaconList: List<BeaconPosition> = emptyList()
-
-    @JvmName("set")
-    fun setAllBeaconList(newBeaconList: List<BeaconPosition>) {
-        allBeaconList = newBeaconList
-    }
 
     private val beaconManager = BeaconManager.getInstanceForApplication(application)
 
@@ -81,9 +75,9 @@ class MainViewModel @Inject constructor(
         if (beacons.size < 3) {
             return
         } else {
-            var sortedList = beacons.sortedBy { it.distance }
+            val sortedList = beacons.sortedBy { it.distance }
             // 전체 비콘 리스트가 필요
-            var centroid = trilateration(sortedList, allBeaconList).toList()
+            val centroid = trilateration(sortedList, allBeaconList).toList()
 
             if (centroid == listOf(-9999.9, -9999.9, -9999.9)) {
                 return
@@ -113,7 +107,6 @@ class MainViewModel @Inject constructor(
             addRangeNotifier(rangeNotifier)
         }
     }
-
 
     override fun onCleared() {
         beaconManager.stopRangingBeacons(region)

@@ -130,7 +130,7 @@ fun MainScreen(
     var tempFloorIndex = remember { mutableStateOf(0) }
     var floorIndex = remember { mutableStateOf(0) }
 
-    mainViewModel.setAllBeaconList(nfcViewModel.getNFCData.value!!.beaconList!!)
+    mainViewModel.allBeaconList = nfcViewModel.getNFCData.value!!.beaconList!!
     // MainViewModel Response State
 //    val postFacilityDynamicResponseStateFlow =
 //        mainViewModel.postFacilityDynamicResponseStateFlow.collectAsState()
