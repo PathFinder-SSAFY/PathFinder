@@ -50,6 +50,14 @@ class Facility(
                 this.hitCount += 1
         }
 
+        fun plusDensityMax() {
+                this.densityMax += 1
+        }
+
+        fun minusDensityMax(){
+                this.densityMax -= 1
+        }
+
         fun getFacilityType(): String{
                 return this.facilityType
         }
@@ -74,4 +82,6 @@ class Facility(
         fun getEntrance(): RoomEntrance?{
                 return this.entrance
         }
+
+
 }

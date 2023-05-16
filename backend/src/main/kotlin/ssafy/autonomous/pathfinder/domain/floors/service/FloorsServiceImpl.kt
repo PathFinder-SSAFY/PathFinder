@@ -2,25 +2,41 @@ package ssafy.autonomous.pathfinder.domain.floors.service
 
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
+import ssafy.autonomous.pathfinder.domain.building.domain.Customer
+import ssafy.autonomous.pathfinder.domain.building.exception.CustomerNotFoundException
+import ssafy.autonomous.pathfinder.domain.building.repository.CustomerQuerydslRepository
+import ssafy.autonomous.pathfinder.domain.building.repository.CustomerRepository
 import ssafy.autonomous.pathfinder.domain.facility.domain.BlockWall
 import ssafy.autonomous.pathfinder.domain.facility.domain.Facility
+import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityNameRequestDto
 import ssafy.autonomous.pathfinder.domain.facility.dto.response.WallBlindSpotsResponseDto
+import ssafy.autonomous.pathfinder.domain.facility.exception.FacilityNotInRangeException
 import ssafy.autonomous.pathfinder.domain.facility.repository.BlockWallRepository
+import ssafy.autonomous.pathfinder.domain.facility.repository.FacilityQuerydslRepository
 import ssafy.autonomous.pathfinder.domain.facility.repository.RoomEntranceRepository
+import ssafy.autonomous.pathfinder.domain.facility.service.FacilityService
 import ssafy.autonomous.pathfinder.domain.floors.domain.Beacon
 import ssafy.autonomous.pathfinder.domain.floors.domain.RoomEntrance
 import ssafy.autonomous.pathfinder.domain.floors.dto.request.FloorsCurrentLocationRequestDto
+import ssafy.autonomous.pathfinder.domain.floors.dto.request.FloorsCurrentLocationUpdateRequestDto
 import ssafy.autonomous.pathfinder.domain.floors.exception.HandleInWallBoundaryException
 import ssafy.autonomous.pathfinder.domain.floors.exception.HandleInvalidUserLocationOnCurrentFloorException
 import ssafy.autonomous.pathfinder.domain.floors.repository.BeaconRepository
 import java.math.BigDecimal
+import java.util.*
+import javax.transaction.Transactional
 import kotlin.math.pow
 
 @Service
 class FloorsServiceImpl(
     private val beaconRepository: BeaconRepository,
     private val roomEntranceRepository: RoomEntranceRepository,
-    private val blockWallRepository: BlockWallRepository
+    private val blockWallRepository: BlockWallRepository,
+    private val customerRepository: CustomerRepository,
+    private val customerQuerydslRepository: CustomerQuerydslRepository,
+    private val facilityQuerydslRepository: FacilityQuerydslRepository,
+    private val facilityService: FacilityService
+
 ) : FloorsService {
 
     private val logger = KotlinLogging.logger{}
@@ -38,9 +54,9 @@ class FloorsServiceImpl(
             val curFacilityName = inRoomEntrance.facility.getFacilityName()
 
             when {
-                findWithinRange(floorsCurrentLocationRequestDto, inRoomEntrance) -> return "$curFacilityName 입구"
-                isNearFacilityEntrance(floorsCurrentLocationRequestDto, inRoomEntrance) -> return "$curFacilityName 입구 앞"
-                isInsideFacility(floorsCurrentLocationRequestDto, inRoomEntrance.facility) -> return "$curFacilityName 안"
+                facilityService.findWithinRange(floorsCurrentLocationRequestDto, inRoomEntrance) -> return "$curFacilityName 입구"
+                facilityService.isNearFacilityEntrance(floorsCurrentLocationRequestDto, inRoomEntrance) -> return "$curFacilityName 입구 앞"
+                facilityService.isInsideFacility(floorsCurrentLocationRequestDto, inRoomEntrance.facility) -> return "$curFacilityName 안"
                 isBlockWall(floorsCurrentLocationRequestDto) -> throw HandleInWallBoundaryException()
             }
         }
@@ -71,6 +87,61 @@ class FloorsServiceImpl(
         return getWallBlindSpotsList(blockWallList)
     }
 
+    // 4-3 지도상 고객 위치 업데이트
+    @Transactional
+    override fun updateCustomerLocation(id : String, floorsCurrentLocationUpdateRequestDto: FloorsCurrentLocationUpdateRequestDto): String {
+        val floorsCurrentLocationRequestDto = FloorsCurrentLocationRequestDto(
+            floorsCurrentLocationUpdateRequestDto.x,
+            floorsCurrentLocationUpdateRequestDto.y,
+            floorsCurrentLocationUpdateRequestDto.z
+        )
+        val floorsCurrentLocationFacilityName = floorsCurrentLocationUpdateRequestDto.facilityName
+
+        // x, y, z와 시설 위치 좌표인지 확인하는 함수
+        // 28.50, 0.0, -13.12 와 4층 남자 화장실 안 일 경우 : true
+        if(facilityService.isInsideFacilityCheck(floorsCurrentLocationRequestDto, floorsCurrentLocationFacilityName)){
+            // id로 customerRepository에서 customer를 조회한다.
+            // 조회한 결과, customer가 시설 위치를 기준으로 판단한다.
+            return updateFacilitiesBasedOnCustomerLocation(id, floorsCurrentLocationFacilityName)
+        }
+
+        // 시설 범위에 포함되지 않을 시 예외처리
+        throw FacilityNotInRangeException()
+//        return "x, y, z로 조회된 시설와는 다른 시설 이름입니다."
+
+    }
+
+    private fun updateFacilitiesBasedOnCustomerLocation(id: String, floorsCurrentLocationFacilityName : String): String{
+        val customer = getCustomerById(id).orElseThrow { CustomerNotFoundException() }
+        val beforeLocationFacility = customer.getCurrentLocationFacility()
+
+        // floorsCurrentLocationFacilityName와 customer 위치가 다르다면
+        // - customer 위치가 null이 아니라면, 해당 위치 시설을 조회 후 update한다.
+        if(beforeLocationFacility != floorsCurrentLocationFacilityName){
+            if(beforeLocationFacility != null){
+                // 이전 시설이 null이 아니라면 이전 시설 밀집도 -1
+                val decreasedDensityFacility = facilityService.getFacilityByFacilityName(FacilityNameRequestDto(beforeLocationFacility))
+                decreasedDensityFacility.minusDensityMax()
+                facilityQuerydslRepository.updateFacility(decreasedDensityFacility)
+            }
+
+            // 고객 위치 업데이트
+            customer.updateCurrentLocationFacility(floorsCurrentLocationFacilityName)
+            customerQuerydslRepository.updateCustomer(customer)
+
+            // 밀집도 1 증가
+            val increasedDensityFacility = facilityService.getFacilityByFacilityName(FacilityNameRequestDto(floorsCurrentLocationFacilityName))
+            increasedDensityFacility.plusDensityMax()
+            facilityQuerydslRepository.updateFacility(increasedDensityFacility)
+            return "시설 업데이트 됐습니다."
+        }
+
+        return "이전 시설 위치와 현재 시설 위치가 같습니다."
+    }
+
+    private fun getCustomerById(id : String): Optional<Customer> {
+        return customerRepository.findById(id.toInt())
+    }
     private fun getAllRoomEntrance(): MutableList<RoomEntrance> {
         return roomEntranceRepository.findAll()
     }
@@ -96,84 +167,6 @@ class FloorsServiceImpl(
             )
         }
         return wallBlindSpots
-    }
-
-    // 시설 입구에 있는지 확인
-    private fun findWithinRange(floorsCurrentLocationRequestDto: FloorsCurrentLocationRequestDto, roomEntrance: RoomEntrance): Boolean {
-        val (leftUpX, leftUpZ) = roomEntrance.getEntranceLeftUpXZ()
-        val (rightDownX, rightDownZ) = roomEntrance.getEntranceRightDownXZ()
-
-//        logger.info("시설 입구 확인")
-//        logger.info("시설 입구 범위 LX, LY : $leftUpX , $leftUpZ")
-//        logger.info("시설 입구 범위 RX, RY : $rightDownX, $rightDownZ")
-
-        if (isWithinRangeX(floorsCurrentLocationRequestDto.x, leftUpX, rightDownX)
-            && isWithinRangeZ(floorsCurrentLocationRequestDto.z, rightDownZ, leftUpZ)
-        ) return true
-        return false
-    }
-
-    // 시설 입구 앞인지 확인
-    private fun isNearFacilityEntrance(
-        floorsCurrentLocationRequestDto: FloorsCurrentLocationRequestDto,
-        roomEntrance: RoomEntrance
-    ): Boolean {
-        val (leftUpX, leftUpZ) = roomEntrance.getEntranceLeftUpXZ()
-        val (rightDownX, rightDownZ) = roomEntrance.getEntranceRightDownXZ()
-        val entranceDirection: Int? = roomEntrance.getEntranceDirection()
-        val entranceZone: Double? = roomEntrance.getEntranceZone()
-
-
-//        logger.info("시설 입구 앞 확인")
-//        logger.info("시설 입구 범위 LX, LY : $leftUpX , $leftUpZ")
-//        logger.info("시설 입구 범위 RX, RY : $rightDownX, $rightDownZ")
-
-        /*
-        * 1 : Y + 20 (상 방향)
-        * 2 : X + 20 (오른쪽 방향)
-        * 3 : Y - 20 (하 방향)
-        * 4 : X - 20 (왼쪽 방향)
-        * */
-        if (entranceDirection == 1 && isWithinRangeX(floorsCurrentLocationRequestDto.x, leftUpX, rightDownX)
-            && isWithinRangeZ(floorsCurrentLocationRequestDto.z, leftUpZ, leftUpZ!! + entranceZone!!)
-        ) return true
-        else if (entranceDirection == 2 && isWithinRangeZ(floorsCurrentLocationRequestDto.z, rightDownZ, leftUpZ)
-            && isWithinRangeX(floorsCurrentLocationRequestDto.x, rightDownX, rightDownX!! + entranceZone!!)
-        ) return true
-        else if (entranceDirection == 3 && isWithinRangeX(floorsCurrentLocationRequestDto.x, leftUpX, rightDownX)
-            && isWithinRangeZ(floorsCurrentLocationRequestDto.z, rightDownZ!! - entranceZone!!, rightDownZ)
-        ) return true
-        else if (entranceDirection == 4 && isWithinRangeZ(floorsCurrentLocationRequestDto.z, rightDownZ, leftUpZ)
-            && isWithinRangeX(floorsCurrentLocationRequestDto.x, leftUpX!! - entranceZone!!, leftUpX )
-        ) return true
-        return false
-
-    }
-
-    // 시설 안인지 확인한다.
-    private fun isInsideFacility(floorsCurrentLocationRequestDto: FloorsCurrentLocationRequestDto, facility: Facility): Boolean {
-        val (facilityUpX, facilityUpZ) = facility.getFacilityLeftUpXZ()
-        val (facilityDownX, facilityDownZ) = facility.getFacilityRightDownXZ()
-
-        logger.info("시설 입구 확인")
-        logger.info("시설 입구 범위 LX, LY : $facilityUpX , $facilityUpZ")
-        logger.info("시설 입구 범위 RX, RY : $facilityDownX, $facilityDownZ")
-
-        // 시설 내부인지 확인한다.
-        if (isWithinRangeX(floorsCurrentLocationRequestDto.x, facilityUpX, facilityDownX)
-            && isWithinRangeZ(floorsCurrentLocationRequestDto.z, facilityDownZ, facilityUpZ)
-        ) return true
-        return false
-    }
-
-    private fun isWithinRangeX(x: Double, leftUpX: Double?, rightDownX: Double?): Boolean {
-//        logger.info("x : $x , leftUpX : $leftUpX , rightUpX : $rightUpX")
-        return x in leftUpX!!..rightDownX!!
-    }
-
-    private fun isWithinRangeZ(z: Double, rightDownZ: Double?, leftUpZ: Double?): Boolean {
-//        logger.info("z : $z , leftUpZ : $leftUpZ , rightUpZ : $rightUpZ")
-        return z in rightDownZ!!..leftUpZ!!
     }
 
     private fun getObstaclePositionsByInterval(blockWallList: List<BlockWall>): List<Pair<Double, Double>>{
@@ -226,17 +219,15 @@ class FloorsServiceImpl(
         val curX = floorsCurrentLocationRequestDto.x
         val curZ = floorsCurrentLocationRequestDto.z
 
-
-
         // wall
         val isInsideBlockWall = blockWall.any { wall ->
             val leftUpX = wall.getBlockWallLeftUpXZ()[0]
             val leftUpZ = wall.getBlockWallLeftUpXZ()[1]
             val rightDownX = wall.getBlockWallRightDownXZ()[0]
             val rightDownZ = wall.getBlockWallRightDownXZ()[1]
-            logger.info("X : $curX , Z : $curZ")
-            logger.info("leftUpX : $leftUpX , leftUpZ : $leftUpZ ")
-            logger.info("rightDownX : $rightDownX , rightDownZ : $rightDownZ ")
+//            logger.info("X : $curX , Z : $curZ")
+//            logger.info("leftUpX : $leftUpX , leftUpZ : $leftUpZ ")
+//            logger.info("rightDownX : $rightDownX , rightDownZ : $rightDownZ ")
             leftUpX!! <= curX && curX <= rightDownX!! && rightDownZ!! <= curZ &&curZ <= leftUpZ!!
         }
 

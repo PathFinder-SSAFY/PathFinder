@@ -1,10 +1,13 @@
 package ssafy.autonomous.pathfinder.domain.building.service
 
+import mu.KotlinLogging
 import org.springframework.stereotype.Service
+import ssafy.autonomous.pathfinder.domain.building.domain.Customer
 import ssafy.autonomous.pathfinder.domain.building.dto.request.BuildingNfcRequestDto
 import ssafy.autonomous.pathfinder.domain.building.dto.response.BuildingNfcResponseDto
 import ssafy.autonomous.pathfinder.domain.building.exception.IdNotFoundException
 import ssafy.autonomous.pathfinder.domain.building.repository.BuildingRepository
+import ssafy.autonomous.pathfinder.domain.building.repository.CustomerRepository
 import ssafy.autonomous.pathfinder.domain.floors.domain.Floors
 import ssafy.autonomous.pathfinder.domain.floors.domain.Beacon
 import ssafy.autonomous.pathfinder.domain.floors.repository.BeaconRepository
@@ -14,8 +17,11 @@ import ssafy.autonomous.pathfinder.domain.floors.repository.FloorsRepository
 class BuildingServiceImpl(
     private val buildingRepository : BuildingRepository,
     private val floorsRepository: FloorsRepository,
-    private val beaconRepository: BeaconRepository
+    private val beaconRepository: BeaconRepository,
+    private val customerRepository: CustomerRepository
 ) : BuildingService{
+
+    val logger = KotlinLogging.logger{}
 
     override fun getBuildingNfc(buildingNfcRequestDto: BuildingNfcRequestDto) : BuildingNfcResponseDto {
         // 1이 아니면 exception
@@ -34,10 +40,17 @@ class BuildingServiceImpl(
             it.floorNumber + "F"
         }.toList()
 
+        // (4) id 생성해서 반환
+        val savedCustomer = customerRepository.save(Customer(currentLocationFacility = null))
+        val customerId = savedCustomer.id
+
+        logger.info("고객 ID : $customerId")
+
         return BuildingNfcResponseDto(
             beaconList = beaconList,
             mapImageUrl = imageUrlList,
-            floorsNumber = floorsNumberList
+            floorsNumber = floorsNumberList,
+            customerId = customerId
         )
     }
 

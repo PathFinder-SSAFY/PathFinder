@@ -10,7 +10,6 @@ import javax.persistence.EntityManager
 // querydsl 사용할 때, 이용한 repository
 @Component
 class FacilityQuerydslRepository(
-        private val queryFactory: JPAQueryFactory,
         private val querydslConfig: QuerydslConfig
 ) {
 

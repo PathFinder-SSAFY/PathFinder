@@ -6,19 +6,18 @@ import ssafy.autonomous.pathfinder.domain.facility.domain.Facility
 import ssafy.autonomous.pathfinder.domain.facility.domain.FacilityCoordinate
 import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityNameRequestDto
 import ssafy.autonomous.pathfinder.domain.facility.dto.request.FacilityTypesRequestDto
+import ssafy.autonomous.pathfinder.domain.facility.dto.response.FacilityCoordinatesResponseDto
 import ssafy.autonomous.pathfinder.domain.facility.dto.response.FacilityIsValidResponseDto
 import ssafy.autonomous.pathfinder.domain.facility.dto.response.FacilityMidPointResponseDto
-import ssafy.autonomous.pathfinder.domain.facility.dto.response.FacilitySearchNeedCoordinateDto
 import ssafy.autonomous.pathfinder.domain.facility.exception.FacilityNotFoundException
 import ssafy.autonomous.pathfinder.domain.facility.repository.FacilityRepository
 import ssafy.autonomous.pathfinder.domain.facility.repository.FacilityQuerydslRepository
 import ssafy.autonomous.pathfinder.domain.facility.repository.RoomEntranceRepository
 import ssafy.autonomous.pathfinder.domain.floors.domain.RoomEntrance
-import java.math.BigDecimal
+import ssafy.autonomous.pathfinder.domain.floors.dto.request.FloorsCurrentLocationRequestDto
 import java.util.*
 import javax.transaction.Transactional
 import kotlin.math.pow
-import kotlin.math.roundToLong
 
 @Service
 class FacilityServiceImpl(
@@ -29,7 +28,6 @@ class FacilityServiceImpl(
 
     private val logger = KotlinLogging.logger {}
 
-    // 필터링 입력할 때마다 리스트로 출력
     override fun facilityDynamic(facilityTypesRequest: FacilityTypesRequestDto): List<String> {
         val inputFacilityType = facilityTypesRequest.filteringSearch
 
@@ -38,7 +36,6 @@ class FacilityServiceImpl(
         }
     }
 
-    // 필터링에 입력 후, 검색 버튼 클릭
     @Transactional
     override fun getFacilityTypes(facilitySearchRequest: FacilityTypesRequestDto): Facility {
         val inputFacilityType = facilitySearchRequest.filteringSearch
@@ -69,7 +66,6 @@ class FacilityServiceImpl(
         )
     }
 
-    // aStart 알고리즘에 필요한 입구 좌표 구하기
     override fun getEntrancePointFacility(facilityNameRequestDto: FacilityNameRequestDto): FacilityMidPointResponseDto {
         val roomEntrance: RoomEntrance? =
             processValidFacilityName(facilityNameRequestDto.facilityName).get().getEntrance()
@@ -81,6 +77,94 @@ class FacilityServiceImpl(
             aStarZ = roomEntrance?.getAStarXYZ()?.get(2)
         )
     }
+
+    override fun getFacilityByFacilityName(facilityNameRequestDto: FacilityNameRequestDto): Facility {
+        return processValidFacilityName(facilityNameRequestDto.facilityName).get()
+    }
+
+    override fun findWithinRange(floorsCurrentLocationRequestDto: FloorsCurrentLocationRequestDto, roomEntrance: RoomEntrance): Boolean {
+        val (leftUpX, leftUpZ) = roomEntrance.getEntranceLeftUpXZ()
+        val (rightDownX, rightDownZ) = roomEntrance.getEntranceRightDownXZ()
+
+//        logger.info("시설 입구 확인")
+//        logger.info("시설 입구 범위 LX, LY : $leftUpX , $leftUpZ")
+//        logger.info("시설 입구 범위 RX, RY : $rightDownX, $rightDownZ")
+
+        if (isWithinRangeX(floorsCurrentLocationRequestDto.x, leftUpX, rightDownX)
+            && isWithinRangeZ(floorsCurrentLocationRequestDto.z, rightDownZ, leftUpZ)
+        ) return true
+        return false
+    }
+
+    override fun isNearFacilityEntrance(
+        floorsCurrentLocationRequestDto: FloorsCurrentLocationRequestDto,
+        roomEntrance: RoomEntrance
+    ): Boolean {
+        val (leftUpX, leftUpZ) = roomEntrance.getEntranceLeftUpXZ()
+        val (rightDownX, rightDownZ) = roomEntrance.getEntranceRightDownXZ()
+        val entranceDirection: Int? = roomEntrance.getEntranceDirection()
+        val entranceZone: Double? = roomEntrance.getEntranceZone()
+
+
+//        logger.info("시설 입구 앞 확인")
+//        logger.info("시설 입구 범위 LX, LY : $leftUpX , $leftUpZ")
+//        logger.info("시설 입구 범위 RX, RY : $rightDownX, $rightDownZ")
+
+        /*
+        * 1 : Y + 20 (상 방향)
+        * 2 : X + 20 (오른쪽 방향)
+        * 3 : Y - 20 (하 방향)
+        * 4 : X - 20 (왼쪽 방향)
+        * */
+        if (entranceDirection == 1 && isWithinRangeX(floorsCurrentLocationRequestDto.x, leftUpX, rightDownX)
+            && isWithinRangeZ(floorsCurrentLocationRequestDto.z, leftUpZ, leftUpZ!! + entranceZone!!)
+        ) return true
+        else if (entranceDirection == 2 && isWithinRangeZ(floorsCurrentLocationRequestDto.z, rightDownZ, leftUpZ)
+            && isWithinRangeX(floorsCurrentLocationRequestDto.x, rightDownX, rightDownX!! + entranceZone!!)
+        ) return true
+        else if (entranceDirection == 3 && isWithinRangeX(floorsCurrentLocationRequestDto.x, leftUpX, rightDownX)
+            && isWithinRangeZ(floorsCurrentLocationRequestDto.z, rightDownZ!! - entranceZone!!, rightDownZ)
+        ) return true
+        else if (entranceDirection == 4 && isWithinRangeZ(floorsCurrentLocationRequestDto.z, rightDownZ, leftUpZ)
+            && isWithinRangeX(floorsCurrentLocationRequestDto.x, leftUpX!! - entranceZone!!, leftUpX )
+        ) return true
+        return false
+
+    }
+
+    override fun isInsideFacility(floorsCurrentLocationRequestDto: FloorsCurrentLocationRequestDto, facility: Facility): Boolean {
+        val (facilityUpX, facilityUpZ) = facility.getFacilityLeftUpXZ()
+        val (facilityDownX, facilityDownZ) = facility.getFacilityRightDownXZ()
+
+//        logger.info("시설 입구 확인")
+//        logger.info("시설 입구 범위 LX, LY : $facilityUpX , $facilityUpZ")
+//        logger.info("시설 입구 범위 RX, RY : $facilityDownX, $facilityDownZ")
+
+        // 시설 내부인지 확인한다.
+        if (isWithinRangeX(floorsCurrentLocationRequestDto.x, facilityUpX, facilityDownX)
+            && isWithinRangeZ(floorsCurrentLocationRequestDto.z, facilityDownZ, facilityUpZ)
+        ) return true
+        return false
+    }
+
+    override fun isInsideFacilityCheck(
+        floorsCurrentLocationRequestDto: FloorsCurrentLocationRequestDto,
+        facilityName: String
+    ): Boolean {
+        val currentFacility : Facility = processValidFacilityName(facilityName).get()
+        return isInsideFacility(floorsCurrentLocationRequestDto, currentFacility)
+    }
+
+    // 입력한 문자열을 기반으로 방 이름 리스트를 가져온다.
+    fun getFacilityTypesDynamic(inputFacilityType: String): List<Facility> {
+        return facilityRepository.findByFacilityNameContainingOrderByHitCountDesc(inputFacilityType)
+    }
+
+    // 시설 입력했을 때, 올바른 값인지 판단하는 함수 (예외가 아닌 null을 전달)
+    fun processValidFacilityName(inputFacilityType: String): Optional<Facility> {
+        return facilityRepository.findByFacilityName(inputFacilityType)
+    }
+
 
     // 입구 좌표를 기반, 중점 좌표 얻기
     fun getMidpoint(roomEntrance: RoomEntrance?) : Pair<Double,Double> {
@@ -101,29 +185,27 @@ class FacilityServiceImpl(
         return Pair(midX, midZ)
     }
 
-    fun fetchFacilityCoordinates(facility: Facility) : FacilitySearchNeedCoordinateDto{
+    fun fetchFacilityCoordinates(facility: Facility) : FacilityCoordinatesResponseDto{
         // x, y, z 좌표 조회
         val facilityType = FacilityCoordinate.valueOf(facility.getFacilityType())
         val xCoordinate = facilityType.x
         val yCoordinate = facilityType.y
         val zCoordinate = facilityType.z
 
-        return FacilitySearchNeedCoordinateDto(
+        return FacilityCoordinatesResponseDto(
             x = xCoordinate,
             y = yCoordinate,
             z = zCoordinate
         )
     }
-    // 입력한 문자열을 기반으로 방 이름 리스트를 가져온다.
-    fun getFacilityTypesDynamic(inputFacilityType: String): List<Facility> {
-        return facilityRepository.findByFacilityNameContainingOrderByHitCountDesc(inputFacilityType)
+
+    private fun isWithinRangeX(x: Double, leftUpX: Double?, rightDownX: Double?): Boolean {
+//        logger.info("x : $x , leftUpX : $leftUpX , rightUpX : $rightUpX")
+        return x in leftUpX!!..rightDownX!!
     }
 
-    // 시설 입력했을 때, 올바른 값인지 판단하는 함수 (예외가 아닌 null을 전달)
-    fun processValidFacilityName(inputFacilityType: String): Optional<Facility> {
-        return facilityRepository.findByFacilityName(inputFacilityType)
+    private fun isWithinRangeZ(z: Double, rightDownZ: Double?, leftUpZ: Double?): Boolean {
+//        logger.info("z : $z , leftUpZ : $leftUpZ , rightUpZ : $rightUpZ")
+        return z in rightDownZ!!..leftUpZ!!
     }
-
-
 }
-
