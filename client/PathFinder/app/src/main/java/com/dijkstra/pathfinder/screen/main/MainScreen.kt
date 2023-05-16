@@ -40,6 +40,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.navigation.NavController
 import com.chargemap.compose.numberpicker.ListItemPicker
+import com.dijkstra.pathfinder.Application
 import com.dijkstra.pathfinder.R
 import com.dijkstra.pathfinder.UnityHolderActivity
 import com.dijkstra.pathfinder.components.*
@@ -129,11 +130,23 @@ fun MainScreen(
 
     var tempFloorIndex = remember { mutableStateOf(0) }
     var floorIndex = remember { mutableStateOf(0) }
-
     mainViewModel.allBeaconList = nfcViewModel.getNFCData.value!!.beaconList!!
+
+    if (Application.sharedPreferenceUtil.getUserUUID() == "") {
+        Application.sharedPreferenceUtil.setUserUUID(
+            nfcViewModel.getNFCData.value!!.customerId.toString()
+        )
+    }
+    mainViewModel.userId = Application.sharedPreferenceUtil.getUserUUID()
+
     // MainViewModel Response State
-//    val postFacilityDynamicResponseStateFlow =
-//        mainViewModel.postFacilityDynamicResponseStateFlow.collectAsState()
+    val patchCurrentLocationResponseSharedFlow =
+        mainViewModel.patchCurrentLocationResponseSharedFlow.collectAsState(
+            initial = null
+        )
+    patchCurrentLocationResponseSharedFlow.let { networkResult ->
+        Log.d(TAG, "patchCurrent: $networkResult")
+    }
 
     val postFacilityDynamicResponseSharedFlow =
         mainViewModel.postFacilityDynamicResponseSharedFlow.collectAsState(null)
@@ -221,18 +234,9 @@ fun MainScreen(
         }
     } // End of LaunchedEffect
 
-    LaunchedEffect(key1 = lifecycleOwner.lifecycle.currentState) {
-        Log.d(
-            TAG, "sdr lifecycle: ${
-                lifecycleOwner.lifecycle.currentState
-            }"
-        )
-    }
-
     DisposableEffect(lifecycleOwner) {
         // Destroy speechRecognizer on dispose
         onDispose {
-            Log.d(TAG, "DisposableEffect: 여기?")
             speechRecognizer.destroy()
         }
     } // End of DisposableEffect
@@ -553,6 +557,7 @@ fun MainScreen(
                                             TAG,
                                             "ok: ${openBottomSheet.value} ${currentLocationName.value}"
                                         )
+                                        mainViewModel.patchCurrentLocation()
                                     },
                                     text = stringResource(id = R.string.ok),
                                 )

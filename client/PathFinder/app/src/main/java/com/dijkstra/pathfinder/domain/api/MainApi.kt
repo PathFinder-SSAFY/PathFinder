@@ -5,6 +5,7 @@ import com.dijkstra.pathfinder.util.NetworkResult
 import com.google.gson.JsonObject
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import javax.inject.Singleton
 
@@ -22,6 +23,12 @@ interface MainApi {
         @Body requestBody: JsonObject
     ): Response<CurrentLocationResponse>
 
+    @PATCH("floors/update/customer/location/{id}")
+    suspend fun patchCurrentLocation(
+        @retrofit2.http.Path("id") id: String,
+        @Body requestBody: JsonObject
+    ): Response<CurrentLocationResponse>
+
     @POST("facility/improvements")
     suspend fun postFacilityValid(
         @Body filteringSearch: JsonObject
@@ -36,4 +43,5 @@ interface MainApi {
     suspend fun postFacilitySearch(
         @Body filteringSearch: JsonObject
     ): NetworkResult<Response<Void>>
+
 } // End of MainApi Interface
