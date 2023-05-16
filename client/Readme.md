@@ -37,14 +37,30 @@ NFC와 비콘을 통해서 건물 내부의 유동인구 파악, 시간별 인�
 <br>
 
 ---
-## 협업툴
+## 프로젝트 파일 구조
+
 
 
 
 <br>
 
 ---
+## 협업툴
+
+- Git
+- Notion
+- Jira
+- Discord
+- Figma
+- MatterMost
+
+
+<br>
+
+---
 ## Figma
+
+![피그마 캡처.PNG](./피그마 캡처.PNG)
 
 
 <br>
