@@ -1,6 +1,5 @@
 package ssafy.autonomous.pathfinder.domain.facility.domain
 
-import ssafy.autonomous.pathfinder.domain.facility.dto.response.FacilitySearchNeedCoordinateDto
 
 enum class FacilityCoordinate(val x: Double,val y: Double,val z:Double){
     CLASSROOM401(0.0,0.0,0.0),

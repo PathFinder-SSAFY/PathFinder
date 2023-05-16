@@ -54,6 +54,10 @@ class Facility(
                 this.densityMax += 1
         }
 
+        fun minusDensityMax(){
+                this.densityMax -= 1
+        }
+
         fun getFacilityType(): String{
                 return this.facilityType
         }

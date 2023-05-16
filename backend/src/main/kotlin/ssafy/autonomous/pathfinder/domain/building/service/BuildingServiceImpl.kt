@@ -1,5 +1,6 @@
 package ssafy.autonomous.pathfinder.domain.building.service
 
+import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import ssafy.autonomous.pathfinder.domain.building.domain.Customer
 import ssafy.autonomous.pathfinder.domain.building.dto.request.BuildingNfcRequestDto
@@ -20,6 +21,8 @@ class BuildingServiceImpl(
     private val customerRepository: CustomerRepository
 ) : BuildingService{
 
+    val logger = KotlinLogging.logger{}
+
     override fun getBuildingNfc(buildingNfcRequestDto: BuildingNfcRequestDto) : BuildingNfcResponseDto {
         // 1이 아니면 exception
         if(buildingNfcRequestDto.id != "1") throw IdNotFoundException()
@@ -38,15 +41,16 @@ class BuildingServiceImpl(
         }.toList()
 
         // (4) id 생성해서 반환
-        customerRepository.save(Customer(
-            currentLocationFacility = null
-        ))
+        val savedCustomer = customerRepository.save(Customer(currentLocationFacility = null))
+        val customerId = savedCustomer.id
 
+        logger.info("고객 ID : $customerId")
 
         return BuildingNfcResponseDto(
             beaconList = beaconList,
             mapImageUrl = imageUrlList,
-            floorsNumber = floorsNumberList
+            floorsNumber = floorsNumberList,
+            customerId = customerId
         )
     }
 
