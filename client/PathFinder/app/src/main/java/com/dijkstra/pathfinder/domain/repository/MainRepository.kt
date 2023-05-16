@@ -16,6 +16,7 @@ import retrofit2.Response
 import javax.inject.Inject
 
 private const val TAG = "MainRepository_싸피"
+
 class MainRepository @Inject constructor(
     @AppModule.OkHttpInterceptorApi private val mainApi: MainApi
 ) {
@@ -50,6 +51,21 @@ class MainRepository @Inject constructor(
             }
             emit(mainApi.postCurrnetLocation(json))
         }.flowOn(Dispatchers.IO) // End of postCurrentLocation
+
+    suspend fun patchCurrentLocation(
+        id: String,
+        currentLocation: String,
+        point: Point
+    ): Flow<Response<CurrentLocationResponse>> =
+        flow {
+            val json = JsonObject().apply {
+                addProperty("facilityName", currentLocation)
+                addProperty("x", point.x)
+                addProperty("y", point.y)
+                addProperty("z", point.z)
+            }
+            emit(mainApi.patchCurrentLocation(id, json))
+        }.flowOn(Dispatchers.IO) // End of patchCurrentLocation
 
     suspend fun postFacilityValid(destination: String): Flow<Response<SearchValidResponse>> =
         flow {

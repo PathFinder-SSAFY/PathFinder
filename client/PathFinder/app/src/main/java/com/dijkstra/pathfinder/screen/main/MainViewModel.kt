@@ -13,10 +13,7 @@ import com.dijkstra.pathfinder.data.dto.Point
 import com.dijkstra.pathfinder.data.dto.SearchValidResponse
 import com.dijkstra.pathfinder.domain.repository.MainRepository
 import com.dijkstra.pathfinder.screen.nfc_start.NFCViewModel
-import com.dijkstra.pathfinder.util.Constant
-import com.dijkstra.pathfinder.util.KalmanFilter3D
-import com.dijkstra.pathfinder.util.NetworkResult
-import com.dijkstra.pathfinder.util.trilateration
+import com.dijkstra.pathfinder.util.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.catch
@@ -41,14 +38,8 @@ class MainViewModel @Inject constructor(
     var currentLocationName = mutableStateOf("")
     var destinationLocationPoint: Point? = null
     var destinationLocationName = mutableStateOf("")
-
     var allBeaconList: List<BeaconPosition> = emptyList()
-
-    @JvmName("set")
-    fun setAllBeaconList(newBeaconList: List<BeaconPosition>) {
-        allBeaconList = newBeaconList
-    }
-
+    var userId = ""
     private val beaconManager = BeaconManager.getInstanceForApplication(application)
 
     private val region = Region(
@@ -81,9 +72,9 @@ class MainViewModel @Inject constructor(
         if (beacons.size < 3) {
             return
         } else {
-            var sortedList = beacons.sortedBy { it.distance }
+            val sortedList = beacons.sortedBy { it.distance }
             // 전체 비콘 리스트가 필요
-            var centroid = trilateration(sortedList, allBeaconList).toList()
+            val centroid = trilateration(sortedList, allBeaconList).toList()
 
             if (centroid == listOf(-9999.9, -9999.9, -9999.9)) {
                 return
@@ -113,7 +104,6 @@ class MainViewModel @Inject constructor(
             addRangeNotifier(rangeNotifier)
         }
     }
-
 
     override fun onCleared() {
         beaconManager.stopRangingBeacons(region)
@@ -210,7 +200,7 @@ class MainViewModel @Inject constructor(
                 }
         }
     } // End of postCurrentLocation
-    
+
     // ========================================== postFindHelp ==========================================
 
     private val _postFindHelpResponseSharedFlow = MutableSharedFlow<NetworkResult<Point>>(0)
@@ -238,7 +228,8 @@ class MainViewModel @Inject constructor(
                             if (help == Constant.AED) {
                                 destinationLocationName.value = application.getString(R.string.aed)
                             } else if (help == Constant.FIRE) {
-                                destinationLocationName.value = application.getString(R.string.fire_extinguisher)
+                                destinationLocationName.value =
+                                    application.getString(R.string.fire_extinguisher)
                             }
                             destinationLocationPoint = response.body()
                             _postFindHelpResponseSharedFlow.emit(
@@ -260,7 +251,8 @@ class MainViewModel @Inject constructor(
 
     // ========================================== postFacilityValid ==========================================
 
-    private val _postSearchValidResponseSharedFlow = MutableSharedFlow<NetworkResult<SearchValidResponse>>(0)
+    private val _postSearchValidResponseSharedFlow =
+        MutableSharedFlow<NetworkResult<SearchValidResponse>>(0)
     var postSearchValidResponseSharedFlow = _postSearchValidResponseSharedFlow
         private set
 
@@ -298,5 +290,53 @@ class MainViewModel @Inject constructor(
                 } // End of collectLatest
         } // End of viewModelScope
     } // End of postFacilityValid
+
+    // ========================================== patchCurrentLocation ==========================================
+    private val _patchCurrentLocationResponseSharedFlow =
+        MutableSharedFlow<NetworkResult<CurrentLocationResponse>>(0)
+    var patchCurrentLocationResponseSharedFlow = _patchCurrentLocationResponseSharedFlow
+        private set
+
+    fun patchCurrentLocation() {
+        viewModelScope.launch {
+            Log.d(
+                TAG,
+                "patchCurrentLocation: $userId, ${currentLocationName.value} ${currentLocationPoint}"
+            )
+            mainRepo.patchCurrentLocation(userId, currentLocationName.value, currentLocationPoint)
+                .onStart {
+                    _patchCurrentLocationResponseSharedFlow.emit(NetworkResult.Loading())
+                }
+                .catch { response ->
+                    Log.d(TAG, "patchCurrentLocation: $response")
+                    _patchCurrentLocationResponseSharedFlow.emit(
+                        NetworkResult.Error(
+                            null,
+                            response.message,
+                            response.cause
+                        )
+                    )
+                }
+                .collectLatest { response ->
+                    when {
+                        response.isSuccessful && response.body() != null -> {
+                            Log.d(TAG, "patchCurrentLocation: ${response.body()}")
+                            _patchCurrentLocationResponseSharedFlow.emit(
+                                NetworkResult.Success(response.body()!!)
+                            )
+                        }
+                        response.errorBody() != null -> {
+                            Log.d(TAG, "patchCurrentLocation: ${response.errorBody()}")
+                            _patchCurrentLocationResponseSharedFlow.emit(
+                                NetworkResult.Error(
+                                    response.code(),
+                                    response.message()
+                                )
+                            )
+                        }
+                    }
+                }
+        }
+    } // End of patchCurrentLocation
 
 } // End of MainViewModel class
