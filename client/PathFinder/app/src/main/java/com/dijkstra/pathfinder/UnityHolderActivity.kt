@@ -1,6 +1,5 @@
 package com.dijkstra.pathfinder
 
-import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -36,7 +35,6 @@ private const val TAG = "_ssafy"
 class UnityHolderActivity : UnityPlayerActivity(),
     SensorEventListener { // End of UnityHolderActivity
     private lateinit var textToSpeech: TextToSpeech
-
     private lateinit var sensorManager: SensorManager
     private lateinit var roationVectorSensor: Sensor
 
@@ -74,44 +72,6 @@ class UnityHolderActivity : UnityPlayerActivity(),
 
     } // End of onCreate
 
-    private fun initViewModel() {
-        viewModelProvider = ViewModelFactory()
-
-        unityViewModel = viewModelProvider.create(UnityViewModel::class.java)
-        startPosition!!.let {
-            unityViewModel.startPosition = it
-            unityViewModel.setUserCameraInfoPosition(startPosition!!)
-        }
-        goal!!.let { unityViewModel.goal = it }
-        unityViewModel.goalName = goalName
-    }
-
-    private fun initDataFromIntent() {
-        startPosition =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) intent.getParcelableExtra(
-                Constant.INTENT_START_POSITION,
-                Point::class.java
-            )
-            else intent.getParcelableExtra(Constant.INTENT_START_POSITION)
-        goal =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) intent.getParcelableExtra(
-                Constant.INTENT_GOAL_POSITION,
-                Point::class.java
-            )
-            else intent.getParcelableExtra(Constant.INTENT_GOAL_POSITION)
-        goalName = intent.getStringExtra(Constant.INTENT_GOAL_NAME) ?: ""
-
-        if (startPosition == null && goal == null) {
-            Toast.makeText(this, getString(R.string.alert_data_load_failed), Toast.LENGTH_SHORT).show()
-            finish()
-        }
-    }
-
-    private fun initRotationVectorSensor() {
-        sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
-        roationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
-    }
-
     override fun onStart() {
         super.onStart()
         coroutineScope.launch {
@@ -137,7 +97,7 @@ class UnityHolderActivity : UnityPlayerActivity(),
                             Log.d(TAG, "onStart: ${navigateNetworkResult.data}")
                             navigateNetworkResult.data?.steps?.let {
                                 pathList.clear()
-                                pathList.addAll(it.reversed())
+                                pathList.addAll(it)
                                 launch(Dispatchers.Main) {
                                     navigationPathAdapter.notifyDataSetChanged()
                                 }
@@ -170,6 +130,44 @@ class UnityHolderActivity : UnityPlayerActivity(),
         super.onStop()
         coroutineScope.cancel()
     } // End of onStop
+
+    private fun initViewModel() {
+        viewModelProvider = ViewModelFactory()
+
+        unityViewModel = viewModelProvider.create(UnityViewModel::class.java)
+        startPosition!!.let {
+            unityViewModel.startPosition = it
+            unityViewModel.setUserCameraInfoPosition(startPosition!!)
+        }
+        goal!!.let { unityViewModel.goal = it }
+        unityViewModel.goalName = goalName
+    } // End of initViewModel
+
+    private fun initDataFromIntent() {
+        startPosition =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) intent.getParcelableExtra(
+                Constant.INTENT_START_POSITION,
+                Point::class.java
+            )
+            else intent.getParcelableExtra(Constant.INTENT_START_POSITION)
+        goal =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) intent.getParcelableExtra(
+                Constant.INTENT_GOAL_POSITION,
+                Point::class.java
+            )
+            else intent.getParcelableExtra(Constant.INTENT_GOAL_POSITION)
+        goalName = intent.getStringExtra(Constant.INTENT_GOAL_NAME) ?: ""
+
+        if (startPosition == null && goal == null) {
+            Toast.makeText(this, getString(R.string.alert_data_load_failed), Toast.LENGTH_SHORT).show()
+            finish()
+        }
+    } // End of initDataFromIntent
+
+    private fun initRotationVectorSensor() {
+        sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
+        roationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
+    } // End of initRotationVectorSensor
 
     private fun initTTS() {
         textToSpeech = TextToSpeech(this) { status ->
@@ -228,7 +226,7 @@ class UnityHolderActivity : UnityPlayerActivity(),
                         ""
                     )
                 }
-            }
+            } // End of findViewById<FloatingActionButton?>(R.id.toggle_map_button).apply
 
         findViewById<Button>(R.id.navigation_finish_button).setOnClickListener {
             finish()
@@ -269,7 +267,7 @@ class UnityHolderActivity : UnityPlayerActivity(),
                             super.onScrollStateChanged(recyclerView, newState)
                         } // End of onScrollStateChanged
                     })
-            }
+            } // End of findViewById<RecyclerView>(R.id.navigation_path_recyclerview).apply
 
         findViewById<ImageView>(R.id.sound_toggle_image_view).apply {
             setOnClickListener {
@@ -293,7 +291,7 @@ class UnityHolderActivity : UnityPlayerActivity(),
                     }
                 }
             }
-        }
+        } // End of findViewById<ImageView>(R.id.sound_toggle_image_view).apply
         findViewById<ImageView>(R.id.path_refresh_image_view).setOnClickListener {
             unityViewModel.navigateUsingGoalName(
                 start = Point(
@@ -303,7 +301,7 @@ class UnityHolderActivity : UnityPlayerActivity(),
                 ),
                 goalName = unityViewModel.goalName
             )
-        }
+        } // End of findViewById<ImageView>(R.id.path_refresh_image_view).setOnClickListener
         findViewById<TextView>(R.id.goal_name_textview).text = goalName
     } // End of initUiLayout
 
@@ -376,13 +374,14 @@ class UnityHolderActivity : UnityPlayerActivity(),
 
         if (pathList.isEmpty()) return
 
-        val nextPoint = pathList.last().getNextPoint()
+        val nextPoint = pathList.first().getNextPoint()
 
-
+        Log.d(TAG, "getCameraPositionFromUnity: $args")
+        
         val distanceToNextPoint = getDistance(currentPosition, nextPoint);
         when (distanceToNextPoint) {
             in 0.0..1.0 -> {// 다음 위치에 도달한 경우
-                pathList.removeLast()
+                pathList.removeFirst()
                 when (pathList.size) {
                     0 -> { // 탐색 끝
                         textToSpeech.speak(
@@ -404,7 +403,7 @@ class UnityHolderActivity : UnityPlayerActivity(),
                     else -> {
                         when (unityViewModel.isVolumeMuted) {
                             false -> {
-                                when (pathList.last().direction) {
+                                when (pathList.first().direction) {
                                     Constant.RIGHT_TURN -> {
                                         textToSpeech.speak(
                                             getString(R.string.straight_after_turn_right),
@@ -427,20 +426,7 @@ class UnityHolderActivity : UnityPlayerActivity(),
                             true -> {
                             }
                         } // End of when(unityViewModel.isVolumeMuted)
-                        pathList.removeLast()
-                        Log.d(
-                            TAG,
-                            "next: cP : ${currentPosition}, nP: ${pathList.last().getNextPoint()}"
-                        )
-                        Log.d(
-                            TAG,
-                            "nextDistance: ${
-                                getDistance(
-                                    currentPosition,
-                                    pathList.last().getNextPoint()
-                                )
-                            }"
-                        )
+                        pathList.removeFirst()
                     } // End of else
                 } // End of when(pathList.size)
 
@@ -466,15 +452,4 @@ class UnityHolderActivity : UnityPlayerActivity(),
             }
         } // End of when(distanceToNextPoint)
     } // End of getCameraPositionFromUnity
-
-    private fun researchNavigationPath(args: String = "") {
-//        unityViewModel.navigate(
-//            Point(
-//                unityViewModel.userCameraInfo.x.toDouble(),
-//                unityViewModel.userCameraInfo.y.toDouble(),
-//                unityViewModel.userCameraInfo.z.toDouble()
-//            ),
-//            unityViewModel.goal
-//        )
-    } // End of researchNavigationPath
 } // End of UnityHolderActivity
