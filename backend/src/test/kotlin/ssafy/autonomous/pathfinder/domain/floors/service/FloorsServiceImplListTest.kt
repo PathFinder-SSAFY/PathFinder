@@ -1,20 +1,31 @@
 package ssafy.autonomous.pathfinder.domain.floors.service
 
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import ssafy.autonomous.pathfinder.domain.building.dto.request.BuildingNfcRequestDto
+import ssafy.autonomous.pathfinder.domain.building.dto.response.BuildingNfcResponseDto
+import ssafy.autonomous.pathfinder.domain.building.service.BuildingService
+import ssafy.autonomous.pathfinder.domain.facility.repository.FacilityRepository
 import ssafy.autonomous.pathfinder.domain.floors.dto.request.FloorsCurrentLocationRequestDto
-
-
-
+import ssafy.autonomous.pathfinder.domain.floors.dto.request.FloorsCurrentLocationUpdateRequestDto
 
 
 @SpringBootTest
 class FloorsServiceImplListTest @Autowired constructor(
     private var floorsService : FloorsService,
+    private var buildingService : BuildingService,
+    private var facilityRepository: FacilityRepository
 ) {
+
+    // 테스트에서 repository 사용 후, 삭제
+    @AfterEach
+    fun clean() {
+        facilityRepository.deleteAll()
+    }
 
 
     @Test
@@ -111,5 +122,40 @@ class FloorsServiceImplListTest @Autowired constructor(
 
         // then
         Assertions.assertEquals(curLocation, "4층 복도")
+    }
+
+    @Test
+    @DisplayName("시설 밀집도 증가")
+    fun 시설_밀집도_증가_함수() {
+        // given
+        val buildingNfcResponseDto : BuildingNfcResponseDto = buildingService.getBuildingNfc(BuildingNfcRequestDto("1"))
+
+        // when
+        val floorsCurrentLocation = FloorsCurrentLocationUpdateRequestDto(0.0,0.0, -9.34, "4층 대강의실")
+        // 1번 customerId가 들어간다.
+        val result = floorsService.updateCustomerLocation("1", floorsCurrentLocation)
+
+        // then
+        Assertions.assertEquals("시설 업데이트 됐습니다.", result)
+    }
+
+
+    @Test
+    @DisplayName("시설 밀집도 감소")
+    fun 시설_밀집도_감소_함수() {
+        // given
+        val buildingNfcResponseDto : BuildingNfcResponseDto = buildingService.getBuildingNfc(BuildingNfcRequestDto("1"))
+
+        // 22.24, -11.00
+        // when
+        val floorsCurrentLocation = FloorsCurrentLocationUpdateRequestDto(22.24,0.0, -11.00, "4층 대강의실")
+        // 1번 customerId가 들어간다.
+        val result = floorsService.updateCustomerLocation("1", floorsCurrentLocation)
+        val facilityLoc = facilityRepository.findByFacilityName("4층 대강의실").get()
+
+
+        // then
+        Assertions.assertEquals("시설 업데이트 됐습니다.", result)
+        Assertions.assertEquals(facilityLoc.getDensityMax(), 1)
     }
 }
