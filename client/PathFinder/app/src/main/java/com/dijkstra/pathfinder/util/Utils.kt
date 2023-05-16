@@ -72,3 +72,5 @@ fun trilateration(beacons: List<Beacon>, allBeaconList: List<BeaconPosition>): D
         doubleArrayOf(-9999.9, -9999.9, -9999.9)
     }
 }
+
+fun Double.roundDownUnityPointTwoFive(): Double = this - this * 100 % 100 % 25 / 100

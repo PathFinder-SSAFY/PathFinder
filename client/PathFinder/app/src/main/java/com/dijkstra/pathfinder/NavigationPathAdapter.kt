@@ -29,11 +29,11 @@ class NavigationPathAdapter(var pathList: MutableList<Path>) :
         val currentPath = pathList[position]
         when (currentPath.direction) {
             Constant.RIGHT_TURN -> {
-                holder.binding.navigationPathDirectionTextview.text = "우회전"
+                holder.binding.navigationPathDirectionTextview.text = holder.itemView.context.getString(R.string.turn_right)
                 holder.binding.navigationPathDirectionImageview.setImageResource(R.drawable.navigation_diriection_arrow_turn_right)
             }
             Constant.LEFT_TURN -> {
-                holder.binding.navigationPathDirectionTextview.text = "좌회전"
+                holder.binding.navigationPathDirectionTextview.text = holder.itemView.context.getString(R.string.turn_left)
                 holder.binding.navigationPathDirectionImageview.setImageResource(R.drawable.navigation_diriection_arrow_turn_left)
             }
             else -> {

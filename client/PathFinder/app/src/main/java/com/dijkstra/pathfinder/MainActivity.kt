@@ -65,7 +65,7 @@ class MainActivity : ComponentActivity() {
                 SetUpNavGraph(navController = navController)
 
 //                MainScreen(navController = navController)
-                 // startUnityLayout()
+                //startUnityLayout()
             }
         }
 
@@ -206,7 +206,7 @@ class MainActivity : ComponentActivity() {
                                 0.0,
                                 -4.00)
                             )
-                            intent.putExtra(Constant.INTENT_GOAL_NAME, "남자화장실")
+                            intent.putExtra(Constant.INTENT_GOAL_NAME, "4층 남자 화장실")
                             startActivity(intent)
                         } else {
                             btPermissionsState.launchMultiplePermissionRequest()

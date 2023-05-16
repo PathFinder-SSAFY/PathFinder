@@ -12,11 +12,10 @@ interface NavigationApi {
     @GET("findPath")
     suspend fun navigationTest(): Response<Unit>
 
-    @POST("findPath")
+    @POST("pathfinding/help")
     suspend fun navigate(@Body requestBody: JsonObject): Response<NavigationResponse>
 
-    //todo change URL
-    @POST("findPath/string")
-    suspend fun navigateByString(@Body requestBody: JsonObject): Response<NavigationResponse>
+    @POST("pathfinding/facility")
+    suspend fun navigateUsingGoalName(@Body requestBody: JsonObject): Response<NavigationResponse>
 
 }
