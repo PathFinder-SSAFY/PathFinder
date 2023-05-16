@@ -111,34 +111,6 @@ class FloorsServiceImpl(
 
     }
 
-    private fun updateFacilitiesBasedOnCustomerLocation(id: String, floorsCurrentLocationFacilityName : String): String{
-        val customer = getCustomerById(id).orElseThrow { CustomerNotFoundException() }
-        val beforeLocationFacility = customer.getCurrentLocationFacility()
-
-        // floorsCurrentLocationFacilityName와 customer 위치가 다르다면
-        // - customer 위치가 null이 아니라면, 해당 위치 시설을 조회 후 update한다.
-        if(beforeLocationFacility != floorsCurrentLocationFacilityName){
-            if(beforeLocationFacility != null){
-                // 이전 시설이 null이 아니라면 이전 시설 밀집도 -1
-                val decreasedDensityFacility = facilityService.getFacilityByFacilityName(FacilityNameRequestDto(beforeLocationFacility))
-                decreasedDensityFacility.minusDensityMax()
-                facilityQuerydslRepository.updateFacility(decreasedDensityFacility)
-            }
-
-            // 고객 위치 업데이트
-            customer.updateCurrentLocationFacility(floorsCurrentLocationFacilityName)
-            customerQuerydslRepository.updateCustomer(customer)
-
-            // 밀집도 1 증가
-            val increasedDensityFacility = facilityService.getFacilityByFacilityName(FacilityNameRequestDto(floorsCurrentLocationFacilityName))
-            increasedDensityFacility.plusDensityMax()
-            facilityQuerydslRepository.updateFacility(increasedDensityFacility)
-            return "시설 업데이트 됐습니다."
-        }
-
-        return "이전 시설 위치와 현재 시설 위치가 같습니다."
-    }
-
     private fun getCustomerById(id : String): Optional<Customer> {
         return customerRepository.findById(id.toInt())
     }
@@ -255,4 +227,34 @@ class FloorsServiceImpl(
         if(roundedValueCurX !in 0..6585 || roundedValueCurZ !in -1295 .. 0) return true
         return false
     }
+    
+    // 시설 밀집도 변경 함수
+    private fun updateFacilitiesBasedOnCustomerLocation(id: String, floorsCurrentLocationFacilityName : String): String{
+        val customer = getCustomerById(id).orElseThrow { CustomerNotFoundException() }
+        val beforeLocationFacility = customer.getCurrentLocationFacility()
+
+        // floorsCurrentLocationFacilityName와 customer 위치가 다르다면
+        // - customer 위치가 null이 아니라면, 해당 위치 시설을 조회 후 update한다.
+        if(beforeLocationFacility != floorsCurrentLocationFacilityName){
+            if(beforeLocationFacility != null){
+                // 이전 시설이 null이 아니라면 이전 시설 밀집도 -1
+                val decreasedDensityFacility = facilityService.getFacilityByFacilityName(FacilityNameRequestDto(beforeLocationFacility))
+                decreasedDensityFacility.minusDensityMax()
+                facilityQuerydslRepository.updateFacility(decreasedDensityFacility)
+            }
+
+            // 고객 위치 업데이트
+            customer.updateCurrentLocationFacility(floorsCurrentLocationFacilityName)
+            customerQuerydslRepository.updateCustomer(customer)
+
+            // 밀집도 1 증가
+            val increasedDensityFacility = facilityService.getFacilityByFacilityName(FacilityNameRequestDto(floorsCurrentLocationFacilityName))
+            increasedDensityFacility.plusDensityMax()
+            facilityQuerydslRepository.updateFacility(increasedDensityFacility)
+            return "시설 업데이트 됐습니다."
+        }
+
+        return "이전 시설 위치와 현재 시설 위치가 같습니다."
+    }
+
 }
