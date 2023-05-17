@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import ssafy.autonomous.pathfinder.domain.pathfinding.dto.Node
 import com.google.gson.Gson
 import mu.KotlinLogging
+import org.junit.jupiter.api.Assertions
 
 @SpringBootTest
 class PathFindingServiceImplTest @Autowired constructor(
@@ -40,11 +41,9 @@ class PathFindingServiceImplTest @Autowired constructor(
         )
 
         // when
-        for(nodeData in myNodes){
-            logger.info("$nodeData.x , $nodeData.y , $nodeData.z ")
-        }
-
+        val result2 = pathFindingService.findPath(start, goal)
 
         // then
+        Assertions.assertEquals(result, result2)
     }
 }
