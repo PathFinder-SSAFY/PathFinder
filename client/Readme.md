@@ -93,7 +93,7 @@ NFC와 비콘을 통해서 건물 내부의 유동인구 파악, 시간별 인�
 ## ✅ 프로젝트 파일 구조
 
 **FrontEnd**
-
+```
   │      ├─main
   │      │  ├─java
   │      │  │  └─com
@@ -139,10 +139,10 @@ NFC와 비콘을 통해서 건물 내부의 유동인구 파악, 시간별 인�
   │      └─sessions
   └─gradle
       └─wrapper
-
+```
 
 **BackEnd**
-
+```
 	src
     ├─main
     │  ├─kotlin
@@ -219,7 +219,7 @@ NFC와 비콘을 통해서 건물 내부의 유동인구 파악, 시간별 인�
                             │  └─service
                             └─floors
                                 └─service
-
+```
 
 
 <br>
