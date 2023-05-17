@@ -80,7 +80,6 @@ NFC와 비콘을 통해서 건물 내부의 유동인구 파악, 시간별 인�
 
 **BackEnd**
 
-```
 	src
     ├─main
     │  ├─kotlin
@@ -157,7 +156,7 @@ NFC와 비콘을 통해서 건물 내부의 유동인구 파악, 시간별 인�
                             │  └─service
                             └─floors
                                 └─service
-```
+
 
 
 <br>
