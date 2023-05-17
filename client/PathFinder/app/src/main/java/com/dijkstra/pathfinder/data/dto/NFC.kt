@@ -8,5 +8,6 @@ data class NFC @JvmOverloads constructor(
     var beaconList: List<BeaconPosition>?,
     var floorsNumber: List<String>?,
     var mapImageUrl: List<String>?,
-    var customerId: Int
+    var customerId: Int,
+    var compass: Int
 ) : Parcelable

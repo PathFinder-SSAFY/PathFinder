@@ -40,6 +40,7 @@ class MainViewModel @Inject constructor(
     var destinationLocationName = mutableStateOf("")
     var allBeaconList: List<BeaconPosition> = emptyList()
     var userId = ""
+    var compass = 0
     private val beaconManager = BeaconManager.getInstanceForApplication(application)
 
     private val region = Region(

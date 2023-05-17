@@ -55,6 +55,7 @@ class UnityHolderActivity : UnityPlayerActivity(),
     private var startPosition: Point? = null
     private var goal: Point? = null
     private var goalName: String = ""
+    private var compass: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -157,6 +158,7 @@ class UnityHolderActivity : UnityPlayerActivity(),
             )
             else intent.getParcelableExtra(Constant.INTENT_GOAL_POSITION)
         goalName = intent.getStringExtra(Constant.INTENT_GOAL_NAME) ?: ""
+        compass = intent.getIntExtra(Constant.INTENT_COMPASS, 0)
 
         if (startPosition == null && goal == null) {
             Toast.makeText(this, getString(R.string.alert_data_load_failed), Toast.LENGTH_SHORT).show()
@@ -307,6 +309,7 @@ class UnityHolderActivity : UnityPlayerActivity(),
     override fun onPause() {
         super.onPause()
         sensorManager.unregisterListener(this)
+        finish()
     } // End of onPause
 
     override fun onDestroy() {
@@ -327,7 +330,7 @@ class UnityHolderActivity : UnityPlayerActivity(),
         cameraPositionValidateState = event.values[1].absoluteValue in (0.0f..0.7f)
 
         orientation.forEachIndexed { index, element ->
-            orientationDeg[index] = (Math.toDegrees(element.toDouble()).toFloat() + 360 - 198) % 360
+            orientationDeg[index] = (Math.toDegrees(element.toDouble()).toFloat() + 360 - compass) % 360
         }
 
         unityViewModel.setUserCameraInfoAngle(

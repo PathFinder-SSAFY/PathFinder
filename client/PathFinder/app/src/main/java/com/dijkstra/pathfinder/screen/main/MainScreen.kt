@@ -138,6 +138,7 @@ fun MainScreen(
         )
     }
     mainViewModel.userId = Application.sharedPreferenceUtil.getUserUUID()
+    mainViewModel.compass = nfcViewModel.getNFCData.value!!.compass
 
     // MainViewModel Response State
     val patchCurrentLocationResponseSharedFlow =
@@ -145,7 +146,7 @@ fun MainScreen(
             initial = null
         )
     patchCurrentLocationResponseSharedFlow.let { networkResult ->
-        Log.d(TAG, "patchCurrent: $networkResult")
+        LaunchedEffect(key1 = networkResult) {}
     }
 
     val postFacilityDynamicResponseSharedFlow =
@@ -215,7 +216,10 @@ fun MainScreen(
                 if (!bottomSheetState.isVisible) {
                     openBottomSheet.value = false
                     val intent = Intent(context, UnityHolderActivity::class.java).apply {
-                        putExtra(Constant.INTENT_START_POSITION, mainViewModel.currentLocationPoint)
+                        putExtra(
+                            Constant.INTENT_START_POSITION,
+                            mainViewModel.currentLocationPoint
+                        )
                         putExtra(
                             Constant.INTENT_GOAL_POSITION,
                             mainViewModel.destinationLocationPoint
@@ -223,6 +227,10 @@ fun MainScreen(
                         putExtra(
                             Constant.INTENT_GOAL_NAME,
                             mainViewModel.destinationLocationName.value
+                        )
+                        putExtra(
+                            Constant.INTENT_COMPASS,
+                            mainViewModel.compass
                         )
                     }
                     context.startActivity(intent)
@@ -772,7 +780,6 @@ fun MainScreen(
                     destination = destinationLocationName.value,
                     countdownText = countdownText.value,
                     onClick = {
-                        // TODO : GO TO UNITY ACTIVITY
                         openBottomSheet.value = false
                         val intent = Intent(context, UnityHolderActivity::class.java).apply {
                             putExtra(
@@ -786,6 +793,10 @@ fun MainScreen(
                             putExtra(
                                 Constant.INTENT_GOAL_NAME,
                                 mainViewModel.destinationLocationName.value
+                            )
+                            putExtra(
+                                Constant.INTENT_COMPASS,
+                                mainViewModel.compass
                             )
                         }
                         context.startActivity(intent)
