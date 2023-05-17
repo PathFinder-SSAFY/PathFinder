@@ -56,4 +56,6 @@
     <string name="shared_preferences_util_name">path_finder_pref</string>
     <string name="user_uuid">user_uuid</string>
 
+    <string name="logout">LOG OUT</string>
+
 </resources>

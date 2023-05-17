@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dijkstra.pathfinder.R
@@ -46,14 +47,12 @@ fun LoginScreen(
                 contentDescription = "Naver Login Button",
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.clickable {
-                    Log.d("SDR_CLICK", "LoginScreen: click")
                     viewModel.startNaverLogin(context)
                 }
             )
             Text(
-                text = "LOGOUT",
+                text = stringResource(id = R.string.logout),
                 modifier = Modifier.clickable {
-                    Log.d("SDR_CLICK", "LoginScreen: logout")
                     viewModel.startNaverLogout()
                 }
             )

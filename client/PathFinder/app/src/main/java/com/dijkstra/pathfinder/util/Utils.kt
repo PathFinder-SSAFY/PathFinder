@@ -51,7 +51,6 @@ fun trilateration(beacons: List<Beacon>, allBeaconList: List<BeaconPosition>): D
     beacons.forEach { beacon ->
         // Use the map to get the corresponding Coordinate for the beacon ID
         val tempCoord = beaconPositionMap[beacon.id3.toInt()] ?: run {
-            Log.d(TAG, "No matching beacon position found for ID: ${beacon.id3.toInt()}")
             return@forEach
         }
 

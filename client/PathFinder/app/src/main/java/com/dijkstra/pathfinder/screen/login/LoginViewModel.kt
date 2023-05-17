@@ -36,9 +36,6 @@ class LoginViewModel() : ViewModel() {
         val naverLoginCallback = object : NidProfileCallback<NidProfileResponse> {
             override fun onSuccess(result: NidProfileResponse) {
                 val userId = result.profile
-                Log.d(TAG, "onSuccess: ${userId?.id}")
-                Log.d(TAG, "onSuccess: ${userId?.email}")
-                Log.d(TAG, "onSuccess: ${userId}")
             }
 
             override fun onFailure(httpStatus: Int, message: String) {
@@ -55,13 +52,6 @@ class LoginViewModel() : ViewModel() {
             override fun onSuccess() {
                 naverToken.value = NaverIdLoginSDK.getAccessToken() ?: ""
                 loginStatus.value = true
-
-                Log.d(TAG, "AccessToken: ${NaverIdLoginSDK.getAccessToken()}")
-                Log.d(TAG, "RefreshToken: ${NaverIdLoginSDK.getRefreshToken()}")
-                Log.d(TAG, "Expires: ${NaverIdLoginSDK.getExpiresAt()}")
-                Log.d(TAG, "Type: ${NaverIdLoginSDK.getTokenType()}")
-                Log.d(TAG, "State: ${NaverIdLoginSDK.getState()}")
-
                 //로그인 유저 정보 가져오기
                 NidOAuthLogin().callProfileApi(naverLoginCallback)
             }
@@ -99,4 +89,4 @@ class LoginViewModel() : ViewModel() {
     }
 
 
-}
+} // End of LoginViewModel
