@@ -47,10 +47,21 @@ NFC와 비콘을 통해서 건물 내부의 유동인구 파악, 시간별 인�
 
 
 **Back End**
-
+- Kotlin
+- Spring boot
+- JPA DATA
+- Querydsl
+- MySQL
+- Swagger
+- Spring Security
+- Oauth
 
 **CI/CD**
-
+- Docker 
+- Docker hub
+- Ec2
+- Nginx
+- Jenkins
 
 **AR**
 - Unity
