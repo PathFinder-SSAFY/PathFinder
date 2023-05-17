@@ -6,5 +6,6 @@ data class BuildingNfcResponseDto(
     val beaconList: List<Beacon>,
     val mapImageUrl: List<String>,
     val floorsNumber: List<String>,
-    val customerId: Int
+    val customerId: Int,
+    val compass: Int
 )

@@ -50,7 +50,8 @@ class BuildingServiceImpl(
             beaconList = beaconList,
             mapImageUrl = imageUrlList,
             floorsNumber = floorsNumberList,
-            customerId = customerId
+            customerId = customerId,
+            compass = 198
         )
     }
 
