@@ -80,7 +80,84 @@ NFC와 비콘을 통해서 건물 내부의 유동인구 파악, 시간별 인�
 
 **BackEnd**
 
-
+```
+	src
+    ├─main
+    │  ├─kotlin
+    │  │  └─ssafy
+    │  │      └─autonomous
+    │  │          └─pathfinder
+    │  │              ├─domain
+    │  │              │  ├─administrator
+    │  │              │  │  ├─domain
+    │  │              │  │  ├─dto
+    │  │              │  │  │  └─baseEntities
+    │  │              │  │  └─repository
+    │  │              │  ├─auth
+    │  │              │  │  ├─controller
+    │  │              │  │  ├─dto
+    │  │              │  │  │  ├─request
+    │  │              │  │  │  └─response
+    │  │              │  │  ├─exception
+    │  │              │  │  ├─filter
+    │  │              │  │  ├─oauth
+    │  │              │  │  ├─security
+    │  │              │  │  └─service
+    │  │              │  ├─building
+    │  │              │  │  ├─controller
+    │  │              │  │  ├─domain
+    │  │              │  │  ├─dto
+    │  │              │  │  │  ├─request
+    │  │              │  │  │  └─response
+    │  │              │  │  ├─exception
+    │  │              │  │  ├─repository
+    │  │              │  │  └─service
+    │  │              │  ├─facility
+    │  │              │  │  ├─controller
+    │  │              │  │  ├─domain
+    │  │              │  │  ├─dto
+    │  │              │  │  │  ├─request
+    │  │              │  │  │  └─response
+    │  │              │  │  ├─exception
+    │  │              │  │  ├─repository
+    │  │              │  │  └─service
+    │  │              │  ├─floors
+    │  │              │  │  ├─controller
+    │  │              │  │  ├─domain
+    │  │              │  │  ├─dto
+    │  │              │  │  │  └─request
+    │  │              │  │  ├─exception
+    │  │              │  │  ├─repository
+    │  │              │  │  └─service
+    │  │              │  ├─occupancy
+    │  │              │  │  └─domain
+    │  │              │  └─pathfinding
+    │  │              │      ├─controller
+    │  │              │      ├─dto
+    │  │              │      └─service
+    │  │              ├─global
+    │  │              │  ├─common
+    │  │              │  │  └─response
+    │  │              │  ├─config
+    │  │              │  └─util
+    │  │              └─test
+    │  │                  └─controller
+    │  └─resources
+    └─test
+        └─kotlin
+            └─ssafy
+                └─autonomous
+                    └─pathfinder
+                        └─domain
+                            ├─auth
+                            │  └─service
+                            ├─building
+                            │  └─service
+                            ├─facility
+                            │  └─service
+                            └─floors
+                                └─service
+```
 
 
 <br>
