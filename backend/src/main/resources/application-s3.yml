@@ -1,0 +1,12 @@
+cloud:
+  aws:
+    s3:
+      bucket: d206-buket
+    credentials:
+      access-key: AKIATDJTP4PXPSKFZFBH
+      secret-key: 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
+    region:
+      static: ap-northeast-2
+      auto: false
+    stack:
+      auto: false

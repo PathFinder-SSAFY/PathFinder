@@ -1,0 +1,11 @@
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher # Spring Boot 2.6.x 버전과 Swagger 3.x.x 버전 사이의 호환
+
+
+# swagger url 변경
+#springfox:
+#  documentation:
+#    swagger-ui:
+#      path: /swagger
