@@ -50,7 +50,7 @@ NFC와 비콘을 통해서 건물 내부의 유동인구 파악, 시간별 인�
 - _최적의 경로를 찾을 때는 A*알고리즘을 활용하여 출발지에서 목적지까지 가장 빠른 경로를 탐색하여 알려줍니다._
 - _현재 위치는 Beacon과 Unity를 통해서 건물내부에서 본인의 위치를 알 수 있도록 개발했습니다._
 
-![NFC & Beacon.jpg](./NFC & Beacon.jpg)
+![NFC & Beacon.jpg](image/NFC & Beacon.jpg)
 
 <br>
 
@@ -273,7 +273,7 @@ NFC와 비콘을 통해서 건물 내부의 유동인구 파악, 시간별 인�
 
 ## ✅ Figma
 
-![피그마 캡처.PNG](./피그마 캡처.PNG)
+![피그마 캡처.PNG](image/피그마 캡처.PNG)
 
 
 <br>
@@ -281,9 +281,9 @@ NFC와 비콘을 통해서 건물 내부의 유동인구 파악, 시간별 인�
 ---
 ## ✅ API 개발
 
-![notion_api.png](./notion_api.png)
+![notion_api.png](image/notion_api.png)
 
-![notion_api2.png](./notion_api2.png)
+![notion_api2.png](image/notion_api2.png)
 
 <br>
 
@@ -291,12 +291,12 @@ NFC와 비콘을 통해서 건물 내부의 유동인구 파악, 시간별 인�
 ## 😎 우리는요
 
 ### FrontEnd
-![fontend_member_img.png](./fontend_member_img.png)
+![fontend_member_img.png](image/fontend_member_img.png)
 
 <br>
 
 ### BackEnd
-![backend_member_img.png.png](./backend_member_img.png.png)
+![backend_member_img.png.png](image/backend_member_img.png.png)
 
 
 <br>
@@ -304,36 +304,36 @@ NFC와 비콘을 통해서 건물 내부의 유동인구 파악, 시간별 인�
 
 ## ✅ 시연 시나리오
 
-![splash.gif](./splash.gif)
+![splash.gif](image/splash.gif)
 - 제일 처음 앱을 실행하면 스플래쉬 화면이 뜹니다.
 - 3초의 시간이 지난 후 NFC 인증 화면으로 연결됩니다.
 
 
-![NFC.gif](./NFC.gif)
+![NFC.gif](image/NFC.gif)
 - 휴대폰에 NFC 태그를 접촉합니다
 - 올바른 NFC 태그가 접촉됐을 시 메인 화면으로 연결됩니다.
 
 
-![authorize.gif](./authorize.gif)
+![authorize.gif](image/authorize.gif)
 - 메인 화면에 처음으로 연결 됬을 시, 권한 요청 알림이 나옵니다
 - 확인을 누르면 메인화면으로 연결됩니다.
 
 
-![목적지검색.gif](./목적지검색.gif)
+![목적지검색.gif](image/목적지검색.gif)
 - 상단 검색 바를 클릭하여 목적지 검색을 할 수 있습니다.
 - 목적지 검색은 유사 단어를 기준으로 자주 검색 된 순으로 정렬되어 보여집니다.
 
 
-![STT.gif](./STT.gif)
+![STT.gif](image/STT.gif)
 - 상단 검색 바의 마이크 버튼을 누르면 음성으로 검색이 가능합니다.
 
 
-![emergency.gif](./emergency.gif)
+![emergency.gif](image/emergency.gif)
 - 메인 화면 좌측 하단의 비상 버튼을 누르면 심장 제세동기 그리고 소화기 안내창이 뜹니다.
 - 안내 버튼을 클릭 할 시 현재 위치에서 가장 가까운 장소로 안내를 해줍니다.
 
 
-![시연1.gif](./시연1.gif)
+![시연1.gif](image/시연1.gif)
 - 안내 버튼을 누르면 안내 화면으로 넘어갑니다
 - 카메라를 통해 목적지까지 AR로 안내합니다.
 - 화면 하단 바텀업 시트에는 목적지까지 가는 네비게이트 기능을 제공합니다.
@@ -341,7 +341,7 @@ NFC와 비콘을 통해서 건물 내부의 유동인구 파악, 시간별 인�
 - 또한, 음성 안내 서비스도 제공합니다.  
 
 
-![시연2.gif](./시연2.gif)
+![시연2.gif](image/시연2.gif)
 -
 - 빨간 색 핀은 목적지 위치를 나타냅니다.
 
