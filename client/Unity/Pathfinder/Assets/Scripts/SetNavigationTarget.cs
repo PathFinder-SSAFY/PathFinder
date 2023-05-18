@@ -95,11 +95,17 @@ public class SetNavigationTarget : MonoBehaviour
     {
         Vector3 arCameraPosition = arSessionOrigin.transform.position - controlPoint.transform.position
             + new Vector3(
-                arSessionOrigin.camera.transform.localPosition.z,
+                arSessionOrigin.camera.transform.localPosition.x,
                 0,
-                -arSessionOrigin.camera.transform.localPosition.x
+                arSessionOrigin.camera.transform.localPosition.z
                 );
-            
+        /*
+         * + new Vector3(
+            arSessionOrigin.camera.transform.localPosition.z,
+            0,
+            -arSessionOrigin.camera.transform.localPosition.x
+            );
+         */
         String result = "{ " +
             "\"x\": " + arCameraPosition.x + "," +
             "\"y\": " + 0 + "," +
