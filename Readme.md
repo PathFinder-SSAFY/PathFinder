@@ -296,7 +296,7 @@ NFC와 비콘을 통해서 건물 내부의 유동인구 파악, 시간별 인�
 <br>
 
 ### BackEnd
-![backend_member_img.png.png](image/backend_member_img.png.png)
+![backend_member_img.png.png](image/backend_member_img.png)
 
 
 <br>
