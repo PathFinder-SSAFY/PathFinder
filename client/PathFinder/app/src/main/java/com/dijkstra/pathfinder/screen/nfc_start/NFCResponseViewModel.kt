@@ -7,11 +7,10 @@ import com.dijkstra.pathfinder.data.dto.NFC
 import com.dijkstra.pathfinder.domain.repository.NFCRepository
 import com.dijkstra.pathfinder.util.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.net.UnknownHostException
 import javax.inject.Inject
 
 private const val TAG = "NFCResponseViewModel_싸피"
@@ -30,12 +29,28 @@ class NFCResponseViewModel @Inject constructor(
         viewModelScope.launch {
             nfcRepo.postNFCId(nfcId).onStart {
                 _postNFCIdResponseSharedFlow.emit(NetworkResult.Loading())
+            }.onCompletion {
+                Log.d(TAG, "postNFCId onCompletion{} : 여기는 언제 실행됨?")
             }.catch {
                 _postNFCIdResponseSharedFlow.emit(
                     NetworkResult.Error(
                         null, it.message, it.cause
                     )
                 )
+            }.retryWhen { cause, attempt ->
+                when(cause) {
+                    is UnknownHostException -> {
+                        false
+                    }
+
+                    is HttpException -> {
+
+                    }
+
+                    else -> retry
+                }
+
+                true
             }.collectLatest { result ->
                 Log.d(TAG, "postNFCId: ${result.message()}")
                 Log.d(TAG, "postNFCId result.body(): ${result.body()}")
